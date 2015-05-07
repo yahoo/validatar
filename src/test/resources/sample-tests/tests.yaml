@@ -1,0 +1,36 @@
+---
+name: Validatar Example
+description: Simple tests for some data
+queries:
+   - name: PL
+     engine: hive
+     value: "SELECT SUM(CASE WHEN is_page_view = true THEN 1 ELSE 0 END) AS pv_count,
+                    SUM(CASE WHEN is_logged_in = true THEN 1 ELSE 0 END) as logged_in_count
+             FROM hourly_data TABLESAMPLE(0.1 percent)
+             WHERE dt=${DATE}"
+   - name: XY
+     engine: hive
+     value: "SELECT SUM(CASE WHEN x = true THEN 1 ELSE 0 END) AS x_count,
+                    SUM(CASE WHEN y = true THEN 1 ELSE 0 END) as y_count
+             FROM sample_data TABLESAMPLE(0.1 percent)
+             WHERE dt=${DATE}"
+   - name: TEST
+     engine: Hive
+     value: "TEST ${DATE}"
+tests:
+   - name: Pageview and logged in
+     description: Pageview and logged in events are present, and correct relationships.
+     asserts:
+        - PL.pv_count > 10000
+        - PL.logged_in_count < PL>pv_count
+        - PL.pv_count !=0 && PL.logged_in_count != 0
+   - name: Second query
+     description: Long description of the second query
+     asserts:
+        - XY.x > 100
+        - XY.y < 500
+        - XY.y < XY.x
+   - name: Third query
+     description: Long description of the third query
+     asserts:
+...

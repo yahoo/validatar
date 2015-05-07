@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<testsuites>
+  <testsuite tests="2" name="Do nothing">
+    <testcase name="ALPHA"/>
+    <testcase name="Checking alpha"/>
+  </testsuite>
+  <testsuite tests="4" name="Simple examples">
+    <testcase name="ALPHA"/>
+    <testcase name="BETA"/>
+    <testcase name="Checking alpha"/>
+    <testcase name="Checking beta">
+      <failed>Description: Long description of the second query; Failed asserts: Sample fail message,</failed>
+    </testcase>
+  </testsuite>
+  <testsuite tests="6" name="Validatar Example">
+    <testcase name="PL"/>
+    <testcase name="XY"/>
+    <testcase name="TEST"/>
+    <testcase name="Pageview and logged in"/>
+    <testcase name="Second query"/>
+    <testcase name="Third query"/>
+  </testsuite>
+</testsuites>

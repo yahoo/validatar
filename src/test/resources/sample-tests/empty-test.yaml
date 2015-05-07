@@ -1,0 +1,13 @@
+---
+name: Do nothing
+description: Do nothing
+queries:
+   - name: ALPHA
+     engine: hive
+     value: "SELECT 1 as ONE"
+tests:
+   - name: Checking alpha
+     description: Looks at count output.
+     asserts:
+        - ALPHA.ONE == 1
+...

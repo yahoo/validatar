@@ -1,0 +1,24 @@
+---
+name: Simple examples
+description: Simple tests for Validatar.
+queries:
+   - name: ALPHA
+     engine: hive
+     value: "SELECT COUNT(1) as count
+             FROM hourly_data
+             WHERE dt=${DATE}"
+   - name: BETA
+     engine: hive
+     value: "SELECT SUM(CASE WHEN y = true THEN 1 ELSE 0 END) as y_count
+             FROM sample_data TABLESAMPLE(0.1 percent)
+             WHERE dt=${DATE}"
+tests:
+   - name: Checking alpha
+     description: Looks at count output.
+     asserts:
+        - ALPHA.count > 10000
+   - name: Checking beta
+     description: Long description of the second query
+     asserts:
+        - BETA.y < 500
+...
