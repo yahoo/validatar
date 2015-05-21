@@ -1,6 +1,6 @@
 # Validatar
 
-Functional testing framework for Big Data pipelines supporting different execution engines. Current support is only for Hive, but we are planning support for Pig as well as others.
+Functional testing framework for Big Data pipelines. Current support is only for Hive, but we are planning support for Pig as well as others.
 
 ## How to build Validatar
 
