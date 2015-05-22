@@ -136,4 +136,7 @@
     <version>0.9.9-RC1</version>
   </dependency>
 </dependencies>
+<properties>
+  <maven.deploy.skip>true</maven.deploy.skip>
+</properties>
 </project>
