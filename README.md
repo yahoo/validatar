@@ -1,6 +1,6 @@
 # Validatar
 
-[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar)
+[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master)
 
 Functional testing framework for Big Data pipelines. Current support is only for Hive, but we are planning support for Pig as well as others.
 
