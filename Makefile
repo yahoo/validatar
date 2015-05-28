@@ -7,5 +7,8 @@ test:
 jar:
 	mvn clean package
 
+release:
+	mvn release:prepare release:clean
+
 full:
 	mvn clean checkstyle:check cobertura:cobertura javadoc:jar package
