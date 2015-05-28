@@ -1,6 +1,6 @@
 # Validatar
 
-[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master)
+[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
 
 Functional testing framework for Big Data pipelines. Current support is only for Hive, but we are planning support for Pig as well as others.
 
@@ -72,7 +72,7 @@ You may want queries that use a specific date column, or similar changing parame
 Simply pass `--parameter KEY=VALUE` in the CLI and the `KEY` will be replaced with `VALUE` in all queries. For example, to query June 23rd 2015, you could use `--parameter DATE=2015-06-23`. If the query uses `${DATE}` in the query it will be replaced before execution with `2015-06-23`.
 
 ## Members
-Akshai Sarma, akshaisarma@gmail.com  
+Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
 
 ## Contributors
