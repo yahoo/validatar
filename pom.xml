@@ -6,12 +6,12 @@
 <groupId>com.yahoo.validatar</groupId>
 <artifactId>validatar</artifactId>
 <packaging>jar</packaging>
-<version>0.1.4-SNAPSHOT</version>
+<version>0.1.4</version>
 <name>validatar</name>
 <url>http://maven.apache.org</url>
 <scm>
   <developerConnection>scm:git:ssh://git@github.com/yahoo/validatar.git</developerConnection>
-  <tag>HEAD</tag>
+  <tag>validatar-0.1.4</tag>
 </scm>
 
 <distributionManagement>
