@@ -14,6 +14,12 @@
   <tag>HEAD</tag>
 </scm>
 
+<distributionManagement>
+  <repository>
+  <id>bintray-validatar-repo</id>
+  <url>https://api.bintray.com/maven/yahoo/maven/validatar;publish=1</url>
+  </repository>
+</distributionManagement>
 
 <build>
   <plugins>

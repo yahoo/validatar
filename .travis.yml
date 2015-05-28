@@ -1,6 +1,16 @@
 language: java
+
+jdk:
+- oraclejdk7
+
 after_success:
-- mvn clean cobertura:cobertura coveralls:report
+- mvn clean cobertura:cobertura coveralls:report javadoc:jar
+- test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" != "" && mvn deploy --settings travis/settings.xml
+
+branches:
+  only:
+  - master
+
 env:
   global:
   - secure: FoNi9eTcYU0cPX+BknmUuqmlb8jhcNe7s1Yanuf5vRlx0CulV+jlnySBV5CAE2f0kksZJ3ieWb7oKVSC27T4K5lIOleZC1oiR1KDfZigOdon6+9EVCezw401rQj+rLOOMbJUZ1iAgPmJW+HnMuDPZ7A/6s4C3AXJriqLhG4fp0j+KQH87QOOY/ZVHjMJbGGYjtrF5NECDFCkNSnaxaYD6U1VANo6OmUhDvJJ1vqUxElH7e57E4eVzulige94La+x1PmViogdYfVbBIrg3e5kQNwLlBAXTJEAqwP/Y67LQnWhCHkqe49kZFd1A8LgZWReM/IJrdUlL++/r/bZIf5GvVgBIH+p0HI3dcvNA0puya/RsQbQ+BUss9/uhEC8W6mjRFJ9ZEqKCojS48jnuJkrcY2C3H3y8cUyoAceAzdogYSeIV7eZbM/Lf72SlJc9/+cVVtWb99zWCQU7XHbDYl9qIGylVB1rnkGOWSzjpfhytueiFLqQAN3U+E9W6Wvx27fdbjmzAsr/Y0BiGMbqpNJiaH/1wmzQPSgle452LCa27B41SvtRKg9knxWbSZ5F/nkVQvRSLKleEpTPnJYZ3zlqzQ2rXX6vSU+TmpjXAU+0hO4fmQlx02kKOLIvOBvssM9b7kyqSqUv8aSjBrDEOQNOZrbg+dMMljZg2PAWVCQUIw=

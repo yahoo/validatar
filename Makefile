@@ -8,4 +8,4 @@ jar:
 	mvn clean package
 
 full:
-	mvn clean checkstyle:check cobertura:cobertura javadoc:javadoc package
+	mvn clean checkstyle:check cobertura:cobertura javadoc:jar package
