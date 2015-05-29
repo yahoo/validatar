@@ -8,7 +8,7 @@
 <packaging>jar</packaging>
 <version>0.1.5-SNAPSHOT</version>
 <name>validatar</name>
-<url>http://maven.apache.org</url>
+<url>https://github.com/yahoo/validatar</url>
 <scm>
   <developerConnection>scm:git:ssh://git@github.com/yahoo/validatar.git</developerConnection>
   <tag>HEAD</tag>
