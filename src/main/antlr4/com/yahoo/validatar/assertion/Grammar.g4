@@ -39,6 +39,12 @@ import java.util.HashMap;
         return result;
     }
 
+    private Object getColumnType(String name) {
+        String result = row.get(name);
+        lookedUpValues.put(name, result);
+        return result;
+    }
+
     private String stripQuotes(String literal) {
         return literal.substring(1, literal.length() - 1);
     }

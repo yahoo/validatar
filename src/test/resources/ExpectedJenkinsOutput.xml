@@ -10,7 +10,7 @@
     <testcase name="BETA"/>
     <testcase name="Checking alpha"/>
     <testcase name="Checking beta">
-      <failed>Description: Long description of the second query; Failed asserts: Sample fail message,</failed>
+      <failed>Description: Long description of the second query; Failed asserts: Sample fail message</failed>
     </testcase>
   </testsuite>
   <testsuite tests="6" name="Validatar Example">

@@ -18,46 +18,8 @@ package com.yahoo.validatar.common;
 
 import java.util.List;
 
-public class Test {
+public class Test extends Metadata {
     public String name;
     public String description;
     public List<String> asserts;
-
-    private boolean failed;
-    private String failedAssertMessage;
-
-    /**
-     * Get the message for the failure.
-     */
-    public String getFailedAssertMessage() {
-        return failedAssertMessage;
-    }
-
-    /**
-     * Set the failure message.
-     */
-    public void setFailedAssertMessage(String failedAssertMessage) {
-        this.failedAssertMessage = failedAssertMessage;
-    }
-
-    /**
-     * Set the test to be failed.
-     */
-    public void setTestFailed() {
-        this.failed = true;
-    }
-
-    /**
-     * Set the test to be success.
-     */
-    public void setTestSuccess() {
-        this.failed = false;
-    }
-
-    /**
-     * True if the test failed.
-     */
-    public boolean failed() {
-        return failed == true;
-    }
 }

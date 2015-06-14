@@ -19,35 +19,19 @@ package com.yahoo.validatar.common;
 import java.util.Map;
 import java.util.List;
 
-public class Query {
+public class Query extends Metadata {
     public String name;
     public String engine;
     public String value;
 
-    private boolean failed = false;
-    private String failedMessage = null;
     private Map<String, List<String>> results = null;
 
     /**
-     * Get the failure message.
-     */
-    public String getFailedMessage() {
-        return failedMessage;
-    }
-
-    /**
-     * True if the query failed.
-     */
-    public boolean failed() {
-        return failed;
-    }
-
-    /**
-     * Set the failure message and mark as failure.
+     * Add a failure message and mark as failed.
      */
     public void setFailure(String failedMessage) {
-        failed = true;
-        this.failedMessage = failedMessage;
+        setFailed();
+        addMessage(failedMessage);
     }
 
     /**

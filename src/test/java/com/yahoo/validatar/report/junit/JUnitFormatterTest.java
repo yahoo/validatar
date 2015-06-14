@@ -62,8 +62,8 @@ public class JUnitFormatterTest {
             test = testSuites.get(1).tests.get(1);
         }
 
-        test.setTestFailed();
-        test.setFailedAssertMessage("Sample fail message");
+        test.setFailed();
+        test.addMessage("Sample fail message");
 
         // Generate the test report file
         String[] args = {"--report-file", "target/JenkinsOutputTest.xml"};

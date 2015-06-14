@@ -62,7 +62,7 @@ public class JUnitFormatter implements Formatter {
     }
 
     /**
-     * TODO document.
+     * Writes out the report for the given testSuites in the JUnit XML format.
      */
     @Override
     public void writeReport(List<TestSuite> testSuites) throws IOException {
@@ -80,20 +80,17 @@ public class JUnitFormatter implements Formatter {
                 Element queryNode = testSuiteRoot.addElement("testcase")
                                                  .addAttribute("name", query.name);
                 if (query.failed()) {
-                    String failureMessage = query.getFailedMessage();
-                    queryNode.addElement("failed")
-                             .addText(failureMessage);
+                    String failureMessage = StringUtils.join(query.getMessages(), ", ");
+                    queryNode.addElement("failed").addText(failureMessage);
                 }
             }
             for (Test test: testSuite.tests) {
-                Element testNode = testSuiteRoot.addElement("testcase")
-                                                .addAttribute("name", test.name);
+                Element testNode = testSuiteRoot.addElement("testcase").addAttribute("name", test.name);
                 if (test.failed()) {
-                    String failedAsserts = StringUtils.join(test.getFailedAssertMessage(), ", ");
+                    String failedAsserts = StringUtils.join(test.getMessages(), ", ");
                     String failureMessage = "Description: " + test.description + ";\n" +
                                             "Failed asserts: " + failedAsserts + "\n";
-                    testNode.addElement("failed")
-                            .addText(failureMessage);
+                    testNode.addElement("failed").addText(failureMessage);
                 }
             }
         }

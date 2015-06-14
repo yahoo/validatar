@@ -41,6 +41,7 @@ public class Assertor {
     }
 
     private static Map<String, String> getAsOneEntry(Map<String, List<String>> data) {
+        // IMPORTANT!
         // Only interpreting as a single row result set. Temporary, will re-enable later
         Map<String, String> row = new HashMap<String, String>();
         for (Map.Entry<String, List<String>> e : data.entrySet()) {
@@ -54,8 +55,8 @@ public class Assertor {
 
         // Check for invalid input
         if (assertions == null || assertions.size() == 0) {
-            test.setTestFailed();
-            test.setFailedAssertMessage("NULL assertion! : No assertion was provided!");
+            test.setFailed();
+            test.addMessage("NULL assertion! : No assertion was provided!");
             return;
         }
 
@@ -72,13 +73,13 @@ public class Assertor {
             GrammarParser parser = new GrammarParser(tokens);
             parser.setCurrentRow(row);
             if (!parser.expression().value) {
-                test.setTestFailed();
-                test.setFailedAssertMessage(assertion + " : False for these values " + parser.getLookedUpValues());
+                test.setFailed();
+                test.addMessage(assertion + " was false for these values " + parser.getLookedUpValues());
             }
         } catch (Exception e) {
             String message = e.toString();
-            test.setTestFailed();
-            test.setFailedAssertMessage(assertion + " : " + e.toString());
+            test.setFailed();
+            test.addMessage(assertion + " : " + e.toString());
         }
     }
 }

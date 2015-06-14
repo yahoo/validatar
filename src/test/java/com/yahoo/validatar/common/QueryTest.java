@@ -16,9 +16,6 @@
 
 package com.yahoo.validatar.common;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +30,8 @@ public class QueryTest {
         Query query = new Query();
 
         query.setFailure("sample message");
-        Assert.assertEquals(query.getFailedMessage(), "sample message");
+        Assert.assertEquals(query.getMessages().size(), 1);
+        Assert.assertEquals(query.getMessages().get(0), "sample message");
 
         Assert.assertTrue(query.failed());
     }
