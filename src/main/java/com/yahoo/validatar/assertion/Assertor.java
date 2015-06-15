@@ -17,6 +17,7 @@
 package com.yahoo.validatar.assertion;
 
 import com.yahoo.validatar.common.Test;
+import com.yahoo.validatar.common.Result;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,21 +31,21 @@ public class Assertor {
      * Takes a Map of column names to column values and list of asserts and performs the assertions
      * and places the results into the tests.
      *
-     * @param results The results of the queries.
+     * @param results A Result object containing the results of the queries.
      * @param tests List<Test> using these columns
      */
-    public static void assertAll(Map<String, List<String>> columns, List<Test> tests) {
-        Map<String, String> singleRowColumns = getAsOneEntry(columns);
+    public static void assertAll(Result results, List<Test> tests) {
+        Map<String, String> singleRowColumns = getAsOneEntry(results);
         for (Test test : tests) {
             assertOneTest(singleRowColumns, test);
         }
     }
 
-    private static Map<String, String> getAsOneEntry(Map<String, List<String>> data) {
+    private static Map<String, String> getAsOneEntry(Result results) {
         // IMPORTANT!
         // Only interpreting as a single row result set. Temporary, will re-enable later
         Map<String, String> row = new HashMap<String, String>();
-        for (Map.Entry<String, List<String>> e : data.entrySet()) {
+        for (Map.Entry<String, List<String>> e : results.data.entrySet()) {
             row.put(e.getKey(), e.getValue().get(0));
         }
         return row;

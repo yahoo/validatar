@@ -119,10 +119,10 @@ public class App {
         }
 
         // Get the data
-        List<Result> data = new ArrayList<Result>();
+        Result data = new Result();
         for (TestSuite suite : suites) {
             for (Query query : suite.queries) {
-                data.add(query.getResult());
+                data.merge(query.getResult());
             }
         }
 

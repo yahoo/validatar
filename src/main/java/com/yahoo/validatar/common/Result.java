@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Result {
-    public Map<String, List<String>> columnData = new HashMap<>();
-    public Map<String, TypeSystem.Type> columnTypes = new HashMap<>();
+    public Map<String, List<String>> data = new HashMap<>();
+    public Map<String, TypeSystem.Type> types = new HashMap<>();
     private String prefix = "";
 
     /**
@@ -35,13 +35,28 @@ public class Result {
     }
 
     /**
+     * Default constructor with no prefix.
+     */
+    public Result() {
+    }
+
+    /**
      * Add a new column to the result.
      * @param name The name of the column.
      * @param type The type of the column.
      */
     public void addColumn(String name, TypeSystem.Type type) {
-        columnData.put(prefix + name, new ArrayList<String>());
-        columnTypes.put(prefix + name, type);
+        data.put(prefix + name, new ArrayList<String>());
+        types.put(prefix + name, type);
+    }
+
+    /**
+     * Merge another result into this. Collision in names is not handled.
+     * @param result. The result to merge with.
+     */
+    public void merge(Result result) {
+        data.putAll(result.data);
+        types.putAll(result.types);
     }
 
     /**
@@ -50,7 +65,7 @@ public class Result {
      * @param value The value to add to it.
      */
     public void addColumnRow(String name, String value) {
-        columnData.get(prefix + name).add(value);
+        data.get(prefix + name).add(value);
     }
 
     /**
@@ -60,9 +75,9 @@ public class Result {
      */
     public void namespace(String prefix) {
         Map<String, List<String>> namespacedResults = new HashMap<String, List<String>>();
-        for (Map.Entry<String, List<String>> column : columnData.entrySet()) {
+        for (Map.Entry<String, List<String>> column : data.entrySet()) {
             namespacedResults.put(prefix + column.getKey(), column.getValue());
         }
-        columnData = namespacedResults;
+        data = namespacedResults;
     }
 }
