@@ -19,6 +19,7 @@ package com.yahoo.validatar;
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.execution.EngineManager;
 import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.assertion.Assertor;
@@ -118,10 +119,10 @@ public class App {
         }
 
         // Get the data
-        Map<String, List<String>> data = new HashMap<String, List<String>>();
+        List<Result> data = new ArrayList<Result>();
         for (TestSuite suite : suites) {
             for (Query query : suite.queries) {
-                data.putAll(query.getResults());
+                data.add(query.getResult());
             }
         }
 

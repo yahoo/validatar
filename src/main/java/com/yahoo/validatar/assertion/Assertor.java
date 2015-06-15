@@ -30,7 +30,7 @@ public class Assertor {
      * Takes a Map of column names to column values and list of asserts and performs the assertions
      * and places the results into the tests.
      *
-     * @param columns Column name to Column values
+     * @param results The results of the queries.
      * @param tests List<Test> using these columns
      */
     public static void assertAll(Map<String, List<String>> columns, List<Test> tests) {

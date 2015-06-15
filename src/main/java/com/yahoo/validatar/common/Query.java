@@ -16,15 +16,14 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.Map;
-import java.util.List;
-
 public class Query extends Metadata {
     public String name;
     public String engine;
     public String value;
 
-    private Map<String, List<String>> results = null;
+    public static final String NAMESPACE_SEPARATOR = ".";
+
+    private Result result = null;
 
     /**
      * Add a failure message and mark as failed.
@@ -35,16 +34,17 @@ public class Query extends Metadata {
     }
 
     /**
-     * Store the results of the query.
+     * Initialize the results.
      */
-    public void setResults(Map<String, List<String>> results) {
-        this.results = results;
+    public Result createResults() {
+        result = new Result(name + NAMESPACE_SEPARATOR);
+        return result;
     }
 
     /**
      * Get the results of the query.
      */
-    public Map<String, List<String>> getResults() {
-        return results;
+    public Result getResult() {
+        return result;
     }
 }

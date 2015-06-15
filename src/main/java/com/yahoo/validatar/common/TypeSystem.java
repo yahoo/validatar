@@ -89,7 +89,7 @@ public class TypeSystem {
         });
         COMPARATORS.put(null, new TypeComparator() {
             public int compare(String first, String second) {
-                throw new RuntimeException("Unknown types provided for " + first + " and " + second);
+                throw new RuntimeException("Unknown type provided for " + first + " and " + second);
             }
         });
     }

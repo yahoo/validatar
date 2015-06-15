@@ -18,6 +18,7 @@ package com.yahoo.validatar.execution.hive;
 
 import com.yahoo.validatar.execution.Engine;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Result;
 
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -26,10 +27,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.sql.DriverManager;
 
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import static java.util.Arrays.*;
 import java.io.IOException;
 
@@ -111,12 +109,14 @@ public class Apiary implements Engine {
             ResultSet result = statement.executeQuery(queryValue);
             ResultSetMetaData metadata = result.getMetaData();
             int columns = metadata.getColumnCount();
-            Map<String, List<String>> results = new HashMap<String, List<String>>();
+
+            Result queryResult = query.createResults();
 
             // Setup lists
             for (int i = 1; i < columns + 1; i++) {
                 String name = metadata.getColumnName(i);
-                results.put(name, new ArrayList<String>());
+                // Null type for now
+                queryResult.addColumn(name, null);
             }
 
             // Get the output
@@ -124,11 +124,10 @@ public class Apiary implements Engine {
                 for (int i = 1; i < columns + 1; i++) {
                     String name = metadata.getColumnName(i);
                     String value = result.getString(i);
-                    results.get(name).add(value);
+                    queryResult.addColumnRow(name, value);
                     log.info("Column: " + name + "\tValue: " + value);
                 }
             }
-            query.setResults(results);
         } catch (SQLException e) {
             log.error("SQL problem with query: " + queryName + "\n" + queryValue, e);
             query.setFailure(e.toString());

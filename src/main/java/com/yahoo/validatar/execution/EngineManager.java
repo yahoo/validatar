@@ -49,9 +49,6 @@ public class EngineManager {
         }
     }
 
-    /** The delimiter between the query name and the column name in a query result. */
-    public static final String NAMESPACE_SEPARATOR = ".";
-
     /** Manages logging. */
     protected final Logger log = Logger.getLogger(getClass());
 
@@ -158,23 +155,6 @@ public class EngineManager {
     }
 
     /**
-     * For a query, namespace the query results so that column names are not ambiguous
-     * across queries.
-     *
-     * @param query The Query object.
-     */
-    protected void nameSpaceResults(Query query) {
-        if (query.getResults() == null) {
-            return;
-        }
-        Map<String, List<String>> namespacedResults = new HashMap<String, List<String>>();
-        for (Map.Entry<String, List<String>> column : query.getResults().entrySet()) {
-            namespacedResults.put(query.name + NAMESPACE_SEPARATOR + column.getKey(), column.getValue());
-        }
-        query.setResults(namespacedResults);
-    }
-
-    /**
      * Prints the help message for each engine.
      */
     public void printHelp() {
@@ -197,7 +177,6 @@ public class EngineManager {
         // Run each query.
         for (Query query : queries) {
             engines.get(query.engine).getEngine().execute(query);
-            nameSpaceResults(query);
         }
 
         return true;
