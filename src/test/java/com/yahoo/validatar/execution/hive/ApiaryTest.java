@@ -67,6 +67,6 @@ public class ApiaryTest {
         query.value = "SELECT 1 as ONE";
         apiary.execute(query);
         Assert.assertFalse(query.failed());
-        Assert.assertEquals(query.getResults().get("ONE").get(0), "1");
+        Assert.assertEquals(query.getResult().data.get("Test.ONE").get(0), "1");
     }
 }

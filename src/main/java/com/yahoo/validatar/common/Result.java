@@ -41,7 +41,7 @@ public class Result {
     }
 
     /**
-     * Add a new column to the result.
+     * Create and add a new column to the result.
      * @param name The name of the column.
      * @param type The type of the column.
      */
@@ -51,8 +51,19 @@ public class Result {
     }
 
     /**
+     * Create and add a new column to the result with the given rows.
+     * @param name The name of the column.
+     * @param values The column rows.
+     * @param type The type of the column.
+     */
+    public void addColumn(String name, TypeSystem.Type type, List<String> values) {
+        data.put(prefix + name, values);
+        types.put(prefix + name, type);
+    }
+
+    /**
      * Merge another result into this. Collision in names is not handled.
-     * @param result. The result to merge with.
+     * @param result The result to merge with.
      */
     public void merge(Result result) {
         data.putAll(result.data);
@@ -62,7 +73,7 @@ public class Result {
     /**
      * Add a new row to an existing column.
      * @param name The name of the column.
-     * @param value The value to add to it.
+     * @param value The value to add to it
      */
     public void addColumnRow(String name, String value) {
         data.get(prefix + name).add(value);

@@ -17,6 +17,7 @@
 package com.yahoo.validatar.execution;
 
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.LogCaptor;
 
 import java.util.Map;
@@ -69,6 +70,7 @@ public class EngineManagerTest extends LogCaptor {
 
         @Override
         public void execute(Query query) {
+            query.createResults();
         }
 
         @Override
@@ -91,11 +93,9 @@ public class EngineManagerTest extends LogCaptor {
 
         @Override
         public void execute(Query query) {
-            Map<String, List<String>> results = new HashMap<String, List<String>>();
-            List<String> columns = new ArrayList<String>();
-            columns.add("42");
-            results.put("a", columns);
-            query.setResults(results);
+            Result results = query.createResults();
+            results.addColumn("a", null);
+            results.addColumnRow("a", "42");
         }
 
         @Override
@@ -172,7 +172,7 @@ public class EngineManagerTest extends LogCaptor {
         query.engine = MockPassingEngine.ENGINE_NAME;
         manager.setEngines(engines);
         Assert.assertTrue(manager.run(queries));
-        Assert.assertNull(query.getResults());
+        Assert.assertEquals(query.getResult().data.size(), 0);
     }
 
     @Test
@@ -187,6 +187,6 @@ public class EngineManagerTest extends LogCaptor {
         List<String> columns = new ArrayList<String>();
         columns.add("42");
         results.put("Foo.a", columns);
-        Assert.assertEquals(query.getResults(), results);
+        Assert.assertEquals(query.getResult().data, results);
     }
 }
