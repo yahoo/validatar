@@ -67,17 +67,4 @@ public class Result {
     public void addColumnRow(String name, String value) {
         data.get(prefix + name).add(value);
     }
-
-    /**
-     * Namespace the results, i.e. add a prefix to each column name
-     *
-     * @param prefix The prefix to add.
-     */
-    public void namespace(String prefix) {
-        Map<String, List<String>> namespacedResults = new HashMap<String, List<String>>();
-        for (Map.Entry<String, List<String>> column : data.entrySet()) {
-            namespacedResults.put(prefix + column.getKey(), column.getValue());
-        }
-        data = namespacedResults;
-    }
 }

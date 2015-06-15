@@ -35,9 +35,41 @@ public class Assertor {
      * @param tests List<Test> using these columns
      */
     public static void assertAll(Result results, List<Test> tests) {
-        Map<String, String> singleRowColumns = getAsOneEntry(results);
         for (Test test : tests) {
-            assertOneTest(singleRowColumns, test);
+            assertOneTest(results, test);
+        }
+    }
+
+    private static void assertOneTest(Result results, Test test) {
+        List<String> assertions = test.asserts;
+
+        // Check for invalid input
+        if (assertions == null || assertions.size() == 0) {
+            test.setFailed();
+            test.addMessage("NULL assertion! : No assertion was provided!");
+            return;
+        }
+
+        for (String assertion : assertions) {
+            assertOneAssertion(assertion, results, test);
+        }
+    }
+
+    private static void assertOneAssertion(String assertion, Result results, Test test) {
+        try {
+            ANTLRInputStream in = new ANTLRInputStream(assertion);
+            GrammarLexer lexer = new GrammarLexer(in);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            GrammarParser parser = new GrammarParser(tokens);
+            parser.setCurrentRow(getAsOneEntry(results));
+            if (!parser.expression().value) {
+                test.setFailed();
+                test.addMessage(assertion + " was false for these values " + parser.getLookedUpValues());
+            }
+        } catch (Exception e) {
+            String message = e.toString();
+            test.setFailed();
+            test.addMessage(assertion + " : " + e.toString());
         }
     }
 
@@ -51,37 +83,5 @@ public class Assertor {
         return row;
     }
 
-    private static void assertOneTest(Map<String, String> columns, Test test) {
-        List<String> assertions = test.asserts;
-
-        // Check for invalid input
-        if (assertions == null || assertions.size() == 0) {
-            test.setFailed();
-            test.addMessage("NULL assertion! : No assertion was provided!");
-            return;
-        }
-
-        for (String assertion : assertions) {
-            assertOneAssertion(assertion, columns, test);
-        }
-    }
-
-    private static void assertOneAssertion(String assertion, Map<String, String> row, Test test) {
-        try {
-            ANTLRInputStream in = new ANTLRInputStream(assertion);
-            GrammarLexer lexer = new GrammarLexer(in);
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            GrammarParser parser = new GrammarParser(tokens);
-            parser.setCurrentRow(row);
-            if (!parser.expression().value) {
-                test.setFailed();
-                test.addMessage(assertion + " was false for these values " + parser.getLookedUpValues());
-            }
-        } catch (Exception e) {
-            String message = e.toString();
-            test.setFailed();
-            test.addMessage(assertion + " : " + e.toString());
-        }
-    }
 }
 
