@@ -16,72 +16,10 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
 /**
- * This class can be used by any that wish to store metadata, maintain messages
- * and mark failure.
+ * A wrapper type that represents a single piece of Metadata, i.e. a key value pair.
  */
-public abstract class Metadata {
-    protected boolean failed = false;
-    protected List<String> messages = null;
-    protected Map<String, String> metadata = null;
-
-    /**
-     * Get messages.
-     */
-    public List<String> getMessages() {
-        return messages;
-    }
-
-    /**
-     * Add a message.
-     */
-    public void addMessage(String message) {
-        if (this.messages == null) {
-            this.messages = new ArrayList<String>();
-        }
-        this.messages.add(message);
-    }
-
-    /**
-     * Set failure status.
-     */
-    public void setFailed() {
-        this.failed = true;
-    }
-
-    /**
-     * Set success status.
-     */
-    public void setSuccess() {
-        this.failed = false;
-    }
-
-    /**
-     * True iff in the failure status.
-     */
-    public boolean failed() {
-        return failed == true;
-    }
-
-    /**
-     * Set any key, value metadata. This will be added to the Query's metadata.
-     */
-    public void addMetadata(Map<String, String> metadata) {
-        if (this.metadata == null) {
-            this.metadata = new HashMap<String, String>();
-        }
-        this.metadata.putAll(metadata);
-    }
-
-    /**
-     * Get metadata.
-     */
-    public Map<String, String> getMetadata() {
-        return this.metadata;
-    }
+public class Metadata {
+    public String key;
+    public String value;
 }
