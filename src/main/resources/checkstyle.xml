@@ -128,6 +128,7 @@
 
     <!-- Don't allow nested blocks -->
     <module name="AvoidNestedBlocks">
+      <property name="allowInSwitchCase" value="true"/>
       <property name="severity" value="error"/>
     </module>
 

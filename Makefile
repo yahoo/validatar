@@ -2,7 +2,7 @@ clean:
 	mvn clean
 
 test:
-	mvn clean cobertura:cobertura checkstyle:check
+	mvn clean checkstyle:check cobertura:cobertura
 
 jar:
 	mvn clean package

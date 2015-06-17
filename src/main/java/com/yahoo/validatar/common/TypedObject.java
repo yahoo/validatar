@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.yahoo.validatar.assertion;
-
-import com.yahoo.validatar.common.TypeSystem;
+package com.yahoo.validatar.common;
 
 /**
- * This is the custom annotated object that is used by Grammar AST.
+ * This is the custom annotated object that is used in our assertion language.
  */
-public class GrammarObject {
-    public String data;
+public class TypedObject {
+    public Object data;
     public TypeSystem.Type type;
 }
