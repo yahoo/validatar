@@ -18,8 +18,8 @@ package com.yahoo.validatar.common;
 
 import java.util.Map;
 import java.util.HashMap;
-//import java.math.BigDecimal;
-//import java.sql.Timestamp;
+import java.sql.Timestamp;
+import java.math.BigDecimal;
 
 /**
  * This is a class that wraps the supported types that the assertor will work with
@@ -39,6 +39,7 @@ public class TypeSystem {
      * In general, we don't want lossy casting, or strange casting like a boolean to a short etc.
      * We'll follow the basic Java widening primitive rules.
      * Exceptions:
+     * Timestamp to Long -> will do a millis since epoch
      */
     public static final Map<Type, TypeConvertor> CONVERTORS = new HashMap<>();
     static {
@@ -56,10 +57,7 @@ public class TypeSystem {
                     case CHARACTER:
                         return true;
                     case LONG:
-                        source.data = (long) ((Character) source.data).charValue();
-                        return true;
                     case DOUBLE:
-                        source.data = (long) ((Character) source.data).charValue();
                     case DECIMAL:
                     case BOOLEAN:
                     case TIMESTAMP:
@@ -73,12 +71,18 @@ public class TypeSystem {
                 switch (source.type) {
                     case STRING:
                         source.data = Long.valueOf((String) source.data);
+                        return true;
                     case CHARACTER:
+                        source.data = (long) ((Character) source.data).charValue();
+                        return true;
                     case LONG:
+                        return true;
+                    case TIMESTAMP:
+                        source.data = ((Timestamp) source.data).getTime();
+                        return true;
                     case DOUBLE:
                     case DECIMAL:
                     case BOOLEAN:
-                    case TIMESTAMP:
                     default:
                         return false;
                 }
@@ -88,9 +92,16 @@ public class TypeSystem {
             public boolean convert(TypedObject source) {
                 switch (source.type) {
                     case STRING:
+                        source.data = Double.valueOf((String) source.data);
+                        return true;
                     case CHARACTER:
-                    case LONG:
+                        source.data = (double) ((Character) source.data).charValue();
+                        return true;
                     case DOUBLE:
+                        return true;
+                    case LONG:
+                        source.data = ((Long) source.data).doubleValue();
+                        return true;
                     case DECIMAL:
                     case BOOLEAN:
                     case TIMESTAMP:
@@ -103,12 +114,23 @@ public class TypeSystem {
             public boolean convert(TypedObject source) {
                 switch (source.type) {
                     case STRING:
+                        source.data = new BigDecimal((String) source.data);
+                        return true;
                     case CHARACTER:
+                        source.data = new BigDecimal(String.valueOf((Character) source.data));;
+                        return true;
                     case LONG:
+                        source.data = BigDecimal.valueOf((Long) source.data);
+                        return true;
                     case DOUBLE:
+                        source.data = BigDecimal.valueOf((Double) source.data);
+                        return true;
                     case DECIMAL:
-                    case BOOLEAN:
+                        return true;
                     case TIMESTAMP:
+                        source.data = BigDecimal.valueOf(((Timestamp) source.data).getTime());
+                        return true;
+                    case BOOLEAN:
                     default:
                         return false;
                 }
@@ -118,11 +140,14 @@ public class TypeSystem {
             public boolean convert(TypedObject source) {
                 switch (source.type) {
                     case STRING:
+                        source.data = Boolean.valueOf((String) source.data);
+                        return true;
+                    case BOOLEAN:
+                        return true;
                     case CHARACTER:
                     case LONG:
                     case DOUBLE:
                     case DECIMAL:
-                    case BOOLEAN:
                     case TIMESTAMP:
                     default:
                         return false;
@@ -133,12 +158,25 @@ public class TypeSystem {
             public boolean convert(TypedObject source) {
                 switch (source.type) {
                     case STRING:
+                        return true;
                     case CHARACTER:
+                        source.data = String.valueOf((Character) source.data);
+                        return true;
                     case LONG:
+                        source.data = ((Long) source.data).toString();
+                        return true;
                     case DOUBLE:
+                        source.data = ((Double) source.data).toString();
+                        return true;
                     case DECIMAL:
+                        source.data = ((BigDecimal) source.data).toString();
+                        return true;
                     case BOOLEAN:
+                        source.data = ((Boolean) source.data).toString();
+                        return true;
                     case TIMESTAMP:
+                        source.data = ((Timestamp) source.data).toString();
+                        return true;
                     default:
                         return false;
                 }
@@ -148,12 +186,17 @@ public class TypeSystem {
             public boolean convert(TypedObject source) {
                 switch (source.type) {
                     case STRING:
-                    case CHARACTER:
+                        source.data = Timestamp.valueOf((String) source.data);
+                        return true;
                     case LONG:
+                        source.data = new Timestamp((Long) source.data);
+                        return true;
+                    case TIMESTAMP:
+                        return true;
+                    case CHARACTER:
                     case DOUBLE:
                     case DECIMAL:
                     case BOOLEAN:
-                    case TIMESTAMP:
                     default:
                         return false;
                 }
