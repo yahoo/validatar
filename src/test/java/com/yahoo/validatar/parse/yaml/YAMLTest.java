@@ -46,4 +46,30 @@ public class YAMLTest {
         Query query = testSuite.queries.get(2);
         Assert.assertEquals(query.value, "TEST ${DATE}");
     }
+
+    @Test
+    public void testQueryMetadata() throws FileNotFoundException {
+        TestSuite testSuite = yaml.parse(new FileInputStream(new File("src/test/resources/metadata-tests/tests.yaml")));
+        Assert.assertEquals(testSuite.queries.size(), 3);
+
+        Query noMeta = testSuite.queries.get(0);
+        Query windowMeta = testSuite.queries.get(1);
+        Query threadMeta = testSuite.queries.get(2);
+
+        Assert.assertNull(noMeta.metadata);
+        Assert.assertEquals(windowMeta.metadata.size(), 2);
+        Assert.assertEquals(threadMeta.metadata.size(), 1);
+
+        Map<String, String> metaMap = noMeta.getMetadata();
+        Assert.assertNull(metaMap);
+
+        metaMap = windowMeta.getMetadata();
+        Assert.assertEquals(metaMap.size(), 2);
+        Assert.assertEquals(metaMap.get("windowSize"), "600");
+        Assert.assertEquals(metaMap.get("records"), "10000");
+
+        metaMap = threadMeta.getMetadata();
+        Assert.assertEquals(metaMap.size(), 1);
+        Assert.assertEquals(metaMap.get("threads"), "4");
+    }
 }

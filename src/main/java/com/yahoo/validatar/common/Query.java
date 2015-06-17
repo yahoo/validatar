@@ -16,10 +16,15 @@
 
 package com.yahoo.validatar.common;
 
-public class Query extends Metadata {
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+
+public class Query extends Executable {
     public String name;
     public String engine;
     public String value;
+    public List<Metadata> metadata;
 
     public static final String NAMESPACE_SEPARATOR = ".";
 
@@ -46,5 +51,20 @@ public class Query extends Metadata {
      */
     public Result getResult() {
         return result;
+    }
+
+    /**
+     * Returns the metadata list flattened into a map. If there are metadata with
+     * the same key, the last one is one that is kept.
+     */
+    public Map<String, String> getMetadata() {
+        if (metadata == null) {
+            return null;
+        }
+        Map<String, String> metas = new HashMap<>();
+        for (Metadata meta : metadata) {
+            metas.put(meta.key, meta.value);
+        }
+        return metas;
     }
 }

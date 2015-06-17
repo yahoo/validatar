@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class MetadataTest {
-    private class Annotated extends Metadata {
+public class ExecutableTest {
+    private class Annotated extends Executable {
     }
 
     @Test
@@ -33,7 +33,6 @@ public class MetadataTest {
         Annotated sample = new Annotated();
 
 	Assert.assertFalse(sample.failed());
-	Assert.assertNull(sample.getMetadata());
 	Assert.assertNull(sample.getMessages());
     }
 
@@ -49,22 +48,16 @@ public class MetadataTest {
     }
 
     @Test
-    public void testMetadata() {
+    public void testMessages() {
         Annotated sample = new Annotated();
 
-	Map<String, String> metas = new HashMap<>();
-	metas.put("foo", "bar");
-	sample.addMetadata(metas);
-	Assert.assertFalse(metas == sample.getMetadata());
-	Assert.assertEquals(sample.getMetadata(), metas);
+        sample.addMessage("Test 1");
+        Assert.assertEquals(sample.getMessages().size(), 1);
+        Assert.assertEquals(sample.getMessages().get(0), "Test 1");
 
-	Map<String, String> anotherMetas = new HashMap<>();
-	anotherMetas.put("bar", "baz");
-	sample.addMetadata(anotherMetas);
-
-	Assert.assertNotEquals(metas, sample.getMetadata());
-	Assert.assertNotEquals(anotherMetas, sample.getMetadata());
-	metas.putAll(anotherMetas);
-	Assert.assertEquals(metas, sample.getMetadata());
+        sample.addMessage("Test 2");
+        Assert.assertEquals(sample.getMessages().size(), 2);
+        Assert.assertEquals(sample.getMessages().get(0), "Test 1");
+        Assert.assertEquals(sample.getMessages().get(1), "Test 2");
     }
 }

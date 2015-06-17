@@ -18,7 +18,7 @@ package com.yahoo.validatar.common;
 
 import java.util.List;
 
-public class Test extends Metadata {
+public class Test extends Executable {
     public String name;
     public String description;
     public List<String> asserts;

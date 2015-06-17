@@ -1,0 +1,32 @@
+---
+name: Metadata Example
+description: Simple queries with metadata
+queries:
+   - name: No metadata
+     engine: hive
+     value: "SELECT 1 AS constant
+             FROM sample_data TABLESAMPLE(0.1 percent)
+             WHERE dt=${DATE}"
+   - name: Metadata
+     engine: hive
+     value: "SELECT SUM(timestamp) AS total
+             FROM hourly_data TABLESAMPLE(0.1 percent)
+             WHERE dt=${DATE}"
+     metadata:
+         - key: records
+           value: 10000
+         - key: windowSize
+           value: 600
+   - name: Different Metadata
+     engine: hive
+     value: "SELECT COUNT(1) AS total
+             FROM hourly_data
+             WHERE dt=${DATE}"
+     metadata:
+         - key: threads
+           value: 4
+tests:
+   - name: Testing something
+     description: Why I am testing this.
+     asserts:
+...
