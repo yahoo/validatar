@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=640">
+
+    <link rel="stylesheet" href="stylesheets/core.css" media="screen">
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+
+    <script type="text/javascript" src="javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
+    <title>Validatar by yahoo</title>
+  </head>
+
+  <body>
+    <a id="forkme_banner" href="https://github.com/yahoo/validatar">View on GitHub</a>
+    <div class="shell">
+
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>Validatar</h1>
+            <h2>Functional testing framework for Big Data pipelines</h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
+
+      <section id="downloads">
+        <span class="inner">
+          <a href="https://github.com/yahoo/validatar/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/yahoo/validatar/tarball/master" class="tgz"><em>download</em> .TGZ</a>
+        </span>
+      </section>
+
+
+      <span class="banner-fix"></span>
+
+
+      <section id="main_content">
+        <h1>
+<a id="validatar" class="anchor" href="#validatar" aria-hidden="true"><span class="octicon octicon-link"></span></a>Validatar</h1>
+
+<p><a href="https://travis-ci.org/yahoo/validatar"><img src="https://travis-ci.org/yahoo/validatar.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/yahoo/validatar?branch=master"><img src="https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master" alt="Coverage Status"></a> <a href="https://bintray.com/yahoo/maven/validatar/_latestVersion"><img src="https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg" alt="Download"></a></p>
+
+<p>Functional testing framework for Big Data pipelines. Current support is only for Hive, but we are planning support for Pig as well as others.</p>
+
+<h2>
+<a id="how-to-build-validatar" class="anchor" href="#how-to-build-validatar" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to build Validatar</h2>
+
+<p>You need maven/JDK to build Validatar.</p>
+
+<p>Run:</p>
+
+<pre><code>make jar
+</code></pre>
+
+<h2>
+<a id="how-to-run" class="anchor" href="#how-to-run" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to run</h2>
+
+<p>To run Validatar:</p>
+
+<pre><code>export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/hive/jdbc/lib/jars/*"
+hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml
+</code></pre>
+
+<p>You will also need the settings specified for the engine you are planning to run.</p>
+
+<h2>
+<a id="writing-tests" class="anchor" href="#writing-tests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Writing Tests</h2>
+
+<h3>
+<a id="test-file-format" class="anchor" href="#test-file-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test file format</h3>
+
+<p>Test files are written in the YAML format. The schema is as follows:</p>
+
+<pre><code>name: Test family name : String
+description: Test family description : String
+queries:
+   - name: Query name : String : Ex "Analytics"
+     engine: Execution engine : String ("Hive")
+     value: Query : String : Ex "SELECT COUNT(*) AS pv_count FROM page_data"
+   ...
+tests:
+   - name: Test name : String
+     description: Test description : String
+     asserts:
+        - Assertion on some query. Query name is prefixed to the value. : Ex: Analytics.pv_count &gt; 10000
+   ...
+</code></pre>
+
+<p>Queries are named, this name is used as a namespace for all the values returned from the query. In the above example, we created a query named "Analytics". It stores the return value "pv_count". We are then able to use this in our later asserts.</p>
+
+<h3>
+<a id="assertions" class="anchor" href="#assertions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Assertions</h3>
+
+<p>Assertions are quite flexibile, allowing for the following operations:</p>
+
+<pre><code>                   &gt;  : greater than
+                   &gt;= : greater or equal to
+                   &lt;  : less than
+                   &lt;= : less or equal to
+                   == : equal to
+                   != : not equal to
+                   +  : add
+                   -  : subtract
+                   *  : multiply
+                   /  : divide
+                   &amp;&amp; : boolean and
+                   || : boolean or
+approx(a, b, percent) : true if a and b within percent difference (0.0 to 1.0) of each other.
+</code></pre>
+
+<h3>
+<a id="parameter-substitution" class="anchor" href="#parameter-substitution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameter Substitution</h3>
+
+<p>You may want queries that use a specific date column, or similar changing parameter. For this, we have a parameter substation feature.</p>
+
+<p>Simply pass <code>--parameter KEY=VALUE</code> in the CLI and the <code>KEY</code> will be replaced with <code>VALUE</code> in all queries. For example, to query June 23rd 2015, you could use <code>--parameter DATE=2015-06-23</code>. If the query uses <code>${DATE}</code> in the query it will be replaced before execution with <code>2015-06-23</code>.</p>
+
+<h2>
+<a id="members" class="anchor" href="#members" aria-hidden="true"><span class="octicon octicon-link"></span></a>Members</h2>
+
+<p>Akshai Sarma, <a href="mailto:akshaisarma@gmail.com">akshaisarma@gmail.com</a><br>
+Josh Walters, <a href="mailto:josh@joshwalters.com">josh@joshwalters.com</a></p>
+
+<h2>
+<a id="contributors" class="anchor" href="#contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributors</h2>
+      </section>
+
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <p>this project by <a href="https://github.com/yahoo">yahoo</a> can be found on <a href="https://github.com/yahoo/validatar">GitHub</a></p>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="https://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
+      </footer>
+
+    </div>
+
+    
+  </body>
+</html>
