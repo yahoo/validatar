@@ -26,20 +26,124 @@ import java.math.BigDecimal;
  * when operating on data returned by an data source.
  */
 public class TypeSystem {
-    /** These are the official types we support. They correspond to Java types. */
+    /**
+     * These are the official types we support. They correspond to Java types.
+     * They all must correspond to an actual object that implements Comparable.
+     * Unknown is a default Type that is temporary - while the Type is being
+     * determined. E.g. when an identifier is parsed till its type is set by
+     * the engine.
+     */
     public enum Type {
-        CHARACTER, LONG, DOUBLE, DECIMAL, BOOLEAN, STRING, TIMESTAMP
+        CHARACTER, LONG, DOUBLE, DECIMAL, BOOLEAN, STRING, TIMESTAMP, UNKNOWN
+    }
+
+    /**
+     * These are the arithmetic operations we will support.
+     */
+    public enum ArithmeticOperator {
+        ADD, SUBTRACT, MULTIPLY, DIVIDE
+    }
+
+    private interface TypeArithmetic {
+        /**
+         * Takes two TypedObjects and performs the arithmetic on them.
+         * Returns null if it cannot, else it returns the result.
+         */
+        public TypedObject perform(TypedObject first, TypedObject second);
     }
 
     private interface TypeConvertor {
+        /**
+         * Takes a TypedObject and tries to convert it to a different Type.
+         * Returns true iff it succeeds. source.type is then the new Type.
+         */
         public boolean convert(TypedObject source);
     }
 
-    /*
+    /**
+     * The mapping of an ArithmeticOperator to its implementation.
+     */
+    public static final Map<ArithmeticOperator, TypeArithmetic> ARITHMETIC = new HashMap<>();
+    static {
+        ARITHMETIC.put(ArithmeticOperator.ADD, new TypeArithmetic() {
+            public TypedObject perform(TypedObject first, TypedObject second) {
+                TypedObject toReturn = null;
+                switch (first.type) {
+                    case STRING:
+                    case CHARACTER:
+                    case LONG:
+                    case DOUBLE:
+                    case DECIMAL:
+                    case BOOLEAN:
+                    case TIMESTAMP:
+                    default:
+                        break;
+                }
+                return toReturn;
+            }
+        });
+        ARITHMETIC.put(ArithmeticOperator.SUBTRACT, new TypeArithmetic() {
+            public TypedObject perform(TypedObject first, TypedObject second) {
+                TypedObject toReturn = null;
+                switch (first.type) {
+                    case STRING:
+                    case CHARACTER:
+                    case LONG:
+                    case DOUBLE:
+                    case DECIMAL:
+                    case BOOLEAN:
+                    case TIMESTAMP:
+                    default:
+                        break;
+                }
+                return toReturn;
+            }
+        });
+        ARITHMETIC.put(ArithmeticOperator.MULTIPLY, new TypeArithmetic() {
+            public TypedObject perform(TypedObject first, TypedObject second) {
+                TypedObject toReturn = null;
+                switch (first.type) {
+                    case STRING:
+                    case CHARACTER:
+                    case LONG:
+                    case DOUBLE:
+                    case DECIMAL:
+                    case BOOLEAN:
+                    case TIMESTAMP:
+                    default:
+                        break;
+                }
+                return toReturn;
+            }
+        });
+        ARITHMETIC.put(ArithmeticOperator.DIVIDE, new TypeArithmetic() {
+            public TypedObject perform(TypedObject first, TypedObject second) {
+                TypedObject toReturn = null;
+                switch (first.type) {
+                    case STRING:
+                    case CHARACTER:
+                    case LONG:
+                    case DOUBLE:
+                    case DECIMAL:
+                    case BOOLEAN:
+                    case TIMESTAMP:
+                    default:
+                        break;
+                }
+                return toReturn;
+            }
+        });
+    }
+
+    /**
+     * The mapping of Type to its convertor.
+     *
      * In general, we don't want lossy casting, or strange casting like a boolean to a short etc.
-     * We'll follow the basic Java widening primitive rules.
+     * But we will follow the basic Java widening primitive rules.
+     * https://docs.oracle.com/javase/specs/jls/se7/html/jls-5.html
+     *
      * Exceptions:
-     * Timestamp to Long -> will do a millis since epoch
+     * Timestamp to and from Long will do a millis since epoch
      */
     public static final Map<Type, TypeConvertor> CONVERTORS = new HashMap<>();
     static {
@@ -50,6 +154,7 @@ public class TypeSystem {
                         String input = (String) source.data;
                         if (input.length() == 1) {
                             source.data = (Character) input.charAt(0);
+                            source.type = Type.CHARACTER;
                             return true;
                         }
                         return false;
@@ -71,14 +176,17 @@ public class TypeSystem {
                 switch (source.type) {
                     case STRING:
                         source.data = Long.valueOf((String) source.data);
+                        source.type = Type.LONG;
                         return true;
                     case CHARACTER:
                         source.data = (long) ((Character) source.data).charValue();
+                        source.type = Type.LONG;
                         return true;
                     case LONG:
                         return true;
                     case TIMESTAMP:
                         source.data = ((Timestamp) source.data).getTime();
+                        source.type = Type.LONG;
                         return true;
                     case DOUBLE:
                     case DECIMAL:
@@ -93,14 +201,17 @@ public class TypeSystem {
                 switch (source.type) {
                     case STRING:
                         source.data = Double.valueOf((String) source.data);
+                        source.type = Type.DOUBLE;
                         return true;
                     case CHARACTER:
                         source.data = (double) ((Character) source.data).charValue();
+                        source.type = Type.DOUBLE;
                         return true;
                     case DOUBLE:
                         return true;
                     case LONG:
                         source.data = ((Long) source.data).doubleValue();
+                        source.type = Type.DOUBLE;
                         return true;
                     case DECIMAL:
                     case BOOLEAN:
@@ -115,20 +226,25 @@ public class TypeSystem {
                 switch (source.type) {
                     case STRING:
                         source.data = new BigDecimal((String) source.data);
+                        source.type = Type.DECIMAL;
                         return true;
                     case CHARACTER:
                         source.data = new BigDecimal(String.valueOf((Character) source.data));;
+                        source.type = Type.DECIMAL;
                         return true;
                     case LONG:
                         source.data = BigDecimal.valueOf((Long) source.data);
+                        source.type = Type.DECIMAL;
                         return true;
                     case DOUBLE:
                         source.data = BigDecimal.valueOf((Double) source.data);
+                        source.type = Type.DECIMAL;
                         return true;
                     case DECIMAL:
                         return true;
                     case TIMESTAMP:
                         source.data = BigDecimal.valueOf(((Timestamp) source.data).getTime());
+                        source.type = Type.DECIMAL;
                         return true;
                     case BOOLEAN:
                     default:
@@ -141,6 +257,7 @@ public class TypeSystem {
                 switch (source.type) {
                     case STRING:
                         source.data = Boolean.valueOf((String) source.data);
+                        source.type = Type.BOOLEAN;
                         return true;
                     case BOOLEAN:
                         return true;
@@ -161,21 +278,27 @@ public class TypeSystem {
                         return true;
                     case CHARACTER:
                         source.data = String.valueOf((Character) source.data);
+                        source.type = Type.STRING;
                         return true;
                     case LONG:
                         source.data = ((Long) source.data).toString();
+                        source.type = Type.STRING;
                         return true;
                     case DOUBLE:
                         source.data = ((Double) source.data).toString();
+                        source.type = Type.STRING;
                         return true;
                     case DECIMAL:
                         source.data = ((BigDecimal) source.data).toString();
+                        source.type = Type.STRING;
                         return true;
                     case BOOLEAN:
                         source.data = ((Boolean) source.data).toString();
+                        source.type = Type.STRING;
                         return true;
                     case TIMESTAMP:
                         source.data = ((Timestamp) source.data).toString();
+                        source.type = Type.STRING;
                         return true;
                     default:
                         return false;
@@ -187,9 +310,11 @@ public class TypeSystem {
                 switch (source.type) {
                     case STRING:
                         source.data = Timestamp.valueOf((String) source.data);
+                        source.type = Type.TIMESTAMP;
                         return true;
                     case LONG:
                         source.data = new Timestamp((Long) source.data);
+                        source.type = Type.TIMESTAMP;
                         return true;
                     case TIMESTAMP:
                         return true;
@@ -210,32 +335,44 @@ public class TypeSystem {
      * @param second The second object to compare.
      * @return -1 if first is less than second, 1 if first is greater than second and 0 if first equals second.
      */
-    public int compare(TypedObject first, TypedObject second) {
+    @SuppressWarnings("unchecked")
+    public static int compare(TypedObject first, TypedObject second) {
         if (first == null || second == null) {
-            throw new ClassCastException("Tried to compare null arguments. Argument 1: " +
-                    first + " Argument 2: " + second);
+            throw new ClassCastException("Tried to compare null arguments. Argument 1: " + first + " Argument 2: " + second);
         }
-        return 0;
+        // Relying on the type system to return false if invalid conversions were tried and true if it was converted.
+        // Try first -> second, then second -> first.
+        boolean canCompare = CONVERTORS.get(first.type).convert(second);
+        if (!canCompare) {
+            canCompare = CONVERTORS.get(second.type).convert(first);
+        }
+
+        if (!canCompare) {
+            throw new ClassCastException("Type conversion could not be performed for types: " + first.type + " and " + second.type +
+                                          " with values: " + first.data.toString() + " and " + second.data.toString());
+        }
+        // Both are now the same type, just compare
+        return first.data.compareTo(second.data);
     }
 
     /**
      * Helper method that returns true iff first equals second.
      */
-    public boolean isEqualTo(TypedObject first, TypedObject second) {
+    public static boolean isEqualTo(TypedObject first, TypedObject second) {
         return compare(first, second) == 0;
     }
 
     /**
      * Helper method that returns true iff first is less than second.
      */
-    public boolean isLessThan(TypedObject first, TypedObject second) {
+    public static boolean isLessThan(TypedObject first, TypedObject second) {
         return compare(first, second) == -1;
     }
 
     /**
      * Helper method that returns true iff first is less than or equal to second.
      */
-    public boolean isLessThanOrEqual(TypedObject first, TypedObject second) {
+    public static boolean isLessThanOrEqual(TypedObject first, TypedObject second) {
         int compared = compare(first, second);
         return compared == -1 || compared == 0;
     }
@@ -243,79 +380,16 @@ public class TypeSystem {
     /**
      * Helper method that returns true iff first is greater than second.
      */
-    public boolean isGreaterThan(TypedObject first, TypedObject second) {
+    public static boolean isGreaterThan(TypedObject first, TypedObject second) {
         return compare(first, second) == 1;
     }
 
     /**
      * Helper method that returns true iff first is greater than or equal to second.
      */
-    public boolean isGreaterThanOrEqual(TypedObject first, TypedObject second) {
+    public static boolean isGreaterThanOrEqual(TypedObject first, TypedObject second) {
         int compared = compare(first, second);
         return compared == 1 || compared == 0;
     }
 
 }
-/*
-   private interface TypeComparator {
-   public int compare(String first, String second);
-   }
-
-// Java 8 should make this redundancy go away once we can assign valueOf as a reference
-public static final Map<Type, TypeComparator> COMPARATORS = new HashMap<>();
-static {
-COMPARATORS.put(Type.BYTE, new TypeComparator() {
-public int compare(String first, String second) {
-return Byte.valueOf(first).compareTo(Byte.valueOf(second));
-}
-});
-COMPARATORS.put(Type.SHORT, new TypeComparator() { public int compare(String first, String second) {
-return Short.valueOf(first).compareTo(Short.valueOf(second));
-}
-});
-COMPARATORS.put(Type.INTEGER, new TypeComparator() {
-public int compare(String first, String second) {
-return Integer.valueOf(first).compareTo(Integer.valueOf(second));
-}
-});
-COMPARATORS.put(Type.LONG, new TypeComparator() {
-public int compare(String first, String second) {
-return Long.valueOf(first).compareTo(Long.valueOf(second));
-}
-});
-COMPARATORS.put(Type.FLOAT, new TypeComparator() {
-public int compare(String first, String second) {
-return Float.valueOf(first).compareTo(Float.valueOf(second));
-}
-});
-COMPARATORS.put(Type.DOUBLE, new TypeComparator() {
-public int compare(String first, String second) {
-return Double.valueOf(first).compareTo(Double.valueOf(second));
-}
-});
-COMPARATORS.put(Type.DECIMAL, new TypeComparator() {
-public int compare(String first, String second) {
-return new BigDecimal(first).compareTo(new BigDecimal(second));
-}
-});
-COMPARATORS.put(Type.BOOLEAN, new TypeComparator() {
-public int compare(String first, String second) {
-return Boolean.valueOf(first).compareTo(Boolean.valueOf(second));
-}
-});
-COMPARATORS.put(Type.STRING, new TypeComparator() {
-public int compare(String first, String second) {
-return first.compareTo(second);
-}
-});
-COMPARATORS.put(Type.TIMESTAMP, new TypeComparator() {
-public int compare(String first, String second) {
-return Timestamp.valueOf(first).compareTo(Timestamp.valueOf(second));
-}
-});
-COMPARATORS.put(null, new TypeComparator() {
-public int compare(String first, String second) {
-throw new RuntimeException("Unknown type provided for " + first + " and " + second);
-}
-});
-*/

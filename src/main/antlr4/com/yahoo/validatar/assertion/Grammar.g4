@@ -17,8 +17,12 @@
 grammar Grammar;
 
 @parser::header {
+import com.yahoo.validatar.common.TypedObject;
+import com.yahoo.validatar.common.TypeSystem;
+import com.yahoo.validatar.common.TypeSystem.Type;
 import java.util.Map;
 import java.util.HashMap;
+import java.math.BigDecimal;
 }
 
 @parser::members {
@@ -42,10 +46,30 @@ import java.util.HashMap;
     private String stripQuotes(String literal) {
         return literal.substring(1, literal.length() - 1);
     }
+
+    private TypedObject parseWholeNumber(String text) {
+        TypedObject object;
+        try {
+            object = new TypedObject(Long.parseLong(text), Type.LONG);
+        } catch (NumberFormatException nfe) {
+            object = new TypedObject(new BigDecimal(text), Type.DECIMAL);
+        }
+        return object;
+    }
+
+    private TypedObject parseDecimalNumber(String text) {
+        TypedObject object;
+        try {
+            object = new TypedObject(Double.parseDouble(text), Type.DOUBLE);
+        } catch (NumberFormatException nfe) {
+            object = new TypedObject(new BigDecimal(text), Type.DECIMAL);
+        }
+        return object;
+    }
 }
 
 functionalExpression returns [String value]
-    :   APPROX LEFTPAREN l=base COMMA r=base COMMA p=Number RIGHTPAREN
+    :   APPROX LEFTPAREN l=base COMMA r=base COMMA p=numeric RIGHTPAREN
                   {
                       Double percent = Double.parseDouble($p.text);
                       if (percent > 1 || percent < 0) {
@@ -63,15 +87,20 @@ functionalExpression returns [String value]
                   }
     ;
 
-base returns [String value]
-    :   i=Identifier                               {$value = getColumnValue($i.text);}
-    |   s=StringLiteral                            {$value = stripQuotes($s.text);}
-    |   n=Number                                   {$value = $n.text;}
-    |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = String.valueOf($o.value);}
-    |   f=functionalExpression                     {$value = String.valueOf($f.value);}
+base returns [TypedObject value]
+    :   i=Identifier                               {$value = new TypedObject(getColumnValue($i.text), Type.UNKNOWN);}
+    |   s=StringLiteral                            {$value = new TypedObject(stripQuotes($s.text), Type.STRING);}
+    |   n=numeric                                  {$value = $n.value;}
+    |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = $o.value;}
+    |   f=functionalExpression                     {$value = $f.value;}
     ;
 
-unaryExpression returns [String value]
+numeric returns [TypedObject value]
+    :   w=WholeNumber                              {$value = parseWholeNumber($w.text);}
+    |   d=DecimalNumber                            {$value = parseDecimalNumber($d.text);}
+    ;
+
+unaryExpression returns [TypedObject value]
     :   m=MINUS? b=base
                         {
                             if ($m == null) {
@@ -171,8 +200,11 @@ Digit
     :  [0-9]
     ;
 
-Number
-    :  Digit+ (PERIOD Digit+)?
+DecimalNumber
+    :  Digit+
+    ;
+WholeNumber
+    :  Digit+ PERIOD Digit+
     ;
 
 WhitespaceCharacter
