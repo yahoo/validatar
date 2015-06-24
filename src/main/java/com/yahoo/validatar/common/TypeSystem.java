@@ -46,8 +46,9 @@ public class TypeSystem {
 
     private interface TypeArithmetic {
         /**
-         * Takes two TypedObjects and performs the arithmetic on them.
-         * Returns null if it cannot, else it returns the result.
+         * Takes two of the same TypedObjects and performs an arithmetic on them.
+         * Returns null if it cannot, else it returns the result. The type of the
+         * result will be same as the inputs.
          */
         public TypedObject perform(TypedObject first, TypedObject second);
     }
@@ -63,74 +64,117 @@ public class TypeSystem {
     /**
      * The mapping of an ArithmeticOperator to its implementation.
      */
-    public static final Map<ArithmeticOperator, TypeArithmetic> ARITHMETIC = new HashMap<>();
+    private static final Map<ArithmeticOperator, TypeArithmetic> ARITHMETIC = new HashMap<>();
     static {
         ARITHMETIC.put(ArithmeticOperator.ADD, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                TypedObject toReturn = null;
                 switch (first.type) {
-                    case STRING:
-                    case CHARACTER:
-                    case LONG:
-                    case DOUBLE:
-                    case DECIMAL:
+                    case STRING: {
+                        String data = (String) first.data + (String) second.data;
+                        return new TypedObject(data, Type.STRING);
+                    }
+                    case LONG: {
+                        Long data = (Long) first.data + (Long) second.data;
+                        return new TypedObject(data, Type.LONG);
+                    }
+                    case DOUBLE: {
+                        Double data = (Double) first.data + (Double) second.data;
+                        return new TypedObject(data, Type.DOUBLE);
+                    }
+                    case DECIMAL: {
+                        BigDecimal data = ((BigDecimal) first.data).add((BigDecimal) second.data);
+                        return new TypedObject(data, Type.DECIMAL);
+                    }
+                    case TIMESTAMP: {
+                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() + ((Timestamp) second.data).getTime());
+                        return new TypedObject(data, Type.TIMESTAMP);
+                    }
                     case BOOLEAN:
-                    case TIMESTAMP:
+                    case CHARACTER:
                     default:
-                        break;
+                        return null;
                 }
-                return toReturn;
             }
         });
         ARITHMETIC.put(ArithmeticOperator.SUBTRACT, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                TypedObject toReturn = null;
                 switch (first.type) {
+                    case LONG: {
+                        Long data = (Long) first.data - (Long) second.data;
+                        return new TypedObject(data, Type.LONG);
+                    }
+                    case DOUBLE: {
+                        Double data = (Double) first.data - (Double) second.data;
+                        return new TypedObject(data, Type.DOUBLE);
+                    }
+                    case DECIMAL: {
+                        BigDecimal data = ((BigDecimal) first.data).subtract((BigDecimal) second.data);
+                        return new TypedObject(data, Type.DECIMAL);
+                    }
+                    case TIMESTAMP: {
+                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() - ((Timestamp) second.data).getTime());
+                        return new TypedObject(data, Type.TIMESTAMP);
+                    }
                     case STRING:
-                    case CHARACTER:
-                    case LONG:
-                    case DOUBLE:
-                    case DECIMAL:
                     case BOOLEAN:
-                    case TIMESTAMP:
+                    case CHARACTER:
                     default:
-                        break;
+                        return null;
                 }
-                return toReturn;
             }
         });
         ARITHMETIC.put(ArithmeticOperator.MULTIPLY, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                TypedObject toReturn = null;
                 switch (first.type) {
+                    case LONG: {
+                        Long data = (Long) first.data * (Long) second.data;
+                        return new TypedObject(data, Type.LONG);
+                    }
+                    case DOUBLE: {
+                        Double data = (Double) first.data * (Double) second.data;
+                        return new TypedObject(data, Type.DOUBLE);
+                    }
+                    case DECIMAL: {
+                        BigDecimal data = ((BigDecimal) first.data).multiply((BigDecimal) second.data);
+                        return new TypedObject(data, Type.DECIMAL);
+                    }
+                    case TIMESTAMP: {
+                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() * ((Timestamp) second.data).getTime());
+                        return new TypedObject(data, Type.TIMESTAMP);
+                    }
                     case STRING:
-                    case CHARACTER:
-                    case LONG:
-                    case DOUBLE:
-                    case DECIMAL:
                     case BOOLEAN:
-                    case TIMESTAMP:
+                    case CHARACTER:
                     default:
-                        break;
+                        return null;
                 }
-                return toReturn;
             }
         });
         ARITHMETIC.put(ArithmeticOperator.DIVIDE, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                TypedObject toReturn = null;
                 switch (first.type) {
+                    case LONG: {
+                        Long data = (Long) first.data / (Long) second.data;
+                        return new TypedObject(data, Type.LONG);
+                    }
+                    case DOUBLE: {
+                        Double data = (Double) first.data / (Double) second.data;
+                        return new TypedObject(data, Type.DOUBLE);
+                    }
+                    case DECIMAL: {
+                        BigDecimal data = ((BigDecimal) first.data).divide((BigDecimal) second.data);
+                        return new TypedObject(data, Type.DECIMAL);
+                    }
+                    case TIMESTAMP: {
+                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() / ((Timestamp) second.data).getTime());
+                        return new TypedObject(data, Type.TIMESTAMP);
+                    }
                     case STRING:
-                    case CHARACTER:
-                    case LONG:
-                    case DOUBLE:
-                    case DECIMAL:
                     case BOOLEAN:
-                    case TIMESTAMP:
+                    case CHARACTER:
                     default:
-                        break;
+                        return null;
                 }
-                return toReturn;
             }
         });
     }
@@ -145,7 +189,7 @@ public class TypeSystem {
      * Exceptions:
      * Timestamp to and from Long will do a millis since epoch
      */
-    public static final Map<Type, TypeConvertor> CONVERTORS = new HashMap<>();
+    private static final Map<Type, TypeConvertor> CONVERTORS = new HashMap<>();
     static {
         CONVERTORS.put(Type.CHARACTER, new TypeConvertor() {
             public boolean convert(TypedObject source) {
@@ -330,18 +374,17 @@ public class TypeSystem {
     }
 
     /**
-     * Compare two TypedObjects.
-     * @param first The first object to compare.
-     * @param second The second object to compare.
-     * @return -1 if first is less than second, 1 if first is greater than second and 0 if first equals second.
+     * Tries to convert two TypedObjects to the same type.
+     * Tries first to second or second to first, in that order.
+     * Throws an ClassCastException if neither could be done.
+     * Throws an NullPointerException if either argument is null.
+     * If successful, first and second will be the of the same type.
      */
-    @SuppressWarnings("unchecked")
-    public static int compare(TypedObject first, TypedObject second) {
+    private static boolean unifyType(TypedObject first, TypedObject second) {
         if (first == null || second == null) {
-            throw new ClassCastException("Tried to compare null arguments. Argument 1: " + first + " Argument 2: " + second);
+            throw new NullPointerException("Cannot operate on null arguments. Argument 1: " + first + " Argument 2: " + second);
         }
         // Relying on the type system to return false if invalid conversions were tried and true if it was converted.
-        // Try first -> second, then second -> first.
         boolean canCompare = CONVERTORS.get(first.type).convert(second);
         if (!canCompare) {
             canCompare = CONVERTORS.get(second.type).convert(first);
@@ -351,8 +394,73 @@ public class TypeSystem {
             throw new ClassCastException("Type conversion could not be performed for types: " + first.type + " and " + second.type +
                                           " with values: " + first.data.toString() + " and " + second.data.toString());
         }
+    }
+
+    /**
+     * Perform arithmetic on two TypedObjects
+     * @param first The LHS of the arithmetic
+     * @param second The RHS of the arithmetic
+     * @return The resulting TypedObject.
+     */
+    public static TypedObject doArithmetic(ArithmeticOperator operator, TypedObject first, TypedObject second) {
+        unifyType(first, second);
+        // Both are now the same type, do the arithmetic
+        TypedObject result = ARITHMETIC.get(operator).perform(first, second);
+
+        if (result == null) {
+            throw new ClassCastException("Unable to perform operation: " + operator + " on " +
+                                         first.data.toString() + " and " + second.data.toString());
+        }
+        return result;
+    }
+
+    /**
+     * Compare two TypedObjects.
+     * @param first The first object to compare.
+     * @param second The second object to compare.
+     * @return -1 if first is less than second, 1 if first is greater than second and 0 if first equals second.
+     */
+    @SuppressWarnings("unchecked")
+    public static int compare(TypedObject first, TypedObject second) {
+        unifyType(first, second);
         // Both are now the same type, just compare
         return first.data.compareTo(second.data);
+    }
+
+    /**
+     * Helper method that returns the sum of the first and second.
+     */
+    public static TypedObject add(TypedObject first, TypedObject second) {
+        return doArithmetic(ArithmeticOperator.ADD, first, second);
+    }
+
+    /**
+     * Helper method that returns the difference of the first and second.
+     */
+    public static TypedObject subtract(TypedObject first, TypedObject second) {
+        return doArithmetic(ArithmeticOperator.SUBTRACT, first, second);
+    }
+
+    /**
+     * Helper method that returns the product of the first and second.
+     */
+    public static TypedObject multiply(TypedObject first, TypedObject second) {
+        return doArithmetic(ArithmeticOperator.MULTIPLY, first, second);
+    }
+
+    /**
+     * Helper method that returns the quotient of the first divided by second.
+     */
+    public static TypedObject divide(TypedObject first, TypedObject second) {
+        return doArithmetic(ArithmeticOperator.DIVIDE, first, second);
+    }
+
+    /**
+     * Helper method that negates the input.
+     */
+    public static TypedObject negate(TypedObject input) {
+        // We'll use our narrowest numeric type - LONG. STRING would work too.
+        return doArithmetic(ArithmeticOperator.MULTIPLY, new TypedObject(Long.valueOf(-1), Type.LONG), input);
     }
 
     /**
