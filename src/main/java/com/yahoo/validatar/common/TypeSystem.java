@@ -29,12 +29,9 @@ public class TypeSystem {
     /**
      * These are the official types we support. They correspond to Java types.
      * They all must correspond to an actual object that implements Comparable.
-     * Unknown is a default Type that is temporary - while the Type is being
-     * determined. E.g. when an identifier is parsed till its type is set by
-     * the engine.
      */
     public enum Type {
-        CHARACTER, LONG, DOUBLE, DECIMAL, BOOLEAN, STRING, TIMESTAMP, UNKNOWN
+        CHARACTER, LONG, DOUBLE, DECIMAL, BOOLEAN, STRING, TIMESTAMP
     }
 
     /**
@@ -380,17 +377,17 @@ public class TypeSystem {
      * Throws an NullPointerException if either argument is null.
      * If successful, first and second will be the of the same type.
      */
-    private static boolean unifyType(TypedObject first, TypedObject second) {
+    private static void unifyType(TypedObject first, TypedObject second) {
         if (first == null || second == null) {
             throw new NullPointerException("Cannot operate on null arguments. Argument 1: " + first + " Argument 2: " + second);
         }
         // Relying on the type system to return false if invalid conversions were tried and true if it was converted.
-        boolean canCompare = CONVERTORS.get(first.type).convert(second);
-        if (!canCompare) {
-            canCompare = CONVERTORS.get(second.type).convert(first);
+        boolean isUnified = CONVERTORS.get(first.type).convert(second);
+        if (!isUnified) {
+            isUnified = CONVERTORS.get(second.type).convert(first);
         }
 
-        if (!canCompare) {
+        if (!isUnified) {
             throw new ClassCastException("Type conversion could not be performed for types: " + first.type + " and " + second.type +
                                           " with values: " + first.data.toString() + " and " + second.data.toString());
         }
@@ -426,6 +423,12 @@ public class TypeSystem {
         // Both are now the same type, just compare
         return first.data.compareTo(second.data);
     }
+
+    /*
+     ********************************************************************************
+     *                                Helper methods                                *
+     ********************************************************************************
+     */
 
     /**
      * Helper method that returns the sum of the first and second.
@@ -464,40 +467,83 @@ public class TypeSystem {
     }
 
     /**
+     * Takes a Boolean and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(Boolean value) {
+        return new TypedObject(value, Type.BOOLEAN);
+    }
+
+    /**
+     * Takes a Long and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(Long value) {
+        return new TypedObject(value, Type.LONG);
+    }
+
+    /**
      * Helper method that returns true iff first equals second.
      */
-    public static boolean isEqualTo(TypedObject first, TypedObject second) {
-        return compare(first, second) == 0;
+    public static TypedObject isEqualTo(TypedObject first, TypedObject second) {
+        return asTypedObject(compare(first, second) == 0);
+    }
+
+    /**
+     * Helper method that returns true iff first equals second.
+     */
+    public static TypedObject isNotEqualTo(TypedObject first, TypedObject second) {
+        return asTypedObject(compare(first, second) != 0);
     }
 
     /**
      * Helper method that returns true iff first is less than second.
      */
-    public static boolean isLessThan(TypedObject first, TypedObject second) {
-        return compare(first, second) == -1;
+    public static TypedObject isLessThan(TypedObject first, TypedObject second) {
+        return asTypedObject(compare(first, second) == -1);
     }
 
     /**
      * Helper method that returns true iff first is less than or equal to second.
      */
-    public static boolean isLessThanOrEqual(TypedObject first, TypedObject second) {
+    public static TypedObject isLessThanOrEqual(TypedObject first, TypedObject second) {
         int compared = compare(first, second);
-        return compared == -1 || compared == 0;
+        return asTypedObject(compared == -1 || compared == 0);
     }
 
     /**
      * Helper method that returns true iff first is greater than second.
      */
-    public static boolean isGreaterThan(TypedObject first, TypedObject second) {
-        return compare(first, second) == 1;
+    public static TypedObject isGreaterThan(TypedObject first, TypedObject second) {
+        return asTypedObject(compare(first, second) == 1);
     }
 
     /**
      * Helper method that returns true iff first is greater than or equal to second.
      */
-    public static boolean isGreaterThanOrEqual(TypedObject first, TypedObject second) {
+    public static TypedObject isGreaterThanOrEqual(TypedObject first, TypedObject second) {
         int compared = compare(first, second);
-        return compared == 1 || compared == 0;
+        return asTypedObject(compared == 1 || compared == 0);
     }
 
+    /**
+     * Helper method to do logical negation.
+     */
+    public static TypedObject logicalNegate(TypedObject input) {
+        return asTypedObject(!(Boolean) input.data);
+    }
+
+    /**
+     * Helper method to do logical and.
+     */
+    public static TypedObject logicalAnd(TypedObject first, TypedObject second) {
+        unifyType(first, second);
+        return asTypedObject((Boolean) first.data && (Boolean) second.data);
+    }
+
+    /**
+     * Helper method to do logical or.
+     */
+    public static TypedObject logicalOr(TypedObject first, TypedObject second) {
+        unifyType(first, second);
+        return asTypedObject((Boolean) first.data || (Boolean) second.data);
+    }
 }

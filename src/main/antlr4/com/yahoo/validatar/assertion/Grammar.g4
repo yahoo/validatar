@@ -18,18 +18,18 @@ grammar Grammar;
 
 @parser::header {
 import com.yahoo.validatar.common.TypedObject;
-import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypeSystem.Type;
+import static com.yahoo.validatar.common.TypeSystem.*;
 import java.util.Map;
 import java.util.HashMap;
 import java.math.BigDecimal;
 }
 
 @parser::members {
-    private Map<String, String> row = null;
+    private Map<String, TypedObject> row = null;
     private Map<String, String> lookedUpValues = new HashMap<String, String>();;
 
-    public void setCurrentRow(Map<String, String> row) {
+    public void setCurrentRow(Map<String, TypedObject> row) {
         this.row = row;
     }
 
@@ -37,9 +37,12 @@ import java.math.BigDecimal;
         return lookedUpValues;
     }
 
-    private String getColumnValue(String name) {
-        String result = row.get(name);
-        lookedUpValues.put(name, result);
+    private TypedObject getColumnValue(String name) {
+        TypedObject result = row.get(name);
+        if (result == null) {
+            throw new RuntimeException("Unable to find value for column: " + name + " in results");
+        }
+        lookedUpValues.put(name, result.data.toString());
         return result;
     }
 
@@ -66,29 +69,31 @@ import java.math.BigDecimal;
         }
         return object;
     }
+
+    private TypedObject approx(TypedObject first, TypedObject second, TypedObject percent) {
+        if ((Boolean) isGreaterThan(asTypedObject(1L), percent).data || (Boolean) isLessThan(asTypedObject(0L), percent).data) {
+            throw new RuntimeException("Expected percentage for the function to be between 0 and 1. Got " + percent.data);
+        }
+
+        TypedObject max = multiply(second, add(asTypedObject(1L), percent));
+        if ((Boolean) isGreaterThan(first, max).data) {
+            return asTypedObject(false);
+        }
+
+        TypedObject min = multiply(second, subtract(asTypedObject(1L), percent));
+        if ((Boolean) isLessThan(first, min).data) {
+            return asTypedObject(false);
+        }
+        return asTypedObject(true);
+    }
 }
 
-functionalExpression returns [String value]
-    :   APPROX LEFTPAREN l=base COMMA r=base COMMA p=numeric RIGHTPAREN
-                  {
-                      Double percent = Double.parseDouble($p.text);
-                      if (percent > 1 || percent < 0) {
-                          throw new RuntimeException("Expected percentage for the function to be between 0 and 1. Got " + percent);
-                      }
-                      Double left = Double.parseDouble($l.value);
-                      Double right = Double.parseDouble($r.value);
-                      if (left > (right * (1 + percent))) {
-                          $value = String.valueOf(false);
-                      } else if (left < (right * (1 - percent))) {
-                          $value = String.valueOf(false);
-                      } else {
-                          $value = String.valueOf(true);
-                      }
-                  }
+functionalExpression returns [TypedObject value]
+    :   APPROX LEFTPAREN l=base COMMA r=base COMMA p=numeric RIGHTPAREN {$value = approx($l.value, $r.value, $p.value);}
     ;
 
 base returns [TypedObject value]
-    :   i=Identifier                               {$value = new TypedObject(getColumnValue($i.text), Type.UNKNOWN);}
+    :   i=Identifier                               {$value = getColumnValue($i.text);}
     |   s=StringLiteral                            {$value = new TypedObject(stripQuotes($s.text), Type.STRING);}
     |   n=numeric                                  {$value = $n.value;}
     |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = $o.value;}
@@ -106,7 +111,7 @@ unaryExpression returns [TypedObject value]
                             if ($m == null) {
                                 $value = $b.value;
                             } else {
-                                $value = String.valueOf(-1.0 * Double.parseDouble($b.value));
+                                $value = negate($b.value);
                             };
                         }
     |   n=NOT? b=base
@@ -114,49 +119,49 @@ unaryExpression returns [TypedObject value]
                             if ($n == null) {
                                 $value = $b.value;
                             } else {
-                                $value = String.valueOf(!Boolean.parseBoolean($b.value));
+                                $value = logicalNegate($b.value);
                             };
                         }
     ;
 
-multiplicativeExpression returns [String value]
+multiplicativeExpression returns [TypedObject value]
     :   u=unaryExpression                                   {$value = $u.value;}
-    |   m=multiplicativeExpression TIMES u=unaryExpression  {$value = String.valueOf(Double.parseDouble($m.value) * Double.parseDouble($u.value));}
-    |   m=multiplicativeExpression DIVIDE u=unaryExpression {$value = String.valueOf(Double.parseDouble($m.value) / Double.parseDouble($u.value));}
+    |   m=multiplicativeExpression TIMES u=unaryExpression  {$value = multiply($m.value, $u.value);}
+    |   m=multiplicativeExpression DIVIDE u=unaryExpression {$value = divide($m.value, $u.value);}
     ;
 
-additiveExpression returns [String value]
+additiveExpression returns [TypedObject value]
     :   m=multiplicativeExpression                              {$value = $m.value;}
-    |   a=additiveExpression PLUS m=multiplicativeExpression    {$value = String.valueOf(Double.parseDouble($a.value) + Double.parseDouble($m.value));}
-    |   a=additiveExpression MINUS m=multiplicativeExpression   {$value = String.valueOf(Double.parseDouble($a.value) - Double.parseDouble($m.value));}
+    |   a=additiveExpression PLUS m=multiplicativeExpression    {$value = add($a.value, $m.value);}
+    |   a=additiveExpression MINUS m=multiplicativeExpression   {$value = subtract($a.value, $m.value);}
     ;
 
-relationalExpression returns [String value]
+relationalExpression returns [TypedObject value]
     :   a=additiveExpression                                     {$value = $a.value;}
-    |   r=relationalExpression GREATER a=additiveExpression      {$value = String.valueOf(Double.parseDouble($r.value) >  Double.parseDouble($a.value));}
-    |   r=relationalExpression LESS a=additiveExpression         {$value = String.valueOf(Double.parseDouble($r.value) <  Double.parseDouble($a.value));}
-    |   r=relationalExpression LESSEQUAL a=additiveExpression    {$value = String.valueOf(Double.parseDouble($r.value) <= Double.parseDouble($a.value));}
-    |   r=relationalExpression GREATEREQUAL a=additiveExpression {$value = String.valueOf(Double.parseDouble($r.value) >= Double.parseDouble($a.value));}
+    |   r=relationalExpression GREATER a=additiveExpression      {$value = isGreaterThan($r.value, $a.value);}
+    |   r=relationalExpression LESS a=additiveExpression         {$value = isLessThan($r.value, $a.value);}
+    |   r=relationalExpression LESSEQUAL a=additiveExpression    {$value = isLessThanOrEqual($r.value, $a.value);}
+    |   r=relationalExpression GREATEREQUAL a=additiveExpression {$value = isGreaterThanOrEqual($r.value, $a.value);}
     ;
 
-equalityExpression returns [String value]
+equalityExpression returns [TypedObject value]
     :   r=relationalExpression                               {$value = $r.value;}
-    |   e=equalityExpression EQUAL r=relationalExpression    {$value = String.valueOf($e.value.equals($r.value));}
-    |   e=equalityExpression NOTEQUAL r=relationalExpression {$value = String.valueOf(!$e.value.equals($r.value));}
+    |   e=equalityExpression EQUAL r=relationalExpression    {$value = isEqualTo($e.value, $r.value);}
+    |   e=equalityExpression NOTEQUAL r=relationalExpression {$value = isNotEqualTo($e.value, $r.value);}
     ;
 
-andExpression returns [String value]
+andExpression returns [TypedObject value]
     :   e=equalityExpression                     {$value = $e.value;}
-    |   a=andExpression AND e=equalityExpression {$value = String.valueOf(Boolean.valueOf($a.value) && Boolean.valueOf($e.value));}
+    |   a=andExpression AND e=equalityExpression {$value = logicalAnd($a.value, $e.value);}
     ;
 
-orExpression returns [String value]
+orExpression returns [TypedObject value]
     :   a=andExpression                   {$value = $a.value;}
-    |   o=orExpression OR a=andExpression {$value = String.valueOf(Boolean.valueOf($o.value) || Boolean.valueOf($a.value));}
+    |   o=orExpression OR a=andExpression {$value = logicalOr($o.value, $a.value);}
     ;
 
 expression returns [Boolean value]
-    :   o=orExpression                    {$value = Boolean.valueOf($o.value);}
+    :   o=orExpression                    {$value = (Boolean) $o.value.data;}
     ;
 
 QUOTE                : '"';
