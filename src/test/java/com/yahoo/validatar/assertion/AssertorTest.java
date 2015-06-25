@@ -45,7 +45,7 @@ public class AssertorTest {
 
         Assertor.assertAll(columns, wrap(test));
         Assert.assertTrue(test.failed());
-        Assert.assertEquals("100 > 1000 : False for these values {}", test.getFailedAssertMessage());
+        Assert.assertEquals("100 > 1000 was false for these values {}", test.getMessages().get(0));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class AssertorTest {
         Assertor.assertAll(columns, wrap(test));
 
         Assert.assertTrue(test.failed());
-        Assert.assertEquals("pv_count > 1000 && li_count < 100 : False for these values {pv_count=104255, li_count=155}", test.getFailedAssertMessage());
+        Assert.assertEquals("pv_count > 1000 && li_count < 100 was false for these values {pv_count=104255, li_count=155}", test.getMessages().get(0));
     }
 
     @Test

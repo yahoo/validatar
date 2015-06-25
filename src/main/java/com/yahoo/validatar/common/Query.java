@@ -17,37 +17,23 @@
 package com.yahoo.validatar.common;
 
 import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 
-public class Query {
+public class Query extends Executable {
     public String name;
     public String engine;
     public String value;
+    public List<Metadata> metadata;
 
-    private boolean failed = false;
-    private String failedMessage = null;
     private Map<String, List<String>> results = null;
 
     /**
-     * Get the failure message.
-     */
-    public String getFailedMessage() {
-        return failedMessage;
-    }
-
-    /**
-     * True if the query failed.
-     */
-    public boolean failed() {
-        return failed;
-    }
-
-    /**
-     * Set the failure message and mark as failure.
+     * Add a failure message and mark as failed.
      */
     public void setFailure(String failedMessage) {
-        failed = true;
-        this.failedMessage = failedMessage;
+        setFailed();
+        addMessage(failedMessage);
     }
 
     /**
@@ -62,5 +48,20 @@ public class Query {
      */
     public Map<String, List<String>> getResults() {
         return results;
+    }
+
+    /**
+     * Returns the metadata list flattened into a map. If there are metadata with
+     * the same key, the last one is one that is kept.
+     */
+    public Map<String, String> getMetadata() {
+        if (metadata == null) {
+            return null;
+        }
+        Map<String, String> metas = new HashMap<>();
+        for (Metadata meta : metadata) {
+            metas.put(meta.key, meta.value);
+        }
+        return metas;
     }
 }

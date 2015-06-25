@@ -16,23 +16,10 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-public class QueryTest {
-    @Test
-    public void testGetSet() {
-        Query query = new Query();
-
-        query.setFailure("sample message");
-        Assert.assertEquals(query.getMessages().size(), 1);
-        Assert.assertEquals(query.getMessages().get(0), "sample message");
-
-        Assert.assertTrue(query.failed());
-    }
+/**
+ * A wrapper type that represents a single piece of Metadata, i.e. a key value pair.
+ */
+public class Metadata {
+    public String key;
+    public String value;
 }

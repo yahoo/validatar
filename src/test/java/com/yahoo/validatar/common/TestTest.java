@@ -32,13 +32,14 @@ public class TestTest {
     public void testGetSet() {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
 
-        test.setFailedAssertMessage("sample message");
-        Assert.assertEquals(test.getFailedAssertMessage(), "sample message");
+        test.addMessage("sample message");
+        Assert.assertEquals(test.getMessages().size(), 1);
+        Assert.assertEquals(test.getMessages().get(0), "sample message");
 
-        test.setTestFailed();
+        test.setFailed();
         Assert.assertTrue(test.failed());
 
-        test.setTestSuccess();
+        test.setSuccess();
         Assert.assertFalse(test.failed());
     }
 }
