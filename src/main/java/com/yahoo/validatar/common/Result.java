@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Result {
-    public Map<String, List<String>> data = new HashMap<>();
-    public Map<String, TypeSystem.Type> types = new HashMap<>();
+    private Map<String, List<TypedObject>> data = new HashMap<>();
     private String prefix = "";
 
     /**
@@ -43,22 +42,18 @@ public class Result {
     /**
      * Create and add a new column to the result.
      * @param name The name of the column.
-     * @param type The type of the column.
      */
-    public void addColumn(String name, TypeSystem.Type type) {
-        data.put(prefix + name, new ArrayList<String>());
-        types.put(prefix + name, type);
+    public void addColumn(String name) {
+        data.put(prefix + name, new ArrayList<TypedObject>());
     }
 
     /**
      * Create and add a new column to the result with the given rows.
      * @param name The name of the column.
      * @param values The column rows.
-     * @param type The type of the column.
      */
-    public void addColumn(String name, TypeSystem.Type type, List<String> values) {
+    public void addColumn(String name, List<TypedObject> values) {
         data.put(prefix + name, values);
-        types.put(prefix + name, type);
     }
 
     /**
@@ -67,15 +62,44 @@ public class Result {
      */
     public void merge(Result result) {
         data.putAll(result.data);
-        types.putAll(result.types);
     }
 
     /**
      * Add a new row to an existing column.
      * @param name The name of the column.
-     * @param value The value to add to it
+     * @param value The value to add to it.
      */
-    public void addColumnRow(String name, String value) {
+    public void addColumnRow(String name, TypedObject value) {
         data.get(prefix + name).add(value);
+    }
+
+    /**
+     * Gets the type for a given column name.
+     * @param columnName The name of the column.
+     * @return The TypeSystem.Type of the column.
+     */
+    public TypeSystem.Type getTypeForColumn(String columnName) {
+        List<TypedObject> values = data.get(prefix + columnName);
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        return values.get(0).type;
+    }
+
+    /**
+     * Gets the column for a given column name.
+     * @param columnName The name of the column.
+     * @return The TypeSystem.Type of the column.
+     */
+    public List<TypedObject> getColumn(String columnName) {
+        return data.get(prefix + columnName);
+    }
+
+    /**
+     * Gets the columns representing as a Map of column names to their List of values.
+     * @return The column viewed as a Map.
+     */
+    public Map<String, List<TypedObject>> getColumns() {
+        return data;
     }
 }

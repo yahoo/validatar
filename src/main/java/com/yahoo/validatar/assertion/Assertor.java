@@ -18,6 +18,7 @@ package com.yahoo.validatar.assertion;
 
 import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.TypedObject;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -73,11 +74,11 @@ public class Assertor {
         }
     }
 
-    private static Map<String, String> getAsOneEntry(Result results) {
+    private static Map<String, TypedObject> getAsOneEntry(Result results) {
         // IMPORTANT!
         // Only interpreting as a single row result set. Temporary, will re-enable later
-        Map<String, String> row = new HashMap<String, String>();
-        for (Map.Entry<String, List<String>> e : results.data.entrySet()) {
+        Map<String, TypedObject> row = new HashMap<>();
+        for (Map.Entry<String, List<TypedObject>> e : results.getColumns().entrySet()) {
             row.put(e.getKey(), e.getValue().get(0));
         }
         return row;

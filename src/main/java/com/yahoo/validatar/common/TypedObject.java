@@ -26,6 +26,12 @@ public class TypedObject {
     public TypeSystem.Type type;
 
     /**
+     * Default Constructor.
+     */
+    public TypedObject() {
+    }
+
+    /**
      * Constructor.
      */
     public TypedObject(Comparable data, TypeSystem.Type type) {

@@ -27,7 +27,7 @@ import java.math.BigDecimal;
 
 @parser::members {
     private Map<String, TypedObject> row = null;
-    private Map<String, String> lookedUpValues = new HashMap<String, String>();;
+    private Map<String, String> lookedUpValues = new HashMap<>();;
 
     public void setCurrentRow(Map<String, TypedObject> row) {
         this.row = row;

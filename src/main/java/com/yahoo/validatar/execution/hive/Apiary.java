@@ -19,6 +19,8 @@ package com.yahoo.validatar.execution.hive;
 import com.yahoo.validatar.execution.Engine;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.TypeSystem;
+import com.yahoo.validatar.common.TypedObject;
 
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -26,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.sql.DriverManager;
+import java.sql.Types;
 
 import java.util.List;
 import static java.util.Arrays.*;
@@ -115,17 +118,17 @@ public class Apiary implements Engine {
             // Setup lists
             for (int i = 1; i < columns + 1; i++) {
                 String name = metadata.getColumnName(i);
-                // Null type for now
-                queryResult.addColumn(name, null);
+                queryResult.addColumn(name);
             }
 
             // Get the output
             while (result.next()) {
                 for (int i = 1; i < columns + 1; i++) {
                     String name = metadata.getColumnName(i);
-                    String value = result.getString(i);
+                    int type = metadata.getColumnType(i);
+                    TypedObject value = getAsTypedObject(result, i, type);
                     queryResult.addColumnRow(name, value);
-                    log.info("Column: " + name + "\tValue: " + value);
+                    log.info("Column: " + name + "\tType: " + type + "\tValue: " + value);
                 }
             }
         } catch (SQLException e) {
@@ -138,6 +141,44 @@ public class Apiary implements Engine {
     @Override
     public String getName() {
         return ENGINE_NAME;
+    }
+
+    /**
+     * Takes a value and its type and returns it as the appropriate TypedObject.
+     * @param results The ResultSet that has a confirmed value for reading by its iterator.
+     * @param index The index of the column in the results to get.
+     * @param type The java.sql.TypesSQL type of the value.
+     * @return A non-null TypedObject representation of the value.
+     */
+    protected TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
+        if (results.wasNull()) {
+            return null;
+        }
+        switch(type) {
+            // Instead of dealing with chars, since Hive gives them to us as Strings anyway,
+            // we'll leave it to TypeSystem to force it to a char when performing operations
+            case(Types.CHAR):
+                return new TypedObject(results.getString(index), TypeSystem.Type.CHARACTER);
+            case(Types.DATE):
+            case(Types.VARCHAR):
+                return new TypedObject(results.getString(index), TypeSystem.Type.STRING);
+            case(Types.FLOAT):
+            case(Types.DOUBLE):
+                return new TypedObject((Double) results.getDouble(index), TypeSystem.Type.DOUBLE);
+            case(Types.BOOLEAN):
+                return new TypedObject((Boolean) results.getBoolean(index), TypeSystem.Type.BOOLEAN);
+            case(Types.TINYINT):
+            case(Types.SMALLINT):
+            case(Types.INTEGER):
+            case(Types.BIGINT):
+                return new TypedObject((Long) results.getLong(index), TypeSystem.Type.LONG);
+            case(Types.DECIMAL):
+                return new TypedObject(results.getBigDecimal(index), TypeSystem.Type.DECIMAL);
+            case(Types.TIMESTAMP):
+                return new TypedObject(results.getTimestamp(index), TypeSystem.Type.TIMESTAMP);
+            default:
+                throw new UnsupportedOperationException("Unknown SQL type encountered from Hive: " + type);
+        }
     }
 
     /**
