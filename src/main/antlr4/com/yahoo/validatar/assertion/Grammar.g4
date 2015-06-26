@@ -176,7 +176,6 @@ expression returns [Boolean value]
     :   o=orExpression                    {$value = (Boolean) $o.value.data;}
     ;
 
-SINGLEQUOTE          : '\'';
 DOUBLEQUOTE          : '"';
 PERIOD               : '.';
 COMMA                : ',';
@@ -241,7 +240,6 @@ DecimalNumber
 
 StringLiteral
     : DOUBLEQUOTE StringCharacter* DOUBLEQUOTE
-    | SINGLEQUOTE StringCharacter* SINGLEQUOTE
     ;
 
 Identifier

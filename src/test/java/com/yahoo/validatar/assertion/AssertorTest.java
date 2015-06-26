@@ -289,6 +289,17 @@ public class AssertorTest {
     }
 
     @Test
+    public void testSingleQuoteStringAssertion() {
+        addToResult("str", TypeSystem.Type.STRING, "Foo's Bar");
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<String>();
+        test.asserts.add("str == \"Foo's Bar\"");
+        Assertor.assertAll(results, wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
     public void testBooleanAssertion() {
         addToResult("bool", TypeSystem.Type.BOOLEAN, true);
 
