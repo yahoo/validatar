@@ -291,6 +291,17 @@ public class AssertorTest {
     }
 
     @Test
+    public void testUnicodeAssertion() {
+        addToResult("str", TypeSystem.Type.STRING, "\u0001");
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<String>();
+        test.asserts.add("str == \"\\u0001\"");
+        Assertor.assertAll(results, wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
     public void testBooleanAssertion() {
         addToResult("bool", TypeSystem.Type.BOOLEAN, true);
 

@@ -23,6 +23,7 @@ import static com.yahoo.validatar.common.TypeSystem.*;
 import java.util.Map;
 import java.util.HashMap;
 import java.math.BigDecimal;
+import org.apache.commons.lang3.StringEscapeUtils;
 }
 
 @parser::members {
@@ -55,7 +56,7 @@ import java.math.BigDecimal;
     }
 
     private TypedObject parseString(String text) {
-        return new TypedObject(stripQuotes(text), Type.STRING);
+        return new TypedObject(StringEscapeUtils.unescapeJava(stripQuotes(text)), Type.STRING);
     }
 
     private TypedObject parseWholeNumber(String text) {
@@ -216,12 +217,12 @@ Newline
 
 fragment
 CharacterCharacter
-    : ~['\\]
+    : ~[']
     ;
 
 fragment
 StringCharacter
-    : ~["\\]
+    : ~["]
     ;
 
 fragment
