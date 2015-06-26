@@ -31,7 +31,7 @@ public class TypeSystem {
      * They all must correspond to an actual object that implements Comparable.
      */
     public enum Type {
-        CHARACTER, LONG, DOUBLE, DECIMAL, BOOLEAN, STRING, TIMESTAMP
+        LONG, DOUBLE, DECIMAL, BOOLEAN, STRING, TIMESTAMP
     }
 
     /**
@@ -87,7 +87,6 @@ public class TypeSystem {
                         return new TypedObject(data, Type.TIMESTAMP);
                     }
                     case BOOLEAN:
-                    case CHARACTER:
                     default:
                         return null;
                 }
@@ -114,7 +113,6 @@ public class TypeSystem {
                     }
                     case STRING:
                     case BOOLEAN:
-                    case CHARACTER:
                     default:
                         return null;
                 }
@@ -141,7 +139,6 @@ public class TypeSystem {
                     }
                     case STRING:
                     case BOOLEAN:
-                    case CHARACTER:
                     default:
                         return null;
                 }
@@ -168,7 +165,6 @@ public class TypeSystem {
                     }
                     case STRING:
                     case BOOLEAN:
-                    case CHARACTER:
                     default:
                         return null;
                 }
@@ -186,7 +182,6 @@ public class TypeSystem {
                     case DOUBLE:
                     case DECIMAL:
                     case BOOLEAN:
-                    case CHARACTER:
                     default:
                         return null;
                 }
@@ -206,39 +201,11 @@ public class TypeSystem {
      */
     private static final Map<Type, TypeConvertor> CONVERTORS = new HashMap<>();
     static {
-        CONVERTORS.put(Type.CHARACTER, new TypeConvertor() {
-            public boolean convert(TypedObject source) {
-                switch(source.type) {
-                    case STRING: {
-                        String input = (String) source.data;
-                        if (input.length() == 1) {
-                            source.data = (Character) input.charAt(0);
-                            source.type = Type.CHARACTER;
-                            return true;
-                        }
-                        return false;
-                    }
-                    case CHARACTER:
-                        return true;
-                    case LONG:
-                    case DOUBLE:
-                    case DECIMAL:
-                    case BOOLEAN:
-                    case TIMESTAMP:
-                    default:
-                        return false;
-                }
-            }
-        });
         CONVERTORS.put(Type.LONG, new TypeConvertor() {
             public boolean convert(TypedObject source) {
                 switch(source.type) {
                     case STRING:
                         source.data = Long.valueOf((String) source.data);
-                        source.type = Type.LONG;
-                        return true;
-                    case CHARACTER:
-                        source.data = (long) ((Character) source.data).charValue();
                         source.type = Type.LONG;
                         return true;
                     case LONG:
@@ -262,10 +229,6 @@ public class TypeSystem {
                         source.data = Double.valueOf((String) source.data);
                         source.type = Type.DOUBLE;
                         return true;
-                    case CHARACTER:
-                        source.data = (double) ((Character) source.data).charValue();
-                        source.type = Type.DOUBLE;
-                        return true;
                     case DOUBLE:
                         return true;
                     case LONG:
@@ -285,10 +248,6 @@ public class TypeSystem {
                 switch(source.type) {
                     case STRING:
                         source.data = new BigDecimal((String) source.data);
-                        source.type = Type.DECIMAL;
-                        return true;
-                    case CHARACTER:
-                        source.data = new BigDecimal(String.valueOf((Character) source.data));;
                         source.type = Type.DECIMAL;
                         return true;
                     case LONG:
@@ -320,7 +279,6 @@ public class TypeSystem {
                         return true;
                     case BOOLEAN:
                         return true;
-                    case CHARACTER:
                     case LONG:
                     case DOUBLE:
                     case DECIMAL:
@@ -334,10 +292,6 @@ public class TypeSystem {
             public boolean convert(TypedObject source) {
                 switch(source.type) {
                     case STRING:
-                        return true;
-                    case CHARACTER:
-                        source.data = String.valueOf((Character) source.data);
-                        source.type = Type.STRING;
                         return true;
                     case LONG:
                         source.data = ((Long) source.data).toString();
@@ -377,7 +331,6 @@ public class TypeSystem {
                         return true;
                     case TIMESTAMP:
                         return true;
-                    case CHARACTER:
                     case DOUBLE:
                     case DECIMAL:
                     case BOOLEAN:
@@ -605,12 +558,4 @@ public class TypeSystem {
     public static TypedObject asTypedObject(String value) {
         return new TypedObject(value, Type.STRING);
     }
-
-    /**
-     * Takes a Character and wraps it a proper TypedObject.
-     */
-    public static TypedObject asTypedObject(Character value) {
-        return new TypedObject(value, Type.CHARACTER);
-    }
-
 }

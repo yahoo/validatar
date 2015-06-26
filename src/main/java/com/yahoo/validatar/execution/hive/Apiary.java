@@ -155,11 +155,8 @@ public class Apiary implements Engine {
             return null;
         }
         switch(type) {
-            // Instead of dealing with chars, since Hive gives them to us as Strings anyway,
-            // we'll leave it to TypeSystem to force it to a char when performing operations
-            case(Types.CHAR):
-                return new TypedObject(results.getString(index), TypeSystem.Type.CHARACTER);
             case(Types.DATE):
+            case(Types.CHAR):
             case(Types.VARCHAR):
                 return new TypedObject(results.getString(index), TypeSystem.Type.STRING);
             case(Types.FLOAT):

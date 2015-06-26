@@ -34,8 +34,6 @@ public class TypeSystemTest {
         switch(type) {
             case STRING:
                 return new TypedObject((String) value, TypeSystem.Type.STRING);
-            case CHARACTER:
-                return new TypedObject((Character) value, TypeSystem.Type.CHARACTER);
             case LONG:
                 return new TypedObject((Long) value, TypeSystem.Type.LONG);
             case DOUBLE:
@@ -60,10 +58,6 @@ public class TypeSystemTest {
         String stringValue = "foo";
         Assert.assertEquals((String) TypeSystem.asTypedObject(stringValue).data, "foo");
         Assert.assertEquals(TypeSystem.asTypedObject(stringValue).type, TypeSystem.Type.STRING);
-
-        Character characterValue = '4';
-        Assert.assertEquals((Character) TypeSystem.asTypedObject(characterValue).data, Character.valueOf('4'));
-        Assert.assertEquals(TypeSystem.asTypedObject(characterValue).type, TypeSystem.Type.CHARACTER);
 
         Long longValue = 131412300000000000L;
         Assert.assertEquals((Long) TypeSystem.asTypedObject(longValue).data, Long.valueOf(131412300000000000L));

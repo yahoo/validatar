@@ -278,20 +278,7 @@ public class AssertorTest {
     }
 
     @Test
-    public void testCharacterAssertion() {
-        addToResult("char", TypeSystem.Type.CHARACTER, '\0');
-
-        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
-        test.asserts.add("char == '\0'");
-        test.asserts.add("char != 'f'");
-        test.asserts.add("char < 'f'");
-        Assertor.assertAll(results, wrap(test));
-        Assert.assertFalse(test.failed());
-    }
-
-    @Test
-    public void testUnicodeAssertion() {
+    public void testUnicodeStringAssertion() {
         addToResult("str", TypeSystem.Type.STRING, "\u0001");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();

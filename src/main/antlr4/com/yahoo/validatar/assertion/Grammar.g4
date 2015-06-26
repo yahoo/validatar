@@ -51,10 +51,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
         return literal.substring(1, literal.length() - 1);
     }
 
-    private TypedObject parseCharacter(String text) {
-        return new TypedObject(stripQuotes(text).charAt(0), Type.CHARACTER);
-    }
-
     private TypedObject parseString(String text) {
         return new TypedObject(StringEscapeUtils.unescapeJava(stripQuotes(text)), Type.STRING);
     }
@@ -105,7 +101,6 @@ base returns [TypedObject value]
     :   i=Identifier                               {$value = getColumnValue($i.text);}
     |   t=truthy                                   {$value = $t.value;}
     |   n=numeric                                  {$value = $n.value;}
-    |   c=CharacterLiteral                         {$value = parseCharacter($c.text);}
     |   s=StringLiteral                            {$value = parseString($s.text);}
     |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = $o.value;}
     |   f=functionalExpression                     {$value = $f.value;}
@@ -216,11 +211,6 @@ Newline
     ;
 
 fragment
-CharacterCharacter
-    : ~[']
-    ;
-
-fragment
 StringCharacter
     : ~["]
     ;
@@ -237,7 +227,8 @@ Digit
 
 fragment
 IdentifierCharacter
-    : (NonDigit | Digit)
+    : NonDigit
+    | Digit
     ;
 
 WholeNumber
@@ -248,15 +239,12 @@ DecimalNumber
     :  Digit+ PERIOD Digit+
     ;
 
-CharacterLiteral
-    : SINGLEQUOTE CharacterCharacter SINGLEQUOTE
-    ;
-
 StringLiteral
-    :   DOUBLEQUOTE StringCharacter* DOUBLEQUOTE
+    : DOUBLEQUOTE StringCharacter* DOUBLEQUOTE
+    | SINGLEQUOTE StringCharacter* SINGLEQUOTE
     ;
 
 Identifier
-    :  (IdentifierCharacter)+ PERIOD ? (IdentifierCharacter)+
+    :  IdentifierCharacter+ PERIOD ? IdentifierCharacter+
     ;
 
