@@ -38,7 +38,7 @@ public class TypeSystem {
      * These are the arithmetic operations we will support.
      */
     public enum ArithmeticOperator {
-        ADD, SUBTRACT, MULTIPLY, DIVIDE
+        ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULUS
     }
 
     private interface TypeArithmetic {
@@ -167,6 +167,24 @@ public class TypeSystem {
                         return new TypedObject(data, Type.TIMESTAMP);
                     }
                     case STRING:
+                    case BOOLEAN:
+                    case CHARACTER:
+                    default:
+                        return null;
+                }
+            }
+        });
+        ARITHMETIC.put(ArithmeticOperator.MODULUS, new TypeArithmetic() {
+            public TypedObject perform(TypedObject first, TypedObject second) {
+                switch(first.type) {
+                    case LONG: {
+                        Long data = (Long) first.data % (Long) second.data;
+                        return new TypedObject(data, Type.LONG);
+                    }
+                    case TIMESTAMP:
+                    case STRING:
+                    case DOUBLE:
+                    case DECIMAL:
                     case BOOLEAN:
                     case CHARACTER:
                     default:
@@ -459,6 +477,13 @@ public class TypeSystem {
     }
 
     /**
+     * Helper method that returns the modulus of the first and second.
+     */
+    public static TypedObject modulus(TypedObject first, TypedObject second) {
+        return doArithmetic(ArithmeticOperator.MODULUS, first, second);
+    }
+
+    /**
      * Helper method that negates the input.
      */
     public static TypedObject negate(TypedObject input) {
@@ -474,7 +499,7 @@ public class TypeSystem {
     }
 
     /**
-     * Helper method that returns true iff first equals second.
+     * Helper method that returns true iff first not equals second.
      */
     public static TypedObject isNotEqualTo(TypedObject first, TypedObject second) {
         return asTypedObject(compare(first, second) != 0);
@@ -484,7 +509,7 @@ public class TypeSystem {
      * Helper method that returns true iff first is less than second.
      */
     public static TypedObject isLessThan(TypedObject first, TypedObject second) {
-        return asTypedObject(compare(first, second) == -1);
+        return asTypedObject(compare(first, second) < 0);
     }
 
     /**
@@ -492,14 +517,14 @@ public class TypeSystem {
      */
     public static TypedObject isLessThanOrEqual(TypedObject first, TypedObject second) {
         int compared = compare(first, second);
-        return asTypedObject(compared == -1 || compared == 0);
+        return asTypedObject(compared <= 0);
     }
 
     /**
      * Helper method that returns true iff first is greater than second.
      */
     public static TypedObject isGreaterThan(TypedObject first, TypedObject second) {
-        return asTypedObject(compare(first, second) == 1);
+        return asTypedObject(compare(first, second) > 0);
     }
 
     /**
@@ -507,7 +532,7 @@ public class TypeSystem {
      */
     public static TypedObject isGreaterThanOrEqual(TypedObject first, TypedObject second) {
         int compared = compare(first, second);
-        return asTypedObject(compared == 1 || compared == 0);
+        return asTypedObject(compared >= 0);
     }
 
     /**

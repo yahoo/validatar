@@ -102,11 +102,17 @@ functionalExpression returns [TypedObject value]
 
 base returns [TypedObject value]
     :   i=Identifier                               {$value = getColumnValue($i.text);}
+    |   t=truthy                                   {$value = $t.value;}
+    |   n=numeric                                  {$value = $n.value;}
     |   c=CharacterLiteral                         {$value = parseCharacter($c.text);}
     |   s=StringLiteral                            {$value = parseString($s.text);}
-    |   n=numeric                                  {$value = $n.value;}
     |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = $o.value;}
     |   f=functionalExpression                     {$value = $f.value;}
+    ;
+
+truthy returns [TypedObject value]
+    :   TRUE                                       {$value = new TypedObject(Boolean.valueOf(true), Type.BOOLEAN);}
+    |   FALSE                                      {$value = new TypedObject(Boolean.valueOf(false), Type.BOOLEAN);}
     ;
 
 numeric returns [TypedObject value]
@@ -183,6 +189,7 @@ PLUS                 : '+';
 MINUS                : '-';
 TIMES                : '*';
 DIVIDE               : '/';
+MODULUS              : '%';
 GREATER              : '>';
 LESS                 : '<';
 GREATEREQUAL         : '>=';
@@ -192,7 +199,8 @@ EQUAL                : '==';
 NOT                  : '!';
 AND                  : '&&';
 OR                   : '||';
-
+TRUE                 : 'true';
+FALSE                : 'false';
 APPROX               : 'approx';
 
 Whitespace
@@ -206,6 +214,16 @@ Newline
     ;
 
 fragment
+CharacterCharacter
+    : ~['\\]
+    ;
+
+fragment
+StringCharacter
+    : ~["\\]
+    ;
+
+fragment
 NonDigit
     :  [a-zA-Z_]
     ;
@@ -213,6 +231,11 @@ NonDigit
 fragment
 Digit
     :  [0-9]
+    ;
+
+fragment
+IdentifierCharacter
+    : (NonDigit | Digit)
     ;
 
 WholeNumber
@@ -223,23 +246,15 @@ DecimalNumber
     :  Digit+ PERIOD Digit+
     ;
 
-WhitespaceCharacter
-    : [ \t\n\r]
-    ;
-
-Character
-    : (NonDigit | Digit)
-    ;
-
 CharacterLiteral
-    : SINGLEQUOTE (Character | WhitespaceCharacter) SINGLEQUOTE
+    : SINGLEQUOTE CharacterCharacter SINGLEQUOTE
     ;
 
 StringLiteral
-    :   DOUBLEQUOTE (Character | WhitespaceCharacter)* DOUBLEQUOTE
+    :   DOUBLEQUOTE StringCharacter* DOUBLEQUOTE
     ;
 
 Identifier
-    :  (Character)+ PERIOD ? (Character)+
+    :  (IdentifierCharacter)+ PERIOD ? (IdentifierCharacter)+
     ;
 

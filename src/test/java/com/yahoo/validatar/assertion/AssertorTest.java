@@ -281,13 +281,29 @@ public class AssertorTest {
 
     @Test
     public void testCharacterAssertion() {
-        addToResult("char", TypeSystem.Type.CHARACTER, 'g');
+        addToResult("char", TypeSystem.Type.CHARACTER, '\0');
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<String>();
-        test.asserts.add("char == 'g'");
-        test.asserts.add("char <'h'");
-        test.asserts.add("char > 'f'");
+        test.asserts.add("char == '\0'");
+        test.asserts.add("char != 'f'");
+        test.asserts.add("char < 'f'");
+
+        Assertor.assertAll(results, wrap(test));
+
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testBooleanAssertion() {
+        addToResult("bool", TypeSystem.Type.BOOLEAN, true);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<String>();
+        test.asserts.add("bool == true");
+        test.asserts.add("bool != false");
+        test.asserts.add("bool");
+        test.asserts.add("!(!bool)");
 
         Assertor.assertAll(results, wrap(test));
 
