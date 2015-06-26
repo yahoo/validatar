@@ -20,12 +20,12 @@ import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
 
+import com.yahoo.validatar.common.TypeSystemTest;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -53,29 +53,7 @@ public class AssertorTest {
     }
 
     private void addToResult(String name, TypeSystem.Type type, Object value) {
-        switch(type) {
-            case STRING:
-                addToResult(name, new TypedObject((String) value, TypeSystem.Type.STRING));
-                break;
-            case CHARACTER:
-                addToResult(name, new TypedObject((Character) value, TypeSystem.Type.CHARACTER));
-                break;
-            case LONG:
-                addToResult(name, new TypedObject((Long) value, TypeSystem.Type.LONG));
-                break;
-            case DOUBLE:
-                addToResult(name, new TypedObject((Double) value, TypeSystem.Type.DOUBLE));
-                break;
-            case DECIMAL:
-                addToResult(name, new TypedObject((BigDecimal) value, TypeSystem.Type.DECIMAL));
-                break;
-            case TIMESTAMP:
-                addToResult(name, new TypedObject((Timestamp) value, TypeSystem.Type.TIMESTAMP));
-                break;
-            case BOOLEAN:
-                addToResult(name, new TypedObject((Boolean) value, TypeSystem.Type.BOOLEAN));
-                break;
-        }
+        addToResult(name, TypeSystemTest.getAsTypedObject(type, value));
     }
 
     private void addToResult(String name, TypeSystem.Type type, Object... values) {
@@ -295,6 +273,21 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<String>();
         test.asserts.add("((pv_count == 104255 && pv_count < li_count) || (li_count*10000 > pv_count))");
+
+        Assertor.assertAll(results, wrap(test));
+
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testCharacterAssertion() {
+        addToResult("char", TypeSystem.Type.CHARACTER, 'g');
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<String>();
+        test.asserts.add("char == 'g'");
+        test.asserts.add("char <'h'");
+        test.asserts.add("char > 'f'");
 
         Assertor.assertAll(results, wrap(test));
 

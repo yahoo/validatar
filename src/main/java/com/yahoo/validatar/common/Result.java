@@ -77,19 +77,6 @@ public class Result {
     }
 
     /**
-     * Gets the type for a given column name.
-     * @param columnName The name of the column.
-     * @return The TypeSystem.Type of the column.
-     */
-    public TypeSystem.Type getTypeForColumn(String columnName) {
-        List<TypedObject> values = data.get(prefix + columnName);
-        if (values == null || values.isEmpty()) {
-            return null;
-        }
-        return values.get(0).type;
-    }
-
-    /**
      * Gets the column for a given column name.
      * @param columnName The name of the column.
      * @return The TypeSystem.Type of the column.

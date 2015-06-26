@@ -50,6 +50,14 @@ import java.math.BigDecimal;
         return literal.substring(1, literal.length() - 1);
     }
 
+    private TypedObject parseCharacter(String text) {
+        return new TypedObject(stripQuotes(text).charAt(0), Type.CHARACTER);
+    }
+
+    private TypedObject parseString(String text) {
+        return new TypedObject(stripQuotes(text), Type.STRING);
+    }
+
     private TypedObject parseWholeNumber(String text) {
         TypedObject object;
         try {
@@ -94,7 +102,8 @@ functionalExpression returns [TypedObject value]
 
 base returns [TypedObject value]
     :   i=Identifier                               {$value = getColumnValue($i.text);}
-    |   s=StringLiteral                            {$value = new TypedObject(stripQuotes($s.text), Type.STRING);}
+    |   c=CharacterLiteral                         {$value = parseCharacter($c.text);}
+    |   s=StringLiteral                            {$value = parseString($s.text);}
     |   n=numeric                                  {$value = $n.value;}
     |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = $o.value;}
     |   f=functionalExpression                     {$value = $f.value;}
@@ -164,7 +173,8 @@ expression returns [Boolean value]
     :   o=orExpression                    {$value = (Boolean) $o.value.data;}
     ;
 
-QUOTE                : '"';
+SINGLEQUOTE          : '\'';
+DOUBLEQUOTE          : '"';
 PERIOD               : '.';
 COMMA                : ',';
 LEFTPAREN            : '(';
@@ -221,8 +231,12 @@ Character
     : (NonDigit | Digit)
     ;
 
+CharacterLiteral
+    : SINGLEQUOTE (Character | WhitespaceCharacter) SINGLEQUOTE
+    ;
+
 StringLiteral
-    :   QUOTE (Character | WhitespaceCharacter)* QUOTE
+    :   DOUBLEQUOTE (Character | WhitespaceCharacter)* DOUBLEQUOTE
     ;
 
 Identifier

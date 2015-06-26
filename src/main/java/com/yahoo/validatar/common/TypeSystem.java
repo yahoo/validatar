@@ -467,20 +467,6 @@ public class TypeSystem {
     }
 
     /**
-     * Takes a Boolean and wraps it a proper TypedObject.
-     */
-    public static TypedObject asTypedObject(Boolean value) {
-        return new TypedObject(value, Type.BOOLEAN);
-    }
-
-    /**
-     * Takes a Long and wraps it a proper TypedObject.
-     */
-    public static TypedObject asTypedObject(Long value) {
-        return new TypedObject(value, Type.LONG);
-    }
-
-    /**
      * Helper method that returns true iff first equals second.
      */
     public static TypedObject isEqualTo(TypedObject first, TypedObject second) {
@@ -546,4 +532,60 @@ public class TypeSystem {
         unifyType(first, second);
         return asTypedObject((Boolean) first.data || (Boolean) second.data);
     }
+
+    /*
+     ********************************************************************************
+     *                               Wrapper methods                                *
+     ********************************************************************************
+     */
+
+    /**
+     * Takes a Boolean and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(Boolean value) {
+        return new TypedObject(value, Type.BOOLEAN);
+    }
+
+    /**
+     * Takes a Long and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(Long value) {
+        return new TypedObject(value, Type.LONG);
+    }
+
+    /**
+     * Takes a Double and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(Double value) {
+        return new TypedObject(value, Type.DOUBLE);
+    }
+
+    /**
+     * Takes a Double and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(BigDecimal value) {
+        return new TypedObject(value, Type.DECIMAL);
+    }
+
+    /**
+     * Takes a Timestamp and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(Timestamp value) {
+        return new TypedObject(value, Type.TIMESTAMP);
+    }
+
+    /**
+     * Takes a String and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(String value) {
+        return new TypedObject(value, Type.STRING);
+    }
+
+    /**
+     * Takes a Character and wraps it a proper TypedObject.
+     */
+    public static TypedObject asTypedObject(Character value) {
+        return new TypedObject(value, Type.CHARACTER);
+    }
+
 }
