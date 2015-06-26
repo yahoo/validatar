@@ -140,9 +140,10 @@ unaryExpression returns [TypedObject value]
     ;
 
 multiplicativeExpression returns [TypedObject value]
-    :   u=unaryExpression                                   {$value = $u.value;}
-    |   m=multiplicativeExpression TIMES u=unaryExpression  {$value = multiply($m.value, $u.value);}
-    |   m=multiplicativeExpression DIVIDE u=unaryExpression {$value = divide($m.value, $u.value);}
+    :   u=unaryExpression                                    {$value = $u.value;}
+    |   m=multiplicativeExpression TIMES u=unaryExpression   {$value = multiply($m.value, $u.value);}
+    |   m=multiplicativeExpression DIVIDE u=unaryExpression  {$value = divide($m.value, $u.value);}
+    |   m=multiplicativeExpression MODULUS u=unaryExpression {$value = modulus($m.value, $u.value);}
     ;
 
 additiveExpression returns [TypedObject value]

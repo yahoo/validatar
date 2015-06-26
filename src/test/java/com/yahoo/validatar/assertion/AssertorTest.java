@@ -273,9 +273,7 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<String>();
         test.asserts.add("((pv_count == 104255 && pv_count < li_count) || (li_count*10000 > pv_count))");
-
         Assertor.assertAll(results, wrap(test));
-
         Assert.assertFalse(test.failed());
     }
 
@@ -288,9 +286,7 @@ public class AssertorTest {
         test.asserts.add("char == '\0'");
         test.asserts.add("char != 'f'");
         test.asserts.add("char < 'f'");
-
         Assertor.assertAll(results, wrap(test));
-
         Assert.assertFalse(test.failed());
     }
 
@@ -306,7 +302,18 @@ public class AssertorTest {
         test.asserts.add("!(!bool)");
 
         Assertor.assertAll(results, wrap(test));
+        Assert.assertFalse(test.failed());
+    }
 
+    @Test
+    public void testModulusAssertion() {
+        addToResult("counts", TypeSystem.Type.LONG, 29L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<String>();
+        test.asserts.add("counts % 19 == 10");
+
+        Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
     }
 }
