@@ -71,8 +71,8 @@ import java.math.BigDecimal;
     }
 
     private TypedObject approx(TypedObject first, TypedObject second, TypedObject percent) {
-        if ((Boolean) isGreaterThan(asTypedObject(1L), percent).data || (Boolean) isLessThan(asTypedObject(0L), percent).data) {
-            throw new RuntimeException("Expected percentage for the function to be between 0 and 1. Got " + percent.data);
+        if ((Boolean) isGreaterThan(percent, asTypedObject(1L)).data || (Boolean) isLessThan(percent, asTypedObject(0L)).data) {
+            throw new RuntimeException("Expected percentage for approx to be between 0 and 1. Got " + percent.data);
         }
 
         TypedObject max = multiply(second, add(asTypedObject(1L), percent));
@@ -205,10 +205,11 @@ Digit
     :  [0-9]
     ;
 
-DecimalNumber
+WholeNumber
     :  Digit+
     ;
-WholeNumber
+
+DecimalNumber
     :  Digit+ PERIOD Digit+
     ;
 

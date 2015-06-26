@@ -18,6 +18,8 @@ package com.yahoo.validatar.execution;
 
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.TypedObject;
+import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.LogCaptor;
 
 import java.util.Map;
@@ -94,8 +96,8 @@ public class EngineManagerTest extends LogCaptor {
         @Override
         public void execute(Query query) {
             Result results = query.createResults();
-            results.addColumn("a", null);
-            results.addColumnRow("a", "42");
+            results.addColumn("a");
+            results.addColumnRow("a", new TypedObject("42", TypeSystem.Type.STRING));
         }
 
         @Override
@@ -172,7 +174,7 @@ public class EngineManagerTest extends LogCaptor {
         query.engine = MockPassingEngine.ENGINE_NAME;
         manager.setEngines(engines);
         Assert.assertTrue(manager.run(queries));
-        Assert.assertEquals(query.getResult().data.size(), 0);
+        Assert.assertEquals(query.getResult().getColumns().size(), 0);
     }
 
     @Test
@@ -183,10 +185,18 @@ public class EngineManagerTest extends LogCaptor {
 
         Assert.assertTrue(manager.run(queries));
 
-        Map<String, List<String>> results = new HashMap<String, List<String>>();
-        List<String> columns = new ArrayList<String>();
-        columns.add("42");
-        results.put("Foo.a", columns);
-        Assert.assertEquals(query.getResult().data, results);
+        Map<String, List<TypedObject>> expected = new HashMap<>();
+        List<TypedObject> columns = new ArrayList<>();
+        columns.add(new TypedObject("42", TypeSystem.Type.STRING));
+        expected.put("Foo.a", columns);
+
+        Map<String, List<TypedObject>> actual = query.getResult().getColumns();
+
+        Assert.assertEquals(actual.size(), 1);
+        Assert.assertEquals(expected.size(), 1);
+        Assert.assertEquals(actual.get("Foo.a").size(), 1);
+        Assert.assertEquals(expected.get("Foo.a").size(), 1);
+        Assert.assertEquals((String) actual.get("Foo.a").get(0).data,
+                            (String) expected.get("Foo.a").get(0).data);
     }
 }

@@ -57,20 +57,23 @@ public class Result {
     }
 
     /**
+     * Add a new row to a column.
+     * @param name The name of the column.
+     * @param value The value to add to it.
+     */
+    public void addColumnRow(String name, TypedObject value) {
+        if (getColumn(name) == null) {
+            addColumn(name);
+        }
+        getColumn(name).add(value);
+    }
+
+    /**
      * Merge another result into this. Collision in names is not handled.
      * @param result The result to merge with.
      */
     public void merge(Result result) {
         data.putAll(result.data);
-    }
-
-    /**
-     * Add a new row to an existing column.
-     * @param name The name of the column.
-     * @param value The value to add to it.
-     */
-    public void addColumnRow(String name, TypedObject value) {
-        data.get(prefix + name).add(value);
     }
 
     /**

@@ -394,7 +394,7 @@ public class TypeSystem {
     }
 
     /**
-     * Perform arithmetic on two TypedObjects
+     * Perform arithmetic on two TypedObjects.
      * @param first The LHS of the arithmetic
      * @param second The RHS of the arithmetic
      * @return The resulting TypedObject.

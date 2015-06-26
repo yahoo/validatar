@@ -17,6 +17,8 @@
 package com.yahoo.validatar.execution.hive;
 
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.TypedObject;
+import com.yahoo.validatar.common.TypeSystem;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -67,6 +69,7 @@ public class ApiaryTest {
         query.value = "SELECT 1 as ONE";
         apiary.execute(query);
         Assert.assertFalse(query.failed());
-        Assert.assertEquals(query.getResult().data.get("Test.ONE").get(0), "1");
+        Assert.assertEquals((Long) query.getResult().getColumns().get("Test.ONE").get(0).data,
+                            (Long) new TypedObject(1L, TypeSystem.Type.LONG).data);
     }
 }
