@@ -102,7 +102,7 @@ public class TypeSystemTest {
 
     @Test
     public void testCastingToString() {
-        TypedObject stringedObject = new TypedObject("", Type.STRING);
+        TypedObject stringedObject = asTypedObject("");
 
         stringedObject.data = "123";
         TypedObject longSample = asTypedObject(123L);
@@ -123,7 +123,7 @@ public class TypeSystemTest {
 
     @Test(expectedExceptions={ClassCastException.class})
     public void testFailCastingTimestampToString() {
-        TypedObject stringedObject = new TypedObject("2015-06-28 21:57:56.0", Type.STRING);
+        TypedObject stringedObject = asTypedObject("2015-06-28 21:57:56.0");
         TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
         isEqualTo(stringedObject, timestampSample);
     }
@@ -176,7 +176,7 @@ public class TypeSystemTest {
 
     @Test
     public void testCastingToLong() {
-        TypedObject longedObject = new TypedObject(0L, Type.LONG);
+        TypedObject longedObject = asTypedObject(0L);
 
         longedObject.data = 123235L;
         TypedObject stringSample = asTypedObject("123235");
@@ -189,21 +189,21 @@ public class TypeSystemTest {
 
     @Test
     public void testFailCastingDoubleToLongButCastOtherWay() {
-        TypedObject longedObject = new TypedObject(1L, Type.LONG);
+        TypedObject longedObject = asTypedObject(1L);
         TypedObject doubleSample = asTypedObject(1.0);
         Assert.assertTrue(boolify(isEqualTo(longedObject, doubleSample)));
     }
 
     @Test
     public void testFailCastingDecimalToLongButCastOtherWay() {
-        TypedObject longedObject = new TypedObject(0L, Type.LONG);
+        TypedObject longedObject = asTypedObject(0L);
         TypedObject decimalSample = asTypedObject(new BigDecimal("12.23"));
         Assert.assertFalse(boolify(isEqualTo(longedObject, decimalSample)));
     }
 
     @Test(expectedExceptions={ClassCastException.class})
     public void testFailCastingBooleanToLong() {
-        TypedObject longedObject = new TypedObject(0L, Type.LONG);
+        TypedObject longedObject = asTypedObject(0L);
         TypedObject booleanSample = asTypedObject(false);
         isEqualTo(longedObject, booleanSample);
     }
@@ -253,21 +253,21 @@ public class TypeSystemTest {
 
     @Test
     public void testFailCastingDecimalToDoubleButCastOtherWay() {
-        TypedObject doubledObject = new TypedObject(12.23, Type.DOUBLE);
+        TypedObject doubledObject = asTypedObject(12.23);
         TypedObject decimalSample = asTypedObject(new BigDecimal("12.23"));
         Assert.assertTrue(boolify(isEqualTo(doubledObject, decimalSample)));
     }
 
     @Test(expectedExceptions={ClassCastException.class})
     public void testFailCastingTimestampToDouble() {
-        TypedObject doubledObject = new TypedObject(12.23, Type.DOUBLE);
+        TypedObject doubledObject = asTypedObject(12.23);
         TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
         isEqualTo(doubledObject, timestampSample);
     }
 
     @Test(expectedExceptions={ClassCastException.class})
     public void testFailCastingBooleanToDouble() {
-        TypedObject doubledObject = new TypedObject(12.23, Type.DOUBLE);
+        TypedObject doubledObject = asTypedObject(12.23);
         TypedObject booleanSample = asTypedObject(false);
         isEqualTo(doubledObject, booleanSample);
     }
@@ -304,4 +304,71 @@ public class TypeSystemTest {
         modulus(asTypedObject(14.0), asTypedObject(4.0));
     }
 
+    /**************************************************** DECIMAL ******************************************************/
+
+    @Test
+    public void testCastingToDecimal() {
+        TypedObject decimaledObject = asTypedObject(new BigDecimal("0"));
+
+        decimaledObject.data = new BigDecimal("0.01");
+        TypedObject stringSample = asTypedObject("0.01");
+        Assert.assertTrue(boolify(isEqualTo(decimaledObject, stringSample)));
+
+        decimaledObject.data = new BigDecimal("123");
+        TypedObject longSample = asTypedObject(123L);
+        Assert.assertTrue(boolify(isEqualTo(decimaledObject, longSample)));
+
+        decimaledObject.data = new BigDecimal("1.23");
+        TypedObject doubleSample = asTypedObject(1.23);
+        Assert.assertTrue(boolify(isEqualTo(decimaledObject, doubleSample)));
+
+        decimaledObject.data = new BigDecimal("1435553876000");
+        TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
+        isEqualTo(decimaledObject, timestampSample);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingBooleanToDecimal() {
+        TypedObject decimaledObject = asTypedObject(new BigDecimal("0.1"));
+        TypedObject booleanSample = asTypedObject(false);
+        isEqualTo(decimaledObject, booleanSample);
+    }
+
+    @Test
+    public void testDecimalTypeComparisons() {
+        TypedObject decimalSample = asTypedObject(new BigDecimal("12345678912345.123456789123456789123456789"));
+
+        Assert.assertTrue(boolify(isEqualTo(decimalSample, decimalSample)));
+        Assert.assertFalse(boolify(isNotEqualTo(decimalSample, decimalSample)));
+        Assert.assertTrue(boolify(isLessThanOrEqual(decimalSample, decimalSample)));
+        Assert.assertTrue(boolify(isGreaterThanOrEqual(decimalSample, decimalSample)));
+
+        TypedObject anotherSample = asTypedObject("3.1415926535897932384626433832795029");
+
+        Assert.assertFalse(boolify(isEqualTo(decimalSample, anotherSample)));
+        Assert.assertTrue(boolify(isNotEqualTo(decimalSample, anotherSample)));
+        Assert.assertFalse(boolify(isLessThan(decimalSample, anotherSample)));
+        Assert.assertTrue(boolify(isGreaterThan(decimalSample, anotherSample)));
+        Assert.assertFalse(boolify(isLessThanOrEqual(decimalSample, anotherSample)));
+        Assert.assertTrue(boolify(isGreaterThanOrEqual(decimalSample, anotherSample)));
+    }
+
+    @Test
+    public void testDecimalArithmetic() {
+        Assert.assertEquals((BigDecimal) add(asTypedObject(new BigDecimal("0.01")),
+                                             asTypedObject(new BigDecimal("10.0"))).data,
+                             new BigDecimal("10.01"));
+        Assert.assertEquals((BigDecimal) subtract(asTypedObject(new BigDecimal("0.01")),
+                                                  asTypedObject(new BigDecimal("10.0"))).data,
+                            new BigDecimal("-9.99"));
+        Assert.assertEquals((BigDecimal) multiply(asTypedObject(new BigDecimal("0.01")),
+                                                  asTypedObject(new BigDecimal("10.0"))).data,
+                            new BigDecimal("0.100"));
+        Assert.assertEquals((BigDecimal) divide(asTypedObject(new BigDecimal("0.01")),
+                                                asTypedObject(new BigDecimal("10.0"))).data,
+                            new BigDecimal("0.001"));
+        Assert.assertEquals((BigDecimal) modulus(asTypedObject(new BigDecimal("101.2")),
+                                                 asTypedObject(new BigDecimal("10.0"))).data,
+                            new BigDecimal("1.2"));
+    }
 }

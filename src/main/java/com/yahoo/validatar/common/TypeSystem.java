@@ -181,6 +181,8 @@ public class TypeSystem {
                     case STRING:
                     case DOUBLE:
                     case DECIMAL:
+                        BigDecimal[] results = ((BigDecimal) first.data).divideAndRemainder((BigDecimal) second.data);
+                        return new TypedObject(results[1], Type.DECIMAL);
                     case BOOLEAN:
                     default:
                         return null;
