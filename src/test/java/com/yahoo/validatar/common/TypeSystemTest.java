@@ -119,10 +119,13 @@ public class TypeSystemTest {
         stringedObject.data = "false";
         TypedObject booleanSample = asTypedObject(false);
         Assert.assertTrue(boolify(isEqualTo(stringedObject, booleanSample)));
+    }
 
-        stringedObject.data = "2015-06-28 21:57:56.0";
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingTimestampToString() {
+        TypedObject stringedObject = new TypedObject("2015-06-28 21:57:56.0", Type.STRING);
         TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
-        Assert.assertTrue(boolify(isEqualTo(stringedObject, timestampSample)));
+        isEqualTo(stringedObject, timestampSample);
     }
 
     @Test

@@ -310,10 +310,6 @@ public class TypeSystem {
                         source.type = Type.STRING;
                         return true;
                     case TIMESTAMP:
-                        source.data = ((Timestamp) source.data).toString();
-                        System.out.println(source.data);
-                        source.type = Type.STRING;
-                        return true;
                     default:
                         return false;
                 }
@@ -322,16 +318,13 @@ public class TypeSystem {
         CONVERTORS.put(Type.TIMESTAMP, new TypeConvertor() {
             public boolean convert(TypedObject source) {
                 switch(source.type) {
-                    case STRING:
-                        source.data = Timestamp.valueOf((String) source.data);
-                        source.type = Type.TIMESTAMP;
-                        return true;
                     case LONG:
                         source.data = new Timestamp((Long) source.data);
                         source.type = Type.TIMESTAMP;
                         return true;
                     case TIMESTAMP:
                         return true;
+                    case STRING:
                     case DOUBLE:
                     case DECIMAL:
                     case BOOLEAN:
