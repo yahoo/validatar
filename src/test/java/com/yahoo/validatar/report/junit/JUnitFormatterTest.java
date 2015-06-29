@@ -66,20 +66,20 @@ public class JUnitFormatterTest {
         test.addMessage("Sample fail message");
 
         // Generate the test report file
-        String[] args = {"--report-file", "target/JenkinsOutputTest.xml"};
+        String[] args = {"--report-file", "target/JUnitOutputTest.xml"};
         JUnitFormatter jUnitFormatter = new JUnitFormatter();
         jUnitFormatter.setup(args);
         jUnitFormatter.writeReport(testSuites);
 
         // Diff the test report file, and the expected output
-        String hudsonOutput = new String(Files.readAllBytes(Paths.get("target/JenkinsOutputTest.xml")));
-        Document hudsonOutputDom = DocumentHelper.parseText(hudsonOutput);
+        String output = new String(Files.readAllBytes(Paths.get("target/JUnitOutputTest.xml")));
+        Document outputDOM = DocumentHelper.parseText(output);
 
-        String expectedHudsonOutput = new String(Files.readAllBytes(Paths.get("src/test/resources/ExpectedJenkinsOutput.xml")));
-        Document expectedHudsonOutputDom = DocumentHelper.parseText(expectedHudsonOutput);
+        String expectedOutput = new String(Files.readAllBytes(Paths.get("src/test/resources/ExpectedJUnitOutput.xml")));
+        Document expectedOutputDom = DocumentHelper.parseText(expectedOutput);
 
         NodeComparator comparator = new NodeComparator();
-        if (comparator.compare(expectedHudsonOutputDom, hudsonOutputDom) != 0) {
+        if (comparator.compare(expectedOutputDom, outputDOM) != 0) {
             Assert.fail("The generated XML does not match expected XML!");
         }
     }

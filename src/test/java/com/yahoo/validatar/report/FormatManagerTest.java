@@ -70,12 +70,16 @@ public class FormatManagerTest {
         }
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test
     public void testConstructorAndFindFormatterExceptionNoFormatterFound() throws FileNotFoundException {
         System.setOut(new PrintStream(new FileOutputStream("target/out")));
         System.setErr(new PrintStream(new FileOutputStream("target/err")));
         String[] args = {"--report-format", "INVALID"};
-        FormatManager manager = new FormatManager(args);
+        try {
+            FormatManager manager = new FormatManager(args);
+            Assert.fail("Should have thrown an Exception");
+        } catch (RuntimeException re) {
+        }
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
         System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
     }

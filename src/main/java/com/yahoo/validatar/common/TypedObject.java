@@ -28,10 +28,13 @@ public class TypedObject {
     /**
      * Constructor.
      *
-     * @param data A {@link java.lang.Comparable} object that we are managing the type for.
+     * @param data A non-null {@link java.lang.Comparable} object that we are managing the type for.
      * @param type The {@link com.yahoo.validatar.common.TypeSystem.Type} of the object.
      */
     public TypedObject(Comparable data, TypeSystem.Type type) {
+        if (data == null) {
+            throw new NullPointerException("TypedObject will not store null data. Use a null as TypedObject instead.");
+        }
         this.data = data;
         this.type = type;
     }

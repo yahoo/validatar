@@ -100,15 +100,17 @@ public class AppTest {
         App.run(emptyTest, parameterMap, parseManager, engineManager, formatManager);
     }
 
-    @Test(expectedExceptions = {RuntimeException.class})
+    @Test
     public void testParameterParsingFailure() throws IOException {
         System.setOut(new PrintStream(new FileOutputStream("target/out")));
         System.setErr(new PrintStream(new FileOutputStream("target/err")));
 
         String args[] = {"--parameter", "DATE:20140807"};
-        OptionSet options = App.parse(args);
-        App.splitParameters(options, "parameter");
-
+        try {
+            OptionSet options = App.parse(args);
+            Assert.fail("Should have thrown an Exception");
+        } catch (RuntimeException re) {
+        }
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
         System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
     }

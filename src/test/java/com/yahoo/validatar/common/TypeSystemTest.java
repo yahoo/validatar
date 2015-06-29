@@ -16,6 +16,8 @@
 
 package com.yahoo.validatar.common;
 
+import static com.yahoo.validatar.common.TypeSystem.*;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -29,52 +31,92 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
 
 public class TypeSystemTest {
-
-    public static final TypedObject getAsTypedObject(TypeSystem.Type type, Object value) {
-        switch(type) {
-            case STRING:
-                return new TypedObject((String) value, TypeSystem.Type.STRING);
-            case LONG:
-                return new TypedObject((Long) value, TypeSystem.Type.LONG);
-            case DOUBLE:
-                return new TypedObject((Double) value, TypeSystem.Type.DOUBLE);
-            case DECIMAL:
-                return new TypedObject((BigDecimal) value, TypeSystem.Type.DECIMAL);
-            case TIMESTAMP:
-                return new TypedObject((Timestamp) value, TypeSystem.Type.TIMESTAMP);
-            case BOOLEAN:
-                return new TypedObject((Boolean) value, TypeSystem.Type.BOOLEAN);
-            default:
-                throw new RuntimeException("Unknown type");
-        }
+    private boolean boolify(TypedObject type) {
+        return (Boolean) type.data;
     }
 
     @Test
     public void testTypedObjectConversions() {
         Boolean booleanValue = true;
-        Assert.assertEquals((Boolean) TypeSystem.asTypedObject(booleanValue).data, Boolean.valueOf(true));
-        Assert.assertEquals(TypeSystem.asTypedObject(booleanValue).type, TypeSystem.Type.BOOLEAN);
-
+        Assert.assertEquals((Boolean) asTypedObject(booleanValue).data, Boolean.valueOf(true));
+        Assert.assertEquals(asTypedObject(booleanValue).type, Type.BOOLEAN);
         String stringValue = "foo";
-        Assert.assertEquals((String) TypeSystem.asTypedObject(stringValue).data, "foo");
-        Assert.assertEquals(TypeSystem.asTypedObject(stringValue).type, TypeSystem.Type.STRING);
+        Assert.assertEquals((String) asTypedObject(stringValue).data, "foo");
+        Assert.assertEquals(asTypedObject(stringValue).type, Type.STRING);
 
         Long longValue = 131412300000000000L;
-        Assert.assertEquals((Long) TypeSystem.asTypedObject(longValue).data, Long.valueOf(131412300000000000L));
-        Assert.assertEquals(TypeSystem.asTypedObject(longValue).type, TypeSystem.Type.LONG);
+        Assert.assertEquals((Long) asTypedObject(longValue).data, Long.valueOf(131412300000000000L));
+        Assert.assertEquals(asTypedObject(longValue).type, Type.LONG);
 
         Double doubleValue = 235242523.04;
-        Assert.assertEquals((Double) TypeSystem.asTypedObject(doubleValue).data, Double.valueOf(235242523.04));
-        Assert.assertEquals(TypeSystem.asTypedObject(doubleValue).type, TypeSystem.Type.DOUBLE);
+        Assert.assertEquals((Double) asTypedObject(doubleValue).data, Double.valueOf(235242523.04));
+        Assert.assertEquals(asTypedObject(doubleValue).type, Type.DOUBLE);
 
         BigDecimal decimalValue = new BigDecimal("234235234234223425151231231151231.123141231231411231231");
-        Assert.assertEquals((BigDecimal) TypeSystem.asTypedObject(decimalValue).data, new BigDecimal("234235234234223425151231231151231.123141231231411231231"));
-        Assert.assertEquals(TypeSystem.asTypedObject(decimalValue).type, TypeSystem.Type.DECIMAL);
+        Assert.assertEquals((BigDecimal) asTypedObject(decimalValue).data, new BigDecimal("234235234234223425151231231151231.123141231231411231231"));
+        Assert.assertEquals(asTypedObject(decimalValue).type, Type.DECIMAL);
 
         long timeNow = System.currentTimeMillis();
         Timestamp timestampValue = new Timestamp(timeNow);
-        Assert.assertEquals((Timestamp) TypeSystem.asTypedObject(timestampValue).data, new Timestamp(timeNow));
-        Assert.assertEquals(TypeSystem.asTypedObject(timestampValue).type, TypeSystem.Type.TIMESTAMP);
+        Assert.assertEquals((Timestamp) asTypedObject(timestampValue).data, new Timestamp(timeNow));
+        Assert.assertEquals(asTypedObject(timestampValue).type, Type.TIMESTAMP);
     }
 
+    @Test(expectedExceptions={NullPointerException.class})
+    public void testFirstOperandNull() {
+        TypedObject stringSample = asTypedObject("foo");
+        TypeSystem.compare(null, stringSample);
+    }
+
+    @Test(expectedExceptions={NullPointerException.class})
+    public void testSecondOperandNull() {
+        TypedObject stringSample = asTypedObject("foo");
+        TypeSystem.compare(stringSample, null);
+    }
+
+    @Test(expectedExceptions={NullPointerException.class})
+    public void testBothOperandsNull() {
+        TypeSystem.compare(null, null);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testNotUnifiableTypes() {
+        TypedObject booleanSample = asTypedObject(false);
+        TypedObject longSample = asTypedObject(123L);
+        TypeSystem.compare(longSample, booleanSample);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testNonArithmeticOperableTypes() {
+        TypedObject booleanSample = asTypedObject(false);
+        TypeSystem.add(booleanSample, booleanSample);
+    }
+
+    @Test
+    public void testCastingToString() {
+        TypedObject longSample = asTypedObject(123L);
+        TypedObject stringedObject = new TypedObject("", Type.STRING);
+
+        stringedObject.data = "123";
+        Assert.assertTrue(boolify(isEqualTo(stringedObject, longSample)));
+    }
+
+    @Test
+    public void testStringTypeComparisons() {
+        TypedObject stringSample = asTypedObject("sample");
+
+        Assert.assertTrue(boolify(isEqualTo(stringSample, stringSample)));
+        Assert.assertFalse(boolify(isNotEqualTo(stringSample, stringSample)));
+        Assert.assertTrue(boolify(isLessThanOrEqual(stringSample, stringSample)));
+        Assert.assertTrue(boolify(isGreaterThanOrEqual(stringSample, stringSample)));
+
+        TypedObject original = asTypedObject("foo");
+
+        Assert.assertFalse(boolify(isEqualTo(stringSample, original)));
+        Assert.assertTrue(boolify(isNotEqualTo(stringSample, original)));
+        Assert.assertFalse(boolify(isLessThan(stringSample, original)));
+        Assert.assertTrue(boolify(isGreaterThan(stringSample, original)));
+        Assert.assertFalse(boolify(isLessThanOrEqual(stringSample, original)));
+        Assert.assertTrue(boolify(isGreaterThanOrEqual(stringSample, original)));
+    }
 }

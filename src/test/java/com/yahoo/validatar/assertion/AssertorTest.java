@@ -20,12 +20,12 @@ import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
 
-import com.yahoo.validatar.common.TypeSystemTest;
-
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.math.BigDecimal;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -43,6 +43,25 @@ public class AssertorTest {
         return asList;
     }
 
+    private TypedObject getTyped(TypeSystem.Type type, Object value) {
+        switch(type) {
+            case STRING:
+                return new TypedObject((String) value, TypeSystem.Type.STRING);
+            case LONG:
+                return new TypedObject((Long) value, TypeSystem.Type.LONG);
+            case DOUBLE:
+                return new TypedObject((Double) value, TypeSystem.Type.DOUBLE);
+            case DECIMAL:
+                return new TypedObject((BigDecimal) value, TypeSystem.Type.DECIMAL);
+            case TIMESTAMP:
+                return new TypedObject((Timestamp) value, TypeSystem.Type.TIMESTAMP);
+            case BOOLEAN:
+                return new TypedObject((Boolean) value, TypeSystem.Type.BOOLEAN);
+            default:
+                throw new RuntimeException("Unknown type");
+        }
+    }
+
     @BeforeMethod
     public void setup() {
         results = new Result();
@@ -53,7 +72,7 @@ public class AssertorTest {
     }
 
     private void addToResult(String name, TypeSystem.Type type, Object value) {
-        addToResult(name, TypeSystemTest.getAsTypedObject(type, value));
+        addToResult(name, getTyped(type, value));
     }
 
     private void addToResult(String name, TypeSystem.Type type, Object... values) {
