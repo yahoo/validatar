@@ -44,8 +44,8 @@ public class TypeSystem {
     private interface TypeArithmetic {
         /**
          * Takes two of the same TypedObjects and performs an arithmetic on them.
-         * Returns null if it cannot, else it returns the result. The type of the
-         * result will be same as the inputs.
+         * Returns null if it cannot, else it returns a new TypedObject with the
+         * result with the same type the inputs.
          */
         public TypedObject perform(TypedObject first, TypedObject second);
     }

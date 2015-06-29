@@ -34,6 +34,7 @@ import org.testng.annotations.AfterMethod;
 
 public class AssertorTest {
     private Result results;
+    private Assertor assertor = new Assertor();
 
     private List<com.yahoo.validatar.common.Test> wrap(com.yahoo.validatar.common.Test... tests) {
         List<com.yahoo.validatar.common.Test> asList = new ArrayList<com.yahoo.validatar.common.Test>();
