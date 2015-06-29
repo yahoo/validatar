@@ -63,6 +63,21 @@ public class AssertorTest {
     }
 
     @Test
+    public void testNoAssertion() {
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = null;
+
+        Assertor.assertAll(results, wrap(test));
+        Assert.assertTrue(test.failed());
+        Assert.assertEquals("No assertion was provided!", test.getMessages().get(0));
+
+        test.asserts = new ArrayList<String>();
+        Assertor.assertAll(results, wrap(test));
+        Assert.assertTrue(test.failed());
+        Assert.assertEquals("No assertion was provided!", test.getMessages().get(0));
+    }
+
+    @Test
     public void testNoLookupAssertion() {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<String>();

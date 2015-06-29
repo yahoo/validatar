@@ -47,7 +47,7 @@ public class Assertor {
         // Check for invalid input
         if (assertions == null || assertions.size() == 0) {
             test.setFailed();
-            test.addMessage("NULL assertion! : No assertion was provided!");
+            test.addMessage("No assertion was provided!");
             return;
         }
 

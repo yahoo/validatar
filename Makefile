@@ -1,11 +1,16 @@
+all: full
+
 clean:
 	mvn clean
 
 test:
 	mvn clean checkstyle:check test
 
-coverage:
+cc:
 	mvn clean cobertura:cobertura
+
+see-cc: cc
+	cd target/site/cobertura; python -m SimpleHTTPServer
 
 jar:
 	mvn clean package
