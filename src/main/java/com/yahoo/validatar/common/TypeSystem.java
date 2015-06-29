@@ -311,6 +311,7 @@ public class TypeSystem {
                         return true;
                     case TIMESTAMP:
                         source.data = ((Timestamp) source.data).toString();
+                        System.out.println(source.data);
                         source.type = Type.STRING;
                         return true;
                     default:
