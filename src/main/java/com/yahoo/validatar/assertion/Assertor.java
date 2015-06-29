@@ -29,19 +29,26 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 public class Assertor {
 
     /**
-     * Takes a Map of column names to column values and list of asserts and performs the assertions
-     * and places the results into the tests.
+     * Takes a Results object and a List of Test, performs the assertions
+     * and updates the Tests with the results.
      *
      * @param results A Result object containing the results of the queries.
-     * @param tests List<Test> using these columns
+     * @param tests A list of Test using these results
      */
     public static void assertAll(Result results, List<Test> tests) {
         for (Test test : tests) {
-            assertOneTest(results, test);
+            assertOne(results, test);
         }
     }
 
-    private static void assertOneTest(Result results, Test test) {
+    /**
+     * Takes a Results object and a Test, performs the assertions
+     * and updates the Tests with the results.
+     *
+     * @param results A Result object containing the results of the queries.
+     * @param test A Test using these Results.
+     */
+    public static void assertOne(Result results, Test test) {
         List<String> assertions = test.asserts;
 
         // Check for invalid input

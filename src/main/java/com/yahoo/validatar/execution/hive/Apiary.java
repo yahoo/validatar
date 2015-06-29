@@ -79,6 +79,7 @@ public class Apiary implements Engine {
         }
     };
 
+    /** {@inheritDoc} */
     @Override
     public boolean setup(String[] arguments) {
         OptionSet options = parser.parse(arguments);
@@ -92,6 +93,7 @@ public class Apiary implements Engine {
         return true;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void printHelp() {
         System.out.println(ENGINE_NAME + " help:");
@@ -103,6 +105,7 @@ public class Apiary implements Engine {
         System.out.println();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void execute(Query query) {
         String queryName = query.name;
@@ -138,6 +141,7 @@ public class Apiary implements Engine {
 
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         return ENGINE_NAME;
@@ -145,10 +149,12 @@ public class Apiary implements Engine {
 
     /**
      * Takes a value and its type and returns it as the appropriate TypedObject.
+     *
      * @param results The ResultSet that has a confirmed value for reading by its iterator.
      * @param index The index of the column in the results to get.
      * @param type The java.sql.TypesSQL type of the value.
      * @return A non-null TypedObject representation of the value.
+     * @throws java.sql.SQLException if any.
      */
     protected TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
         if (results.wasNull()) {
@@ -180,6 +186,10 @@ public class Apiary implements Engine {
 
     /**
      * Sets up the connection using JDBC.
+     *
+     * @param options a {@link joptsimple.OptionSet} object.
+     * @throws java.lang.ClassNotFoundException if any.
+     * @throws java.sql.SQLException if any.
      */
     protected void setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
         // Load the JDBC driver
@@ -200,6 +210,9 @@ public class Apiary implements Engine {
 
     /**
      * Sets the queue and other settings if provided.
+     *
+     * @param options a {@link joptsimple.OptionSet} object.
+     * @throws java.sql.SQLException if any.
      */
     protected void setHiveSettings(OptionSet options) throws SQLException {
         String queue = (String) options.valueOf("hive-queue");

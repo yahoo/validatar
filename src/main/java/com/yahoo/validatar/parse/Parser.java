@@ -23,6 +23,7 @@ import java.io.InputStream;
 public interface Parser {
     /**
      * Parse the TestSuite from an InputStream.
+     *
      * @param data The InputStream containing the tests.
      * @return A TestSuite object representing the parsed testfile.
      */
@@ -30,6 +31,8 @@ public interface Parser {
 
     /**
      * Returns the name of this Parser.
+     *
+     * @return The {@link java.lang.String} name.
      */
     public String getName();
 }

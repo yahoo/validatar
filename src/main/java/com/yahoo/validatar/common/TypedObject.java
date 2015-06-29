@@ -27,6 +27,9 @@ public class TypedObject {
 
     /**
      * Constructor.
+     *
+     * @param data A {@link java.lang.Comparable} object that we are managing the type for.
+     * @param type The {@link com.yahoo.validatar.common.TypeSystem.Type} of the object.
      */
     public TypedObject(Comparable data, TypeSystem.Type type) {
         this.data = data;

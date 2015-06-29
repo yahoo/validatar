@@ -21,6 +21,7 @@ import com.yahoo.validatar.common.Query;
 public interface Engine {
     /**
      * Setups the engine using the input parameters.
+     *
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      * @return true iff setup was succesful.
      */

@@ -38,12 +38,20 @@ public class EngineManager {
         public boolean isStarted = false;
         private Engine engine = null;
 
-        /** Constructor. */
+        /**
+         * Constructor.
+         *
+         * @param engine The engine to wrap.
+         * */
         public WorkingEngine(Engine engine) {
             this.engine = engine;
         }
 
-        /** Getter. */
+        /**
+         * Getter.
+         *
+         * @return The wrapped Engine.
+         * */
         public Engine getEngine() {
             return this.engine;
         }
@@ -92,6 +100,7 @@ public class EngineManager {
 
     /**
      * For testing purposes to inject engines. Will always override existing engines.
+     *
      * @param enginesToUse A list of engines to use as the engines to work with.
      */
     protected void setEngines(List<Engine> enginesToUse) {

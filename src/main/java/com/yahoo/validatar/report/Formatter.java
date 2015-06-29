@@ -28,6 +28,7 @@ import java.util.List;
 public interface Formatter {
     /**
      * Setups the engine using the input parameters.
+     *
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      * @return true iff setup was succesful.
      */
@@ -40,7 +41,9 @@ public interface Formatter {
 
     /**
      * Write the results of the test suites out.
+     *
      * @param testSuites List of TestSuites to generate the report with
+     * @throws java.io.IOException if any.
      */
     public void writeReport(List<TestSuite> testSuites) throws IOException;
 

@@ -366,6 +366,8 @@ public class TypeSystem {
 
     /**
      * Perform arithmetic on two TypedObjects.
+     *
+     * @param operator The {@link com.yahoo.validatar.common.TypeSystem.ArithmeticOperator} operator to perform.
      * @param first The LHS of the arithmetic
      * @param second The RHS of the arithmetic
      * @return The resulting TypedObject.
@@ -384,6 +386,7 @@ public class TypeSystem {
 
     /**
      * Compare two TypedObjects.
+     *
      * @param first The first object to compare.
      * @param second The second object to compare.
      * @return -1 if first is less than second, 1 if first is greater than second and 0 if first equals second.
@@ -403,6 +406,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns the sum of the first and second.
+     *
+     * @param first A {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second A {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject add(TypedObject first, TypedObject second) {
         return doArithmetic(ArithmeticOperator.ADD, first, second);
@@ -410,6 +417,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns the difference of the first and second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject subtract(TypedObject first, TypedObject second) {
         return doArithmetic(ArithmeticOperator.SUBTRACT, first, second);
@@ -417,6 +428,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns the product of the first and second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject multiply(TypedObject first, TypedObject second) {
         return doArithmetic(ArithmeticOperator.MULTIPLY, first, second);
@@ -424,6 +439,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns the quotient of the first divided by second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject divide(TypedObject first, TypedObject second) {
         return doArithmetic(ArithmeticOperator.DIVIDE, first, second);
@@ -431,6 +450,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns the modulus of the first and second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject modulus(TypedObject first, TypedObject second) {
         return doArithmetic(ArithmeticOperator.MODULUS, first, second);
@@ -438,6 +461,9 @@ public class TypeSystem {
 
     /**
      * Helper method that negates the input.
+     *
+     * @param input a {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject negate(TypedObject input) {
         // We'll use our narrowest numeric type - LONG. STRING would work too.
@@ -446,6 +472,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns true iff first equals second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject isEqualTo(TypedObject first, TypedObject second) {
         return asTypedObject(compare(first, second) == 0);
@@ -453,6 +483,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns true iff first not equals second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject isNotEqualTo(TypedObject first, TypedObject second) {
         return asTypedObject(compare(first, second) != 0);
@@ -460,6 +494,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns true iff first is less than second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject isLessThan(TypedObject first, TypedObject second) {
         return asTypedObject(compare(first, second) < 0);
@@ -467,6 +505,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns true iff first is less than or equal to second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject isLessThanOrEqual(TypedObject first, TypedObject second) {
         int compared = compare(first, second);
@@ -475,6 +517,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns true iff first is greater than second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject isGreaterThan(TypedObject first, TypedObject second) {
         return asTypedObject(compare(first, second) > 0);
@@ -482,6 +528,10 @@ public class TypeSystem {
 
     /**
      * Helper method that returns true iff first is greater than or equal to second.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject isGreaterThanOrEqual(TypedObject first, TypedObject second) {
         int compared = compare(first, second);
@@ -490,6 +540,9 @@ public class TypeSystem {
 
     /**
      * Helper method to do logical negation.
+     *
+     * @param input a {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalNegate(TypedObject input) {
         return asTypedObject(!(Boolean) input.data);
@@ -497,6 +550,10 @@ public class TypeSystem {
 
     /**
      * Helper method to do logical and.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalAnd(TypedObject first, TypedObject second) {
         unifyType(first, second);
@@ -505,6 +562,10 @@ public class TypeSystem {
 
     /**
      * Helper method to do logical or.
+     *
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalOr(TypedObject first, TypedObject second) {
         unifyType(first, second);
@@ -519,6 +580,9 @@ public class TypeSystem {
 
     /**
      * Takes a Boolean and wraps it a proper TypedObject.
+     *
+     * @param value a {@link java.lang.Boolean} object.
+     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject asTypedObject(Boolean value) {
         return new TypedObject(value, Type.BOOLEAN);
@@ -526,6 +590,9 @@ public class TypeSystem {
 
     /**
      * Takes a Long and wraps it a proper TypedObject.
+     *
+     * @param value a {@link java.lang.Long} object.
+     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject asTypedObject(Long value) {
         return new TypedObject(value, Type.LONG);
@@ -533,6 +600,9 @@ public class TypeSystem {
 
     /**
      * Takes a Double and wraps it a proper TypedObject.
+     *
+     * @param value a {@link java.lang.Double} object.
+     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject asTypedObject(Double value) {
         return new TypedObject(value, Type.DOUBLE);
@@ -540,6 +610,9 @@ public class TypeSystem {
 
     /**
      * Takes a Double and wraps it a proper TypedObject.
+     *
+     * @param value a {@link java.math.BigDecimal} object.
+     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject asTypedObject(BigDecimal value) {
         return new TypedObject(value, Type.DECIMAL);
@@ -547,6 +620,9 @@ public class TypeSystem {
 
     /**
      * Takes a Timestamp and wraps it a proper TypedObject.
+     *
+     * @param value a {@link java.sql.Timestamp} object.
+     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject asTypedObject(Timestamp value) {
         return new TypedObject(value, Type.TIMESTAMP);
@@ -554,6 +630,9 @@ public class TypeSystem {
 
     /**
      * Takes a String and wraps it a proper TypedObject.
+     *
+     * @param value a {@link java.lang.String} object.
+     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject asTypedObject(String value) {
         return new TypedObject(value, Type.STRING);

@@ -27,6 +27,7 @@ public class Result {
 
     /**
      * Constructor that initializes a result with a prefix to add for each column name.
+     *
      * @param prefix The prefix to add.
      */
     public Result(String prefix) {
@@ -41,6 +42,7 @@ public class Result {
 
     /**
      * Create and add a new column to the result.
+     *
      * @param name The name of the column.
      */
     public void addColumn(String name) {
@@ -49,6 +51,7 @@ public class Result {
 
     /**
      * Create and add a new column to the result with the given rows.
+     *
      * @param name The name of the column.
      * @param values The column rows.
      */
@@ -58,6 +61,7 @@ public class Result {
 
     /**
      * Add a new row to a column.
+     *
      * @param name The name of the column.
      * @param value The value to add to it.
      */
@@ -70,6 +74,7 @@ public class Result {
 
     /**
      * Merge another result into this. Collision in names is not handled.
+     *
      * @param result The result to merge with.
      */
     public void merge(Result result) {
@@ -78,6 +83,7 @@ public class Result {
 
     /**
      * Gets the column for a given column name.
+     *
      * @param columnName The name of the column.
      * @return The TypeSystem.Type of the column.
      */
@@ -87,6 +93,7 @@ public class Result {
 
     /**
      * Gets the columns representing as a Map of column names to their List of values.
+     *
      * @return The column viewed as a Map.
      */
     public Map<String, List<TypedObject>> getColumns() {

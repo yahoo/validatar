@@ -32,6 +32,8 @@ public class Query extends Executable {
 
     /**
      * Add a failure message and mark as failed.
+     *
+     * @param failedMessage A {@link java.lang.String} message to set.
      */
     public void setFailure(String failedMessage) {
         setFailed();
@@ -40,6 +42,8 @@ public class Query extends Executable {
 
     /**
      * Initialize the results.
+     *
+     * @return The created {@link com.yahoo.validatar.common.Result} object.
      */
     public Result createResults() {
         result = new Result(name + NAMESPACE_SEPARATOR);
@@ -48,6 +52,8 @@ public class Query extends Executable {
 
     /**
      * Get the results of the query.
+     *
+     * @return The {@link com.yahoo.validatar.common.Result} result object.
      */
     public Result getResult() {
         return result;
@@ -56,6 +62,8 @@ public class Query extends Executable {
     /**
      * Returns the metadata list flattened into a map. If there are metadata with
      * the same key, the last one is one that is kept.
+     *
+     * @return A {@link java.util.Map} view of the metadata.
      */
     public Map<String, String> getMetadata() {
         if (metadata == null) {
