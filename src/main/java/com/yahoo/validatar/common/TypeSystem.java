@@ -340,13 +340,14 @@ public class TypeSystem {
     }
 
     /**
-     * Tries to convert two TypedObjects to the same type.
-     * Tries first to second or second to first, in that order.
-     * Throws an ClassCastException if neither could be done.
-     * Throws an NullPointerException if either argument is null.
-     * If successful, first and second will be the of the same type.
+     * Tries to convert two TypedObjects to the same type. Tries first to second or second to
+     * first, in that order.  Throws an ClassCastException if neither could be done or if the
+     * final Type wasn't what was passed in. Throws an NullPointerException if either argument
+     * is null. If successful, first and second will be the of the same type.
+     * @param first The first object.
+     * @param second The first object.
      */
-    private static void unifyType(TypedObject first, TypedObject second) {
+    public static void unifyType(TypedObject first, TypedObject second) {
         if (first == null || second == null) {
             throw new NullPointerException("Cannot operate on null arguments. Argument 1: " + first + " Argument 2: " + second);
         }
@@ -394,6 +395,15 @@ public class TypeSystem {
         unifyType(first, second);
         // Both are now the same type, just compare
         return first.data.compareTo(second.data);
+    }
+
+    private static void checkType(TypedObject object, Type type) {
+        if (object == null) {
+            throw new NullPointerException("Cannot operate on null argument");
+        }
+        if (object.type != type) {
+            throw new ClassCastException("Input: " + object.data.toString() + " was not of the expected type: " + type);
+        }
     }
 
     /*
@@ -509,8 +519,7 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject isLessThanOrEqual(TypedObject first, TypedObject second) {
-        int compared = compare(first, second);
-        return asTypedObject(compared <= 0);
+        return asTypedObject(compare(first, second) <= 0);
     }
 
     /**
@@ -532,8 +541,7 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject isGreaterThanOrEqual(TypedObject first, TypedObject second) {
-        int compared = compare(first, second);
-        return asTypedObject(compared >= 0);
+        return asTypedObject(compare(first, second) >= 0);
     }
 
     /**
@@ -543,6 +551,7 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalNegate(TypedObject input) {
+        checkType(input, Type.BOOLEAN);
         return asTypedObject(!(Boolean) input.data);
     }
 
@@ -554,7 +563,8 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalAnd(TypedObject first, TypedObject second) {
-        unifyType(first, second);
+        checkType(first, Type.BOOLEAN);
+        checkType(second, Type.BOOLEAN);
         return asTypedObject((Boolean) first.data && (Boolean) second.data);
     }
 
@@ -566,7 +576,8 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalOr(TypedObject first, TypedObject second) {
-        unifyType(first, second);
+        checkType(first, Type.BOOLEAN);
+        checkType(second, Type.BOOLEAN);
         return asTypedObject((Boolean) first.data || (Boolean) second.data);
     }
 

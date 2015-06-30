@@ -531,4 +531,113 @@ public class TypeSystemTest {
                                                      asTypedObject(new Timestamp(1435553876000L))).data,
                                    new Timestamp(1L)));
     }
+
+    /**********************************************************************************************************/
+
+    @Test
+    public void testLogicalNegate() {
+       Assert.assertTrue(boolify(logicalNegate(asTypedObject(false))));
+       Assert.assertFalse(boolify(logicalNegate(asTypedObject(true))));
+    }
+
+    @Test(expectedExceptions={NullPointerException.class})
+    public void testFailLogicalNegateNull() {
+       logicalNegate(null);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalNegateLong() {
+       logicalNegate(asTypedObject(1L));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalNegateDouble() {
+       logicalNegate(asTypedObject(1.0));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalNegateDecimal() {
+       logicalNegate(asTypedObject(new BigDecimal("1.0")));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalNegateTimestamp() {
+       logicalNegate(asTypedObject(new Timestamp(1L)));
+    }
+
+    @Test
+    public void testLogicalOr() {
+       Assert.assertTrue(boolify(logicalOr(asTypedObject(false), asTypedObject(true))));
+       Assert.assertTrue(boolify(logicalOr(asTypedObject(true), asTypedObject(false))));
+       Assert.assertTrue(boolify(logicalOr(asTypedObject(true), asTypedObject(true))));
+       Assert.assertFalse(boolify(logicalOr(asTypedObject(false), asTypedObject(false))));
+    }
+
+    @Test(expectedExceptions={NullPointerException.class})
+    public void testFailLogicalOrNull() {
+       logicalOr(null, asTypedObject(1L));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalOrLong() {
+       logicalOr(asTypedObject(false), asTypedObject(1L));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalOrDouble() {
+       logicalOr(asTypedObject(1.2), asTypedObject(false));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalOrDecimal() {
+       logicalOr(asTypedObject(true), asTypedObject(new BigDecimal("1.2")));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalOrTimestamp() {
+       logicalOr(asTypedObject(new Timestamp(1L)), asTypedObject(false));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalOrString() {
+       logicalOr(asTypedObject("false"), asTypedObject("true"));
+    }
+
+    @Test
+    public void testLogicalAnd() {
+       Assert.assertFalse(boolify(logicalAnd(asTypedObject(false), asTypedObject(true))));
+       Assert.assertFalse(boolify(logicalAnd(asTypedObject(true), asTypedObject(false))));
+       Assert.assertFalse(boolify(logicalAnd(asTypedObject(false), asTypedObject(false))));
+       Assert.assertTrue(boolify(logicalAnd(asTypedObject(true), asTypedObject(true))));
+    }
+
+    @Test(expectedExceptions={NullPointerException.class})
+    public void testFailLogicalAndNull() {
+       logicalAnd(asTypedObject(true), null);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalAndLong() {
+       logicalAnd(asTypedObject(false), asTypedObject(1L));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalAndDouble() {
+       logicalAnd(asTypedObject(1.2), asTypedObject(false));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalAndDecimal() {
+       logicalAnd(asTypedObject(true), asTypedObject(new BigDecimal("1.2")));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalAndTimestamp() {
+       logicalAnd(asTypedObject(new Timestamp(1L)), asTypedObject(false));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailLogicalAndString() {
+       logicalAnd(asTypedObject("false"), asTypedObject("true"));
+    }
 }
