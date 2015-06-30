@@ -377,13 +377,22 @@ public class TypeSystem {
         });
     }
 
+    private static void checkType(TypedObject object, Type type) {
+        if (object == null) {
+            throw new NullPointerException("Cannot operate on null argument");
+        }
+        if (object.type != type) {
+            throw new ClassCastException("Input: " + object.data.toString() + " was not of the expected type: " + type);
+        }
+    }
+
     /**
      * Tries to convert two TypedObjects to the same type. Tries first to second or second to
      * first, in that order.  Throws an ClassCastException if neither could be done or if the
      * final Type wasn't what was passed in. Throws an NullPointerException if either argument
      * is null. If successful, first and second will be the of the same type.
-     * @param first The first object.
-     * @param second The first object.
+     * @param first The first {@link com.yahoo.validatar.common.TypedObject}.
+     * @param second The first {@link com.yahoo.validatar.common.TypedObject}.
      */
     public static void unifyType(TypedObject first, TypedObject second) {
         if (first == null || second == null) {
@@ -405,9 +414,9 @@ public class TypeSystem {
      * Perform arithmetic on two TypedObjects.
      *
      * @param operator The {@link com.yahoo.validatar.common.TypeSystem.ArithmeticOperator} operator to perform.
-     * @param first The LHS of the arithmetic
-     * @param second The RHS of the arithmetic
-     * @return The resulting TypedObject.
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
+     * @return The resulting {@link com.yahoo.validatar.common.TypedObject}.
      */
     public static TypedObject doArithmetic(ArithmeticOperator operator, TypedObject first, TypedObject second) {
         unifyType(first, second);
@@ -422,33 +431,37 @@ public class TypeSystem {
     }
 
     /**
-     * Perform a relational operator on two TypedObjects.
+     * Perform a binary relational operator on two TypedObjects.
      *
      * @param operator The {@link com.yahoo.validatar.common.TypeSystem.RelationalOperator} operator to perform.
-     * @param first The LHS of the relation
-     * @param second The RHS of the relation. Can be null.
+     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} of the relation
+     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} of the relation. Can be null.
      * @return The resulting TypedObject.
      */
     public static TypedObject doRelational(RelationalOperator operator, TypedObject first, TypedObject second) {
         checkType(first, Type.BOOLEAN);
-        if (second != null) {
-            checkType(second, Type.BOOLEAN);
-        }
-        TypedObject result = RELATIONAL.get(operator).perform(first, second);
+        checkType(second, Type.BOOLEAN);
+        return RELATIONAL.get(operator).perform(first, second);
+    }
 
-        if (result == null) {
-            throw new ClassCastException("Unable to perform operation: " + operator + " on " +
-                                         first.data.toString() + " and " + second.data.toString());
-        }
-        return result;
+    /**
+     * Perform a unary relational operator on a TypedObject.
+     *
+     * @param operator The {@link com.yahoo.validatar.common.TypeSystem.RelationalOperator} operator to perform.
+     * @param input The input {@link com.yahoo.validatar.common.TypedObject}.
+     * @return The resulting {@link com.yahoo.validatar.common.TypedObject}.
+     */
+    public static TypedObject doRelational(RelationalOperator operator, TypedObject input) {
+        checkType(input, Type.BOOLEAN);
+        return RELATIONAL.get(operator).perform(input, null);
     }
 
 
     /**
      * Compare two TypedObjects.
      *
-     * @param first The first object to compare.
-     * @param second The second object to compare.
+     * @param first The first {@link com.yahoo.validatar.common.TypedObject} to compare.
+     * @param second The second {@link com.yahoo.validatar.common.TypedObject} to compare.
      * @return -1 if first is less than second, 1 if first is greater than second and 0 if first equals second.
      */
     @SuppressWarnings("unchecked")
@@ -456,15 +469,6 @@ public class TypeSystem {
         unifyType(first, second);
         // Both are now the same type, just compare
         return first.data.compareTo(second.data);
-    }
-
-    private static void checkType(TypedObject object, Type type) {
-        if (object == null) {
-            throw new NullPointerException("Cannot operate on null argument");
-        }
-        if (object.type != type) {
-            throw new ClassCastException("Input: " + object.data.toString() + " was not of the expected type: " + type);
-        }
     }
 
     /*
@@ -612,7 +616,7 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalNegate(TypedObject input) {
-        return doRelational(RelationalOperator.NEGATE, input, null);
+        return doRelational(RelationalOperator.NEGATE, input);
     }
 
     /**

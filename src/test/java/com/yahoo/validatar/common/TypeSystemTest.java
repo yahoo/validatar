@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
 
 public class TypeSystemTest {
+    private TypeSystem system = new TypeSystem();
     public static final double EPSILON = 0.00001;
 
     private boolean boolify(TypedObject type) {
