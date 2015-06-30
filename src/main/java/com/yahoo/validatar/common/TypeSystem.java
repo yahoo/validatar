@@ -41,11 +41,27 @@ public class TypeSystem {
         ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULUS
     }
 
+    /**
+     * These are the relational operations we will support.
+     */
+    public enum RelationalOperator {
+        NEGATE, OR, AND
+    }
+
     private interface TypeArithmetic {
         /**
          * Takes two of the same TypedObjects and performs an arithmetic on them.
          * Returns null if it cannot, else it returns a new TypedObject with the
          * result with the same type the inputs.
+         */
+        public TypedObject perform(TypedObject first, TypedObject second);
+    }
+
+    private interface TypeRelation {
+        /**
+         * Takes two of the same TypedObjects and performs an relational operator on them.
+         * Returns null if it cannot, else it returns a new BOOLEAN TypedObject with the
+         * result
          */
         public TypedObject perform(TypedObject first, TypedObject second);
     }
@@ -68,23 +84,23 @@ public class TypeSystem {
                 switch(first.type) {
                     case STRING: {
                         String data = (String) first.data + (String) second.data;
-                        return new TypedObject(data, Type.STRING);
+                        return asTypedObject(data);
                     }
                     case LONG: {
                         Long data = (Long) first.data + (Long) second.data;
-                        return new TypedObject(data, Type.LONG);
+                        return asTypedObject(data);
                     }
                     case DOUBLE: {
                         Double data = (Double) first.data + (Double) second.data;
-                        return new TypedObject(data, Type.DOUBLE);
+                        return asTypedObject(data);
                     }
                     case DECIMAL: {
                         BigDecimal data = ((BigDecimal) first.data).add((BigDecimal) second.data);
-                        return new TypedObject(data, Type.DECIMAL);
+                        return asTypedObject(data);
                     }
                     case TIMESTAMP: {
                         Timestamp data = new Timestamp(((Timestamp) first.data).getTime() + ((Timestamp) second.data).getTime());
-                        return new TypedObject(data, Type.TIMESTAMP);
+                        return asTypedObject(data);
                     }
                     case BOOLEAN:
                     default:
@@ -97,19 +113,19 @@ public class TypeSystem {
                 switch(first.type) {
                     case LONG: {
                         Long data = (Long) first.data - (Long) second.data;
-                        return new TypedObject(data, Type.LONG);
+                        return asTypedObject(data);
                     }
                     case DOUBLE: {
                         Double data = (Double) first.data - (Double) second.data;
-                        return new TypedObject(data, Type.DOUBLE);
+                        return asTypedObject(data);
                     }
                     case DECIMAL: {
                         BigDecimal data = ((BigDecimal) first.data).subtract((BigDecimal) second.data);
-                        return new TypedObject(data, Type.DECIMAL);
+                        return asTypedObject(data);
                     }
                     case TIMESTAMP: {
                         Timestamp data = new Timestamp(((Timestamp) first.data).getTime() - ((Timestamp) second.data).getTime());
-                        return new TypedObject(data, Type.TIMESTAMP);
+                        return asTypedObject(data);
                     }
                     case STRING:
                     case BOOLEAN:
@@ -123,19 +139,19 @@ public class TypeSystem {
                 switch(first.type) {
                     case LONG: {
                         Long data = (Long) first.data * (Long) second.data;
-                        return new TypedObject(data, Type.LONG);
+                        return asTypedObject(data);
                     }
                     case DOUBLE: {
                         Double data = (Double) first.data * (Double) second.data;
-                        return new TypedObject(data, Type.DOUBLE);
+                        return asTypedObject(data);
                     }
                     case DECIMAL: {
                         BigDecimal data = ((BigDecimal) first.data).multiply((BigDecimal) second.data);
-                        return new TypedObject(data, Type.DECIMAL);
+                        return asTypedObject(data);
                     }
                     case TIMESTAMP: {
                         Timestamp data = new Timestamp(((Timestamp) first.data).getTime() * ((Timestamp) second.data).getTime());
-                        return new TypedObject(data, Type.TIMESTAMP);
+                        return asTypedObject(data);
                     }
                     case STRING:
                     case BOOLEAN:
@@ -149,19 +165,19 @@ public class TypeSystem {
                 switch(first.type) {
                     case LONG: {
                         Long data = (Long) first.data / (Long) second.data;
-                        return new TypedObject(data, Type.LONG);
+                        return asTypedObject(data);
                     }
                     case DOUBLE: {
                         Double data = (Double) first.data / (Double) second.data;
-                        return new TypedObject(data, Type.DOUBLE);
+                        return asTypedObject(data);
                     }
                     case DECIMAL: {
                         BigDecimal data = ((BigDecimal) first.data).divide((BigDecimal) second.data);
-                        return new TypedObject(data, Type.DECIMAL);
+                        return asTypedObject(data);
                     }
                     case TIMESTAMP: {
                         Timestamp data = new Timestamp(((Timestamp) first.data).getTime() / ((Timestamp) second.data).getTime());
-                        return new TypedObject(data, Type.TIMESTAMP);
+                        return asTypedObject(data);
                     }
                     case STRING:
                     case BOOLEAN:
@@ -175,20 +191,42 @@ public class TypeSystem {
                 switch(first.type) {
                     case LONG: {
                         Long data = (Long) first.data % (Long) second.data;
-                        return new TypedObject(data, Type.LONG);
+                        return asTypedObject(data);
                     }
                     case TIMESTAMP:
                         Timestamp data = new Timestamp(((Timestamp) first.data).getTime() % ((Timestamp) second.data).getTime());
-                        return new TypedObject(data, Type.TIMESTAMP);
+                        return asTypedObject(data);
                     case STRING:
                     case DOUBLE:
                     case DECIMAL:
                         BigDecimal[] results = ((BigDecimal) first.data).divideAndRemainder((BigDecimal) second.data);
-                        return new TypedObject(results[1], Type.DECIMAL);
+                        return asTypedObject(results[1]);
                     case BOOLEAN:
                     default:
                         return null;
                 }
+            }
+        });
+    }
+
+    /**
+     * The mapping of an RelationalOperator to its implementation.
+     */
+    private static final Map<RelationalOperator, TypeRelation> RELATIONAL = new HashMap<>();
+    static {
+        RELATIONAL.put(RelationalOperator.NEGATE, new TypeRelation() {
+            public TypedObject perform(TypedObject first, TypedObject second) {
+                return asTypedObject(!(Boolean) first.data);
+            }
+        });
+        RELATIONAL.put(RelationalOperator.OR, new TypeRelation() {
+            public TypedObject perform(TypedObject first, TypedObject second) {
+                return asTypedObject((Boolean) first.data || (Boolean) second.data);
+            }
+        });
+        RELATIONAL.put(RelationalOperator.AND, new TypeRelation() {
+            public TypedObject perform(TypedObject first, TypedObject second) {
+                return asTypedObject((Boolean) first.data && (Boolean) second.data);
             }
         });
     }
@@ -384,6 +422,29 @@ public class TypeSystem {
     }
 
     /**
+     * Perform a relational operator on two TypedObjects.
+     *
+     * @param operator The {@link com.yahoo.validatar.common.TypeSystem.RelationalOperator} operator to perform.
+     * @param first The LHS of the relation
+     * @param second The RHS of the relation. Can be null.
+     * @return The resulting TypedObject.
+     */
+    public static TypedObject doRelational(RelationalOperator operator, TypedObject first, TypedObject second) {
+        checkType(first, Type.BOOLEAN);
+        if (second != null) {
+            checkType(second, Type.BOOLEAN);
+        }
+        TypedObject result = RELATIONAL.get(operator).perform(first, second);
+
+        if (result == null) {
+            throw new ClassCastException("Unable to perform operation: " + operator + " on " +
+                                         first.data.toString() + " and " + second.data.toString());
+        }
+        return result;
+    }
+
+
+    /**
      * Compare two TypedObjects.
      *
      * @param first The first object to compare.
@@ -551,8 +612,7 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalNegate(TypedObject input) {
-        checkType(input, Type.BOOLEAN);
-        return asTypedObject(!(Boolean) input.data);
+        return doRelational(RelationalOperator.NEGATE, input, null);
     }
 
     /**
@@ -563,9 +623,7 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalAnd(TypedObject first, TypedObject second) {
-        checkType(first, Type.BOOLEAN);
-        checkType(second, Type.BOOLEAN);
-        return asTypedObject((Boolean) first.data && (Boolean) second.data);
+        return doRelational(RelationalOperator.AND, first, second);
     }
 
     /**
@@ -576,9 +634,7 @@ public class TypeSystem {
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
     public static TypedObject logicalOr(TypedObject first, TypedObject second) {
-        checkType(first, Type.BOOLEAN);
-        checkType(second, Type.BOOLEAN);
-        return asTypedObject((Boolean) first.data || (Boolean) second.data);
+        return doRelational(RelationalOperator.OR, first, second);
     }
 
     /*
