@@ -41,6 +41,10 @@ public class TypeSystemTest {
         return Math.abs(first - second) < EPSILON;
     }
 
+    private boolean equals(Timestamp first, Timestamp second) {
+        return first.getTime() == second.getTime();
+    }
+
     @Test
     public void testTypedObjectConversions() {
         Boolean booleanValue = true;
@@ -149,7 +153,7 @@ public class TypeSystemTest {
 
     @Test
     public void testStringArithmetic() {
-        add(asTypedObject("sample"), asTypedObject("foo"));
+        Assert.assertEquals((String) (add(asTypedObject("sample"), asTypedObject("foo")).data), "samplefoo");
     }
 
     @Test(expectedExceptions={ClassCastException.class})
@@ -370,5 +374,161 @@ public class TypeSystemTest {
         Assert.assertEquals((BigDecimal) modulus(asTypedObject(new BigDecimal("101.2")),
                                                  asTypedObject(new BigDecimal("10.0"))).data,
                             new BigDecimal("1.2"));
+    }
+
+    /**************************************************** BOOLEAN  ******************************************************/
+
+    @Test
+    public void testCastingToBoolean() {
+        TypedObject booleanedObject = asTypedObject(false);
+        TypedObject stringSample = asTypedObject("false");
+        Assert.assertTrue(boolify(isEqualTo(booleanedObject, stringSample)));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingLongToBoolean() {
+        TypedObject booleanedObject = asTypedObject(false);
+        TypedObject longSample = asTypedObject(1L);
+        isEqualTo(booleanedObject, longSample);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingDoubleToBoolean() {
+        TypedObject booleanedObject = asTypedObject(false);
+        TypedObject doubleSample = asTypedObject(1.0);
+        isEqualTo(booleanedObject, doubleSample);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingDecimalToBoolean() {
+        TypedObject booleanedObject = asTypedObject(false);
+        TypedObject decimalSample = asTypedObject(new BigDecimal("1.2"));
+        isEqualTo(booleanedObject, decimalSample);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingTimestampToBoolean() {
+        TypedObject booleanedObject = asTypedObject(false);
+        TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
+        isEqualTo(booleanedObject, timestampSample);
+    }
+
+    @Test
+    public void testBooleanTypeComparisons() {
+        TypedObject booleanSample = asTypedObject(true);
+
+        Assert.assertTrue(boolify(isEqualTo(booleanSample, booleanSample)));
+        Assert.assertFalse(boolify(isNotEqualTo(booleanSample, booleanSample)));
+        Assert.assertTrue(boolify(isLessThanOrEqual(booleanSample, booleanSample)));
+        Assert.assertTrue(boolify(isGreaterThanOrEqual(booleanSample, booleanSample)));
+
+        TypedObject anotherSample = asTypedObject(false);
+
+        Assert.assertFalse(boolify(isEqualTo(booleanSample, anotherSample)));
+        Assert.assertTrue(boolify(isNotEqualTo(booleanSample, anotherSample)));
+        Assert.assertFalse(boolify(isLessThan(booleanSample, anotherSample)));
+        Assert.assertTrue(boolify(isGreaterThan(booleanSample, anotherSample)));
+        Assert.assertFalse(boolify(isLessThanOrEqual(booleanSample, anotherSample)));
+        Assert.assertTrue(boolify(isGreaterThanOrEqual(booleanSample, anotherSample)));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testBooleanAddition() {
+        add(asTypedObject(false), asTypedObject(true));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testBooleanSubtraction() {
+        subtract(asTypedObject(false), asTypedObject(true));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testBooleanMultiplication() {
+        multiply(asTypedObject(false), asTypedObject(true));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testBooleanDivision() {
+        divide(asTypedObject(false), asTypedObject(true));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testBooleanModulus() {
+        modulus(asTypedObject(false), asTypedObject(true));
+    }
+
+    /**************************************************** TIMESTAMP ******************************************************/
+
+    @Test
+    public void testCastingToTimestamp() {
+        TypedObject timestampedObject = asTypedObject(new Timestamp(1435553876000L));
+        TypedObject longSample = asTypedObject(1435553876000L);
+        Assert.assertTrue(boolify(isEqualTo(timestampedObject, longSample)));
+    }
+
+    @Test
+    public void testFailCastingDecimalToTimestampButCastOtherWay() {
+        TypedObject timestampedObject = asTypedObject(new Timestamp(1435553876000L));
+        TypedObject decimalSample = asTypedObject(new BigDecimal("1.2"));
+        Assert.assertFalse(boolify(isEqualTo(timestampedObject, decimalSample)));
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingStringToTimestamp() {
+        TypedObject timestampedObject = asTypedObject(new Timestamp(1435553876000L));
+        TypedObject stringSample = asTypedObject("1435553876000");
+        isEqualTo(timestampedObject, stringSample);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingDoubleToTimestamp() {
+        TypedObject timestampedObject = asTypedObject(new Timestamp(1435553876000L));
+        TypedObject doubleSample = asTypedObject(1.0);
+        isEqualTo(timestampedObject, doubleSample);
+    }
+
+    @Test(expectedExceptions={ClassCastException.class})
+    public void testFailCastingBooleanToTimestamp() {
+        TypedObject timestampedObject = asTypedObject(new Timestamp(1435553876000L));
+        TypedObject booleanSample = asTypedObject(true);
+        isEqualTo(timestampedObject, booleanSample);
+    }
+
+    @Test
+    public void testTimestampTypeComparisons() {
+        TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
+
+        Assert.assertTrue(boolify(isEqualTo(timestampSample, timestampSample)));
+        Assert.assertFalse(boolify(isNotEqualTo(timestampSample, timestampSample)));
+        Assert.assertTrue(boolify(isLessThanOrEqual(timestampSample, timestampSample)));
+        Assert.assertTrue(boolify(isGreaterThanOrEqual(timestampSample, timestampSample)));
+
+        TypedObject anotherSample = asTypedObject(1435553876001L);
+
+        Assert.assertFalse(boolify(isEqualTo(timestampSample, anotherSample)));
+        Assert.assertTrue(boolify(isNotEqualTo(timestampSample, anotherSample)));
+        Assert.assertTrue(boolify(isLessThan(timestampSample, anotherSample)));
+        Assert.assertFalse(boolify(isGreaterThan(timestampSample, anotherSample)));
+        Assert.assertTrue(boolify(isLessThanOrEqual(timestampSample, anotherSample)));
+        Assert.assertFalse(boolify(isGreaterThanOrEqual(timestampSample, anotherSample)));
+    }
+
+    @Test
+    public void testTimestampArithmetic() {
+        Assert.assertTrue(equals((Timestamp) add(asTypedObject(new Timestamp(1435553876000L)),
+                                                   asTypedObject(new Timestamp(1000L))).data,
+                                   new Timestamp(1435553877000L)));
+        Assert.assertTrue(equals((Timestamp) subtract(asTypedObject(new Timestamp(1435553876000L)),
+                                                      asTypedObject(new Timestamp(1435553876000L))).data,
+                                   new Timestamp(0L)));
+        Assert.assertTrue(equals((Timestamp) multiply(asTypedObject(new Timestamp(16000L)),
+                                                      asTypedObject(new Timestamp(2L))).data,
+                                   new Timestamp(32000L)));
+        Assert.assertTrue(equals((Timestamp) divide(asTypedObject(new Timestamp(14000L)),
+                                                    asTypedObject(new Timestamp(3L))).data,
+                                   new Timestamp(4666L)));
+        Assert.assertTrue(equals((Timestamp) modulus(asTypedObject(new Timestamp(1435553876001L)),
+                                                     asTypedObject(new Timestamp(1435553876000L))).data,
+                                   new Timestamp(1L)));
     }
 }

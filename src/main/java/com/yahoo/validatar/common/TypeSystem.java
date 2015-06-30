@@ -178,6 +178,8 @@ public class TypeSystem {
                         return new TypedObject(data, Type.LONG);
                     }
                     case TIMESTAMP:
+                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() % ((Timestamp) second.data).getTime());
+                        return new TypedObject(data, Type.TIMESTAMP);
                     case STRING:
                     case DOUBLE:
                     case DECIMAL:
