@@ -74,11 +74,16 @@ public class Result {
 
     /**
      * Merge another result into this. Collision in names is not handled.
+     * Once results are merged in, column and row operations for this
+     * result will still affect only the existing columns and rows pre-merge
+     * unless there were collisions.
      *
      * @param result The result to merge with.
      */
     public void merge(Result result) {
-        data.putAll(result.data);
+        if (result != null) {
+            data.putAll(result.data);
+        }
     }
 
     /**
