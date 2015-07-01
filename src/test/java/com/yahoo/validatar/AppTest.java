@@ -42,6 +42,8 @@ import static java.util.Arrays.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import static org.mockito.Mockito.*;
+
 public class AppTest {
     private class MemoryDB extends Apiary {
         private OptionParser parser = new OptionParser() {
@@ -67,7 +69,7 @@ public class AppTest {
         @Override
         public boolean setup(String[] arguments) {
             try {
-                setupConnection(parser.parse(arguments));
+                statement = setupConnection(parser.parse(arguments));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

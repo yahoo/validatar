@@ -48,7 +48,7 @@ public class Apiary implements Engine {
     public static String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
     public static String SETTING_PREFIX = "set ";
 
-    private Statement statement;
+    protected Statement statement;
 
     private OptionParser parser = new OptionParser() {
         {
@@ -84,8 +84,8 @@ public class Apiary implements Engine {
     public boolean setup(String[] arguments) {
         OptionSet options = parser.parse(arguments);
         try {
-            setupConnection(options);
-            setHiveSettings(options);
+            statement = setupConnection(options);
+            setHiveSettings(options, statement);
         } catch (ClassNotFoundException | SQLException e) {
             log.error(e);
             return false;
@@ -187,11 +187,12 @@ public class Apiary implements Engine {
     /**
      * Sets up the connection using JDBC.
      *
-     * @param options a {@link joptsimple.OptionSet} object.
+     * @param options A {@link joptsimple.OptionSet} object.
+     * @return The created {@link java.sql.Statement} object.
      * @throws java.lang.ClassNotFoundException if any.
      * @throws java.sql.SQLException if any.
      */
-    protected void setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
+    protected Statement setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
         // Load the JDBC driver
         String driver = (String) options.valueOf("hive-driver");
         log.info("Loading JDBC driver: " + driver);
@@ -205,16 +206,17 @@ public class Apiary implements Engine {
 
         // Start the connection
         Connection connection = DriverManager.getConnection(jdbcConnector, username, password);
-        statement = connection.createStatement();
+        return connection.createStatement();
     }
 
     /**
      * Sets the queue and other settings if provided.
      *
-     * @param options a {@link joptsimple.OptionSet} object.
+     * @param options A {@link joptsimple.OptionSet} object.
+     * @param statement A {@link java.sql.Statement} to execute the setting updates to.
      * @throws java.sql.SQLException if any.
      */
-    protected void setHiveSettings(OptionSet options) throws SQLException {
+    protected void setHiveSettings(OptionSet options, Statement statement) throws SQLException {
         String queue = (String) options.valueOf("hive-queue");
 
         log.info("Using queue: " + queue);
