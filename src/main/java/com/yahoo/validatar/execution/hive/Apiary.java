@@ -131,7 +131,9 @@ public class Apiary implements Engine {
                     int type = metadata.getColumnType(i);
                     TypedObject value = getAsTypedObject(result, i, type);
                     queryResult.addColumnRow(name, value);
-                    log.info("Column: " + name + "\tType: " + type + "\tValue: " + value);
+                    if (value != null) {
+                        log.info("Column: " + name + "\tType: " + type + "\tValue: " + value.data);
+                    }
                 }
             }
         } catch (SQLException e) {
