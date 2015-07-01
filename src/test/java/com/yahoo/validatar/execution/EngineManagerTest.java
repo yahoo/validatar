@@ -17,12 +17,16 @@
 package com.yahoo.validatar.execution;
 
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.TypedObject;
+import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.LogCaptor;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -69,6 +73,7 @@ public class EngineManagerTest extends LogCaptor {
 
         @Override
         public void execute(Query query) {
+            query.createResults();
         }
 
         @Override
@@ -91,11 +96,11 @@ public class EngineManagerTest extends LogCaptor {
 
         @Override
         public void execute(Query query) {
-            Map<String, List<String>> results = new HashMap<String, List<String>>();
-            List<String> columns = new ArrayList<String>();
-            columns.add("42");
-            results.put("a", columns);
-            query.setResults(results);
+            Result results = query.createResults();
+            results.addColumn("a");
+            results.addColumnRow("a", new TypedObject("42", TypeSystem.Type.STRING));
+            results.addColumn("b", Arrays.asList(new TypedObject("42", TypeSystem.Type.STRING),
+                                                 new TypedObject("52", TypeSystem.Type.STRING)));
         }
 
         @Override
@@ -172,7 +177,7 @@ public class EngineManagerTest extends LogCaptor {
         query.engine = MockPassingEngine.ENGINE_NAME;
         manager.setEngines(engines);
         Assert.assertTrue(manager.run(queries));
-        Assert.assertNull(query.getResults());
+        Assert.assertEquals(query.getResult().getColumns().size(), 0);
     }
 
     @Test
@@ -183,10 +188,25 @@ public class EngineManagerTest extends LogCaptor {
 
         Assert.assertTrue(manager.run(queries));
 
-        Map<String, List<String>> results = new HashMap<String, List<String>>();
-        List<String> columns = new ArrayList<String>();
-        columns.add("42");
-        results.put("Foo.a", columns);
-        Assert.assertEquals(query.getResults(), results);
+        Map<String, List<TypedObject>> expected = new HashMap<>();
+        List<TypedObject> columns = new ArrayList<>();
+        columns.add(new TypedObject("42", TypeSystem.Type.STRING));
+        expected.put("Foo.a", columns);
+        columns = new ArrayList<>();
+        columns.add(new TypedObject("42", TypeSystem.Type.STRING));
+        columns.add(new TypedObject("52", TypeSystem.Type.STRING));
+        expected.put("Foo.b", columns);
+
+        Map<String, List<TypedObject>> actual = query.getResult().getColumns();
+
+        Assert.assertEquals(actual.size(), 2);
+        Assert.assertEquals(expected.size(), 2);
+        Assert.assertEquals(actual.get("Foo.a").size(), 1);
+        Assert.assertEquals(expected.get("Foo.a").size(), 1);
+        Assert.assertEquals((String) actual.get("Foo.a").get(0).data, (String) expected.get("Foo.a").get(0).data);
+        Assert.assertEquals(actual.get("Foo.b").size(), 2);
+        Assert.assertEquals(expected.get("Foo.b").size(), 2);
+        Assert.assertEquals((String) actual.get("Foo.b").get(0).data, (String) expected.get("Foo.b").get(0).data);
+        Assert.assertEquals((String) actual.get("Foo.b").get(1).data, (String) expected.get("Foo.b").get(1).data);
     }
 }

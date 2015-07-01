@@ -17,15 +17,20 @@
 grammar Grammar;
 
 @parser::header {
+import com.yahoo.validatar.common.TypedObject;
+import com.yahoo.validatar.common.TypeSystem.Type;
+import static com.yahoo.validatar.common.TypeSystem.*;
 import java.util.Map;
 import java.util.HashMap;
+import java.math.BigDecimal;
+import org.apache.commons.lang3.StringEscapeUtils;
 }
 
 @parser::members {
-    private Map<String, String> row = null;
-    private Map<String, String> lookedUpValues = new HashMap<String, String>();;
+    private Map<String, TypedObject> row = null;
+    private Map<String, String> lookedUpValues = new HashMap<>();;
 
-    public void setCurrentRow(Map<String, String> row) {
+    public void setCurrentRow(Map<String, TypedObject> row) {
         this.row = row;
     }
 
@@ -33,51 +38,91 @@ import java.util.HashMap;
         return lookedUpValues;
     }
 
-    private String getColumnValue(String name) {
-        String result = row.get(name);
-        lookedUpValues.put(name, result);
+    private TypedObject getColumnValue(String name) {
+        TypedObject result = row.get(name);
+        if (result == null) {
+            throw new RuntimeException("Unable to find value for column: " + name + " in results");
+        }
+        lookedUpValues.put(name, result.data.toString());
         return result;
     }
 
     private String stripQuotes(String literal) {
         return literal.substring(1, literal.length() - 1);
     }
+
+    private TypedObject parseString(String text) {
+        return new TypedObject(StringEscapeUtils.unescapeJava(stripQuotes(text)), Type.STRING);
+    }
+
+    private TypedObject parseWholeNumber(String text) {
+        TypedObject object;
+        try {
+            object = new TypedObject(Long.parseLong(text), Type.LONG);
+        } catch (NumberFormatException nfe) {
+            object = new TypedObject(new BigDecimal(text), Type.DECIMAL);
+        }
+        return object;
+    }
+
+    private TypedObject parseDecimalNumber(String text) {
+        TypedObject object;
+        try {
+            object = new TypedObject(Double.parseDouble(text), Type.DOUBLE);
+        } catch (NumberFormatException nfe) {
+            object = new TypedObject(new BigDecimal(text), Type.DECIMAL);
+        }
+        return object;
+    }
+
+    private TypedObject approx(TypedObject first, TypedObject second, TypedObject percent) {
+        if ((Boolean) isGreaterThan(percent, asTypedObject(1L)).data || (Boolean) isLessThan(percent, asTypedObject(0L)).data) {
+            throw new RuntimeException("Expected percentage for approx to be between 0 and 1. Got " + percent.data);
+        }
+
+        TypedObject max = multiply(second, add(asTypedObject(1L), percent));
+        if ((Boolean) isGreaterThan(first, max).data) {
+            return asTypedObject(false);
+        }
+
+        TypedObject min = multiply(second, subtract(asTypedObject(1L), percent));
+        if ((Boolean) isLessThan(first, min).data) {
+            return asTypedObject(false);
+        }
+        return asTypedObject(true);
+    }
 }
 
-functionalExpression returns [String value]
-    :   APPROX LEFTPAREN l=base COMMA r=base COMMA p=Number RIGHTPAREN
-                  {
-                      Double percent = Double.parseDouble($p.text);
-                      if (percent > 1 || percent < 0) {
-                          throw new RuntimeException("Expected percentage for the function to be between 0 and 1. Got " + percent);
-                      }
-                      Double left = Double.parseDouble($l.value);
-                      Double right = Double.parseDouble($r.value);
-                      if (left > (right * (1 + percent))) {
-                          $value = String.valueOf(false);
-                      } else if (left < (right * (1 - percent))) {
-                          $value = String.valueOf(false);
-                      } else {
-                          $value = String.valueOf(true);
-                      }
-                  }
+functionalExpression returns [TypedObject value]
+    :   APPROX LEFTPAREN l=base COMMA r=base COMMA p=numeric RIGHTPAREN {$value = approx($l.value, $r.value, $p.value);}
     ;
 
-base returns [String value]
+base returns [TypedObject value]
     :   i=Identifier                               {$value = getColumnValue($i.text);}
-    |   s=StringLiteral                            {$value = stripQuotes($s.text);}
-    |   n=Number                                   {$value = $n.text;}
-    |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = String.valueOf($o.value);}
-    |   f=functionalExpression                     {$value = String.valueOf($f.value);}
+    |   t=truthy                                   {$value = $t.value;}
+    |   n=numeric                                  {$value = $n.value;}
+    |   s=StringLiteral                            {$value = parseString($s.text);}
+    |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = $o.value;}
+    |   f=functionalExpression                     {$value = $f.value;}
     ;
 
-unaryExpression returns [String value]
+truthy returns [TypedObject value]
+    :   TRUE                                       {$value = new TypedObject(Boolean.valueOf(true), Type.BOOLEAN);}
+    |   FALSE                                      {$value = new TypedObject(Boolean.valueOf(false), Type.BOOLEAN);}
+    ;
+
+numeric returns [TypedObject value]
+    :   w=WholeNumber                              {$value = parseWholeNumber($w.text);}
+    |   d=DecimalNumber                            {$value = parseDecimalNumber($d.text);}
+    ;
+
+unaryExpression returns [TypedObject value]
     :   m=MINUS? b=base
                         {
                             if ($m == null) {
                                 $value = $b.value;
                             } else {
-                                $value = String.valueOf(-1.0 * Double.parseDouble($b.value));
+                                $value = negate($b.value);
                             };
                         }
     |   n=NOT? b=base
@@ -85,52 +130,53 @@ unaryExpression returns [String value]
                             if ($n == null) {
                                 $value = $b.value;
                             } else {
-                                $value = String.valueOf(!Boolean.parseBoolean($b.value));
+                                $value = logicalNegate($b.value);
                             };
                         }
     ;
 
-multiplicativeExpression returns [String value]
-    :   u=unaryExpression                                   {$value = $u.value;}
-    |   m=multiplicativeExpression TIMES u=unaryExpression  {$value = String.valueOf(Double.parseDouble($m.value) * Double.parseDouble($u.value));}
-    |   m=multiplicativeExpression DIVIDE u=unaryExpression {$value = String.valueOf(Double.parseDouble($m.value) / Double.parseDouble($u.value));}
+multiplicativeExpression returns [TypedObject value]
+    :   u=unaryExpression                                    {$value = $u.value;}
+    |   m=multiplicativeExpression TIMES u=unaryExpression   {$value = multiply($m.value, $u.value);}
+    |   m=multiplicativeExpression DIVIDE u=unaryExpression  {$value = divide($m.value, $u.value);}
+    |   m=multiplicativeExpression MODULUS u=unaryExpression {$value = modulus($m.value, $u.value);}
     ;
 
-additiveExpression returns [String value]
+additiveExpression returns [TypedObject value]
     :   m=multiplicativeExpression                              {$value = $m.value;}
-    |   a=additiveExpression PLUS m=multiplicativeExpression    {$value = String.valueOf(Double.parseDouble($a.value) + Double.parseDouble($m.value));}
-    |   a=additiveExpression MINUS m=multiplicativeExpression   {$value = String.valueOf(Double.parseDouble($a.value) - Double.parseDouble($m.value));}
+    |   a=additiveExpression PLUS m=multiplicativeExpression    {$value = add($a.value, $m.value);}
+    |   a=additiveExpression MINUS m=multiplicativeExpression   {$value = subtract($a.value, $m.value);}
     ;
 
-relationalExpression returns [String value]
+relationalExpression returns [TypedObject value]
     :   a=additiveExpression                                     {$value = $a.value;}
-    |   r=relationalExpression GREATER a=additiveExpression      {$value = String.valueOf(Double.parseDouble($r.value) >  Double.parseDouble($a.value));}
-    |   r=relationalExpression LESS a=additiveExpression         {$value = String.valueOf(Double.parseDouble($r.value) <  Double.parseDouble($a.value));}
-    |   r=relationalExpression LESSEQUAL a=additiveExpression    {$value = String.valueOf(Double.parseDouble($r.value) <= Double.parseDouble($a.value));}
-    |   r=relationalExpression GREATEREQUAL a=additiveExpression {$value = String.valueOf(Double.parseDouble($r.value) >= Double.parseDouble($a.value));}
+    |   r=relationalExpression GREATER a=additiveExpression      {$value = isGreaterThan($r.value, $a.value);}
+    |   r=relationalExpression LESS a=additiveExpression         {$value = isLessThan($r.value, $a.value);}
+    |   r=relationalExpression LESSEQUAL a=additiveExpression    {$value = isLessThanOrEqual($r.value, $a.value);}
+    |   r=relationalExpression GREATEREQUAL a=additiveExpression {$value = isGreaterThanOrEqual($r.value, $a.value);}
     ;
 
-equalityExpression returns [String value]
+equalityExpression returns [TypedObject value]
     :   r=relationalExpression                               {$value = $r.value;}
-    |   e=equalityExpression EQUAL r=relationalExpression    {$value = String.valueOf($e.value.equals($r.value));}
-    |   e=equalityExpression NOTEQUAL r=relationalExpression {$value = String.valueOf(!$e.value.equals($r.value));}
+    |   e=equalityExpression EQUAL r=relationalExpression    {$value = isEqualTo($e.value, $r.value);}
+    |   e=equalityExpression NOTEQUAL r=relationalExpression {$value = isNotEqualTo($e.value, $r.value);}
     ;
 
-andExpression returns [String value]
+andExpression returns [TypedObject value]
     :   e=equalityExpression                     {$value = $e.value;}
-    |   a=andExpression AND e=equalityExpression {$value = String.valueOf(Boolean.valueOf($a.value) && Boolean.valueOf($e.value));}
+    |   a=andExpression AND e=equalityExpression {$value = logicalAnd($a.value, $e.value);}
     ;
 
-orExpression returns [String value]
+orExpression returns [TypedObject value]
     :   a=andExpression                   {$value = $a.value;}
-    |   o=orExpression OR a=andExpression {$value = String.valueOf(Boolean.valueOf($o.value) || Boolean.valueOf($a.value));}
+    |   o=orExpression OR a=andExpression {$value = logicalOr($o.value, $a.value);}
     ;
 
 expression returns [Boolean value]
-    :   o=orExpression                    {$value = Boolean.valueOf($o.value);}
+    :   o=orExpression                    {$value = (Boolean) $o.value.data;}
     ;
 
-QUOTE                : '"';
+DOUBLEQUOTE          : '"';
 PERIOD               : '.';
 COMMA                : ',';
 LEFTPAREN            : '(';
@@ -139,6 +185,7 @@ PLUS                 : '+';
 MINUS                : '-';
 TIMES                : '*';
 DIVIDE               : '/';
+MODULUS              : '%';
 GREATER              : '>';
 LESS                 : '<';
 GREATEREQUAL         : '>=';
@@ -148,7 +195,8 @@ EQUAL                : '==';
 NOT                  : '!';
 AND                  : '&&';
 OR                   : '||';
-
+TRUE                 : 'true';
+FALSE                : 'false';
 APPROX               : 'approx';
 
 Whitespace
@@ -162,6 +210,11 @@ Newline
     ;
 
 fragment
+StringCharacter
+    : ~["]
+    ;
+
+fragment
 NonDigit
     :  [a-zA-Z_]
     ;
@@ -171,23 +224,25 @@ Digit
     :  [0-9]
     ;
 
-Number
-    :  Digit+ (PERIOD Digit+)?
+fragment
+IdentifierCharacter
+    : NonDigit
+    | Digit
     ;
 
-WhitespaceCharacter
-    : [ \t\n\r]
+WholeNumber
+    :  Digit+
     ;
 
-Character
-    : (NonDigit | Digit)
+DecimalNumber
+    :  Digit+ PERIOD Digit+
     ;
 
 StringLiteral
-    :   QUOTE (Character | WhitespaceCharacter)* QUOTE
+    : DOUBLEQUOTE StringCharacter* DOUBLEQUOTE
     ;
 
 Identifier
-    :  (Character)+ PERIOD ? (Character)+
+    :  IdentifierCharacter+ PERIOD ? IdentifierCharacter+
     ;
 

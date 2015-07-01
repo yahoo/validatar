@@ -29,6 +29,8 @@ public abstract class Executable {
 
     /**
      * Get messages.
+     *
+     * @return A {@link java.util.List} of messages.
      */
     public List<String> getMessages() {
         return messages;
@@ -36,6 +38,8 @@ public abstract class Executable {
 
     /**
      * Add a message.
+     *
+     * @param message The message to add.
      */
     public void addMessage(String message) {
         if (this.messages == null) {
@@ -59,7 +63,9 @@ public abstract class Executable {
     }
 
     /**
-     * True iff in the failure status.
+     * Is the executable in the failed status?
+     *
+     * @return True iff in the failure status.
      */
     public boolean failed() {
         return failed == true;

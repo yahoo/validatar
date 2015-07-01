@@ -18,6 +18,9 @@ package com.yahoo.validatar.execution.hive;
 
 import com.yahoo.validatar.execution.Engine;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.TypeSystem;
+import com.yahoo.validatar.common.TypedObject;
 
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -25,11 +28,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.sql.DriverManager;
+import java.sql.Types;
 
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import static java.util.Arrays.*;
 import java.io.IOException;
 
@@ -47,7 +48,7 @@ public class Apiary implements Engine {
     public static String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
     public static String SETTING_PREFIX = "set ";
 
-    private Statement statement;
+    protected Statement statement;
 
     private OptionParser parser = new OptionParser() {
         {
@@ -78,12 +79,13 @@ public class Apiary implements Engine {
         }
     };
 
+    /** {@inheritDoc} */
     @Override
     public boolean setup(String[] arguments) {
         OptionSet options = parser.parse(arguments);
         try {
-            setupConnection(options);
-            setHiveSettings(options);
+            statement = setupConnection(options);
+            setHiveSettings(options, statement);
         } catch (ClassNotFoundException | SQLException e) {
             log.error(e);
             return false;
@@ -91,6 +93,7 @@ public class Apiary implements Engine {
         return true;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void printHelp() {
         System.out.println(ENGINE_NAME + " help:");
@@ -102,6 +105,7 @@ public class Apiary implements Engine {
         System.out.println();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void execute(Query query) {
         String queryName = query.name;
@@ -111,24 +115,27 @@ public class Apiary implements Engine {
             ResultSet result = statement.executeQuery(queryValue);
             ResultSetMetaData metadata = result.getMetaData();
             int columns = metadata.getColumnCount();
-            Map<String, List<String>> results = new HashMap<String, List<String>>();
+
+            Result queryResult = query.createResults();
 
             // Setup lists
             for (int i = 1; i < columns + 1; i++) {
                 String name = metadata.getColumnName(i);
-                results.put(name, new ArrayList<String>());
+                queryResult.addColumn(name);
             }
 
             // Get the output
             while (result.next()) {
                 for (int i = 1; i < columns + 1; i++) {
                     String name = metadata.getColumnName(i);
-                    String value = result.getString(i);
-                    results.get(name).add(value);
-                    log.info("Column: " + name + "\tValue: " + value);
+                    int type = metadata.getColumnType(i);
+                    TypedObject value = getAsTypedObject(result, i, type);
+                    queryResult.addColumnRow(name, value);
+                    if (value != null) {
+                        log.info("Column: " + name + "\tType: " + type + "\tValue: " + value.data);
+                    }
                 }
             }
-            query.setResults(results);
         } catch (SQLException e) {
             log.error("SQL problem with query: " + queryName + "\n" + queryValue, e);
             query.setFailure(e.toString());
@@ -136,15 +143,58 @@ public class Apiary implements Engine {
 
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         return ENGINE_NAME;
     }
 
     /**
-     * Sets up the connection using JDBC.
+     * Takes a value and its type and returns it as the appropriate TypedObject.
+     *
+     * @param results The ResultSet that has a confirmed value for reading by its iterator.
+     * @param index The index of the column in the results to get.
+     * @param type The java.sql.TypesSQL type of the value.
+     * @return A non-null TypedObject representation of the value.
+     * @throws java.sql.SQLException if any.
      */
-    protected void setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
+    protected TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
+        if (results.wasNull()) {
+            return null;
+        }
+        switch(type) {
+            case(Types.DATE):
+            case(Types.CHAR):
+            case(Types.VARCHAR):
+                return new TypedObject(results.getString(index), TypeSystem.Type.STRING);
+            case(Types.FLOAT):
+            case(Types.DOUBLE):
+                return new TypedObject((Double) results.getDouble(index), TypeSystem.Type.DOUBLE);
+            case(Types.BOOLEAN):
+                return new TypedObject((Boolean) results.getBoolean(index), TypeSystem.Type.BOOLEAN);
+            case(Types.TINYINT):
+            case(Types.SMALLINT):
+            case(Types.INTEGER):
+            case(Types.BIGINT):
+                return new TypedObject((Long) results.getLong(index), TypeSystem.Type.LONG);
+            case(Types.DECIMAL):
+                return new TypedObject(results.getBigDecimal(index), TypeSystem.Type.DECIMAL);
+            case(Types.TIMESTAMP):
+                return new TypedObject(results.getTimestamp(index), TypeSystem.Type.TIMESTAMP);
+            default:
+                throw new UnsupportedOperationException("Unknown SQL type encountered from Hive: " + type);
+        }
+    }
+
+    /**
+     * Sets up the connection using JDBC.
+     *
+     * @param options A {@link joptsimple.OptionSet} object.
+     * @return The created {@link java.sql.Statement} object.
+     * @throws java.lang.ClassNotFoundException if any.
+     * @throws java.sql.SQLException if any.
+     */
+    protected Statement setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
         // Load the JDBC driver
         String driver = (String) options.valueOf("hive-driver");
         log.info("Loading JDBC driver: " + driver);
@@ -158,13 +208,17 @@ public class Apiary implements Engine {
 
         // Start the connection
         Connection connection = DriverManager.getConnection(jdbcConnector, username, password);
-        statement = connection.createStatement();
+        return connection.createStatement();
     }
 
     /**
      * Sets the queue and other settings if provided.
+     *
+     * @param options A {@link joptsimple.OptionSet} object.
+     * @param statement A {@link java.sql.Statement} to execute the setting updates to.
+     * @throws java.sql.SQLException if any.
      */
-    protected void setHiveSettings(OptionSet options) throws SQLException {
+    protected void setHiveSettings(OptionSet options, Statement statement) throws SQLException {
         String queue = (String) options.valueOf("hive-queue");
 
         log.info("Using queue: " + queue);

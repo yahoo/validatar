@@ -26,10 +26,14 @@ public class Query extends Executable {
     public String value;
     public List<Metadata> metadata;
 
-    private Map<String, List<String>> results = null;
+    public static final String NAMESPACE_SEPARATOR = ".";
+
+    private Result result = null;
 
     /**
      * Add a failure message and mark as failed.
+     *
+     * @param failedMessage A {@link java.lang.String} message to set.
      */
     public void setFailure(String failedMessage) {
         setFailed();
@@ -37,22 +41,29 @@ public class Query extends Executable {
     }
 
     /**
-     * Store the results of the query.
+     * Initialize the results.
+     *
+     * @return The created {@link com.yahoo.validatar.common.Result} object.
      */
-    public void setResults(Map<String, List<String>> results) {
-        this.results = results;
+    public Result createResults() {
+        result = new Result(name + NAMESPACE_SEPARATOR);
+        return result;
     }
 
     /**
      * Get the results of the query.
+     *
+     * @return The {@link com.yahoo.validatar.common.Result} result object.
      */
-    public Map<String, List<String>> getResults() {
-        return results;
+    public Result getResult() {
+        return result;
     }
 
     /**
      * Returns the metadata list flattened into a map. If there are metadata with
      * the same key, the last one is one that is kept.
+     *
+     * @return A {@link java.util.Map} view of the metadata.
      */
     public Map<String, String> getMetadata() {
         if (metadata == null) {

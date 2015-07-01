@@ -66,6 +66,7 @@ public class ParseManager implements FileLoadable {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<TestSuite> load(File path) throws FileNotFoundException {
         List<TestSuite> testSuites = new ArrayList<TestSuite>();
@@ -90,6 +91,7 @@ public class ParseManager implements FileLoadable {
     /**
      * Takes a List of non null TestSuite and a map and replaces all the variables in the query with the value
      * in the map, in place.
+     *
      * @param suites A list of TestSuites containing parametrized queries.
      * @param parameterMap A map of parameters to their values.
      * @return The list of TestSuite with replaced queries for chainability.
@@ -104,6 +106,7 @@ public class ParseManager implements FileLoadable {
     /**
      * Takes a non null TestSuite and a map and replaces all the variables in the query with the value
      * in the map, in place.
+     *
      * @param suite A TestSuite containing parametrized queries.
      * @param parameterMap A map of parameters to their values.
      */
@@ -127,8 +130,10 @@ public class ParseManager implements FileLoadable {
 
     /**
      * Takes a non-null File and parses a TestSuite out of it.
+     *
      * @param path A File object representing the file.
      * @return The parsed TestSuite from the file. Null if it cannot be parsed.
+     * @throws java.io.FileNotFoundException if any.
      */
     protected TestSuite getTestSuite(File path) throws FileNotFoundException {
         TestSuite suite = null;

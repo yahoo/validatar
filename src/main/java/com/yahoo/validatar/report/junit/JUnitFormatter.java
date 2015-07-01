@@ -55,6 +55,7 @@ public class JUnitFormatter implements Formatter {
     };
     private String outputFile;
 
+    /** {@inheritDoc} */
     @Override
     public boolean setup(String[] arguments) {
         outputFile = (String) parser.parse(arguments).valueOf("report-file");
@@ -62,6 +63,8 @@ public class JUnitFormatter implements Formatter {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Writes out the report for the given testSuites in the JUnit XML format.
      */
     @Override
@@ -101,6 +104,7 @@ public class JUnitFormatter implements Formatter {
         writer.close();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void printHelp() {
         try {
@@ -110,6 +114,7 @@ public class JUnitFormatter implements Formatter {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         return JUNIT;

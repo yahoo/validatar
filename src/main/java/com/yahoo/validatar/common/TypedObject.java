@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package com.yahoo.validatar.parse;
+package com.yahoo.validatar.common;
 
-import com.yahoo.validatar.common.TestSuite;
+/**
+ * This is the custom annotated object that is used in our assertion language.
+ */
+public class TypedObject {
+    /** We are now handling type safety. */
+    @SuppressWarnings("unchecked")
+    public Comparable data;
+    public TypeSystem.Type type;
 
-import java.util.List;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-
-public interface FileLoadable {
     /**
-     * Load test file(s) from a provided path. If a folder, load all test files. If a file, load it.
+     * Constructor.
      *
-     * @param path The folder with the test file(s) or the test file.j
-     * @return A list of TestSuites representing the TestSuites in path. Empty if no TestSuite found.
-     * @throws java.io.FileNotFoundException if any.
+     * @param data A non-null {@link java.lang.Comparable} object that we are managing the type for.
+     * @param type The {@link com.yahoo.validatar.common.TypeSystem.Type} of the object.
      */
-    public List<TestSuite> load(File path) throws FileNotFoundException;
+    public TypedObject(Comparable data, TypeSystem.Type type) {
+        this.data = data;
+        this.type = type;
+    }
 }

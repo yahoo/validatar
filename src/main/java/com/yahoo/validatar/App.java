@@ -19,6 +19,7 @@ package com.yahoo.validatar;
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.execution.EngineManager;
 import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.assertion.Assertor;
@@ -81,8 +82,10 @@ public class App {
 
     /**
      * Parse arguements with parser.
+     *
      * @param args CLI args
      * @return Option set containing all settings
+     * @throws java.io.IOException if any.
      */
     public static OptionSet parse(String[] args) throws IOException {
         try {
@@ -95,6 +98,14 @@ public class App {
 
     /**
      * Run the testSuite and parameters with the given Parse, Engine and Format Managers.
+     *
+     * @param testSuite The {@link java.io.File} where the TestSuite(s) are.
+     * @param parameters An optional {@link java.util.Map} of parameters to their values to expand.
+     * @param parseManager A {@link com.yahoo.validatar.parse.ParseManager} to use.
+     * @param engineManager A {@link com.yahoo.validatar.execution.EngineManager} to use.
+     * @param formatManager A {@link com.yahoo.validatar.report.FormatManager} to use.
+     * @throws java.io.FileNotFoundException if any.
+     * @throws java.io.IOException if any.
      */
     public static void run(File testSuite, Map<String, String> parameters, ParseManager parseManager,
                            EngineManager engineManager, FormatManager formatManager) throws FileNotFoundException, IOException {
@@ -118,10 +129,10 @@ public class App {
         }
 
         // Get the data
-        Map<String, List<String>> data = new HashMap<String, List<String>>();
+        Result data = new Result();
         for (TestSuite suite : suites) {
             for (Query query : suite.queries) {
-                data.putAll(query.getResults());
+                data.merge(query.getResult());
             }
         }
 
@@ -138,6 +149,10 @@ public class App {
 
     /**
      * Main.
+     *
+     * @param args The input arguments.
+     * @throws java.io.IOException if any.
+     * @throws java.io.FileNotFoundException if any.
      */
     public static void main(String[] args) throws IOException, FileNotFoundException {
         // Parse CLI args

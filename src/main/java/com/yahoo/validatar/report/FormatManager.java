@@ -54,6 +54,7 @@ public class FormatManager {
 
     /**
      * Setups the format engine using the input parameters.
+     *
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      */
     public FormatManager(String[] arguments) {
@@ -71,6 +72,7 @@ public class FormatManager {
 
     /**
      * For testing purposes. Explicitly set the formatter to use.
+     *
      * @param formatter The formatter to use.
      */
     protected void setFormatterToUse(Formatter formatter) {
@@ -101,7 +103,9 @@ public class FormatManager {
 
     /**
      * Write out a list of TestSuites.
+     *
      * @param testSuites List of test suites.
+     * @throws java.io.IOException if any.
      */
     public void writeReport(List<TestSuite> testSuites) throws IOException {
         formatterToUse.writeReport(testSuites);

@@ -17,56 +17,220 @@
 package com.yahoo.validatar.execution.hive;
 
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.TypedObject;
+import com.yahoo.validatar.common.TypeSystem;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import static java.util.Arrays.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.Types;
+import java.sql.Timestamp;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import static java.util.Arrays.*;
+
+import java.math.BigDecimal;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterMethod;
+
+import static org.mockito.Mockito.*;
 
 public class ApiaryTest {
-    private OptionParser parser = new OptionParser() {
-        {
-            acceptsAll(asList("hive-driver"), "Fully qualified package name to the hive driver.")
-                .withRequiredArg()
-                .describedAs("Hive driver");
-            acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
-                .withRequiredArg()
-                .describedAs("Hive JDBC connector.");
-            acceptsAll(asList("hive-username"), "Hive server username.")
-                .withRequiredArg()
-                .describedAs("Hive server username.")
-                .defaultsTo("anon");
-            acceptsAll(asList("hive-password"), "Hive server password.")
-                .withRequiredArg()
-                .describedAs("Hive server password.")
-                .defaultsTo("anon");
-            allowsUnrecognizedOptions();
-        }
-    };
+    private String[] args = {"--hive-driver", "org.h2.Driver",
+                             "--hive-jdbc",   "jdbc:h2:mem:",
+                             "--hive-queue",  "default"};
 
     @Test
     public void testGetJDBCConnector() throws ClassNotFoundException, SQLException, Exception {
-        Apiary apiary = new Apiary();
-        String[] args = {"--hive-driver", "org.h2.Driver",
-                         "--hive-jdbc",   "jdbc:h2:mem:"};
-        apiary.setupConnection(parser.parse(args));
+        Apiary apiary = spy(new Apiary());
+        doNothing().when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
+        Assert.assertTrue(apiary.setup(args));
         Query query = new Query();
         query.name = "Test";
         query.value = "SELECT 1 as ONE";
         apiary.execute(query);
         Assert.assertFalse(query.failed());
-        Assert.assertEquals(query.getResults().get("ONE").get(0), "1");
+        Assert.assertEquals((Long) query.getResult().getColumns().get("Test.ONE").get(0).data,
+                            (Long) new TypedObject(1L, TypeSystem.Type.LONG).data);
+    }
+
+    @Test
+    public void testFailSetup() {
+        Apiary apiary = spy(new Apiary());
+        try {
+            doThrow(new SQLException()).when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
+        } catch (SQLException se) {
+            Assert.fail("Should not have thrown an exception");
+        }
+        Assert.assertFalse(apiary.setup(args));
+        try {
+            doThrow(new ClassNotFoundException()).when(apiary).setupConnection(any(OptionSet.class));
+        } catch (ClassNotFoundException | SQLException e) {
+            Assert.fail("Should not have thrown an exception");
+        }
+        Assert.assertFalse(apiary.setup(args));
+    }
+
+    @Test
+    public void testFailExecution() {
+        Apiary apiary = spy(new Apiary());
+        try {
+            Statement mocked = mock(Statement.class);
+            doThrow(new SQLException()).when(mocked).executeQuery(anyString());
+            doNothing().when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
+            doReturn(mocked).when(apiary).setupConnection(any(OptionSet.class));
+            apiary.setup(args);
+        } catch (ClassNotFoundException | SQLException e) {
+            Assert.fail("Should not have thrown an exception");
+        }
+        Query query = new Query();
+        apiary.execute(query);
+        Assert.assertTrue(query.failed());
+    }
+
+    @Test
+    public void testHiveSettings() {
+        Apiary apiary = new Apiary();
+        Statement mocked = mock(Statement.class);
+        OptionParser parser = new OptionParser() {
+        {
+            acceptsAll(asList("hive-queue"), "").withRequiredArg();
+            acceptsAll(asList("hive-setting"), "").withRequiredArg();
+        }};
+
+        String[] args = {"--hive-queue", "default",
+                         "--hive-setting", "hive.execution.engine=tez",
+                         "--hive-setting", "hive.execution.engine=mr"};
+        try {
+            apiary.setHiveSettings(parser.parse(args), mocked);
+        } catch (SQLException se) {
+            Assert.fail("Should not have thrown an exception");
+        }
+    }
+
+    @Test
+    public void testHiveTypeMappingNull() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        doReturn(true).when(mocked).wasNull();
+        Assert.assertNull(apiary.getAsTypedObject(mocked, 0, Types.NULL));
+    }
+
+    @Test
+    public void testHiveTypeMappingString() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        TypedObject object;
+        // DATE, CHAR, VARCHAR
+        doReturn("Sample").when(mocked).getString(anyInt());
+        object = apiary.getAsTypedObject(mocked, 0, Types.DATE);
+        Assert.assertEquals((String) object.data, "Sample");
+        Assert.assertEquals(object.type, TypeSystem.Type.STRING);
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.CHAR);
+        Assert.assertEquals((String) object.data, "Sample");
+        Assert.assertEquals(object.type, TypeSystem.Type.STRING);
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.VARCHAR);
+        Assert.assertEquals((String) object.data, "Sample");
+        Assert.assertEquals(object.type, TypeSystem.Type.STRING);
+    }
+
+    @Test
+    public void testHiveTypeMappingDouble() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        TypedObject object;
+        // FLOAT, DOUBLE
+        doReturn(Double.valueOf(3.14)).when(mocked).getDouble(anyInt());
+        object = apiary.getAsTypedObject(mocked, 0, Types.FLOAT);
+        Assert.assertEquals((Double) object.data, Double.valueOf(3.14));
+        Assert.assertEquals(object.type, TypeSystem.Type.DOUBLE);
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.DOUBLE);
+        Assert.assertEquals((Double) object.data, Double.valueOf(3.14));
+        Assert.assertEquals(object.type, TypeSystem.Type.DOUBLE);
+    }
+
+    @Test
+    public void testHiveTypeMappingBoolean() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        TypedObject object;
+
+        doReturn(Boolean.valueOf(false)).when(mocked).getBoolean(anyInt());
+        object = apiary.getAsTypedObject(mocked, 0, Types.BOOLEAN);
+        Assert.assertEquals((Boolean) object.data, Boolean.valueOf(false));
+        Assert.assertEquals(object.type, TypeSystem.Type.BOOLEAN);
+    }
+
+    @Test
+    public void testHiveTypeMappingLong() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        TypedObject object;
+
+        doReturn(Long.valueOf(42)).when(mocked).getLong(anyInt());
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.TINYINT);
+        Assert.assertEquals((Long) object.data, Long.valueOf(42));
+        Assert.assertEquals(object.type, TypeSystem.Type.LONG);
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.SMALLINT);
+        Assert.assertEquals((Long) object.data, Long.valueOf(42));
+        Assert.assertEquals(object.type, TypeSystem.Type.LONG);
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.INTEGER);
+        Assert.assertEquals((Long) object.data, Long.valueOf(42));
+        Assert.assertEquals(object.type, TypeSystem.Type.LONG);
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.BIGINT);
+        Assert.assertEquals((Long) object.data, Long.valueOf(42));
+        Assert.assertEquals(object.type, TypeSystem.Type.LONG);
+    }
+
+    @Test
+    public void testHiveTypeMappingDecimal() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        TypedObject object;
+
+        doReturn(new BigDecimal("3.14")).when(mocked).getBigDecimal(anyInt());
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.DECIMAL);
+        Assert.assertEquals((BigDecimal) object.data, new BigDecimal("3.14"));
+        Assert.assertEquals(object.type, TypeSystem.Type.DECIMAL);
+    }
+
+    @Test
+    public void testHiveTypeMappingTimestamp() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        TypedObject object;
+
+        doReturn(new Timestamp(42L)).when(mocked).getTimestamp(anyInt());
+
+        object = apiary.getAsTypedObject(mocked, 0, Types.TIMESTAMP);
+        Assert.assertEquals((Timestamp) object.data, new Timestamp(42L));
+        Assert.assertEquals(object.type, TypeSystem.Type.TIMESTAMP);
+    }
+
+    @Test(expectedExceptions={UnsupportedOperationException.class})
+    public void testHiveTypeMappingUnknown() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        apiary.getAsTypedObject(mocked, 0, Types.CLOB);
     }
 }
