@@ -42,8 +42,6 @@ import static java.util.Arrays.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.mockito.Mockito.*;
-
 public class AppTest {
     private class MemoryDB extends Apiary {
         private OptionParser parser = new OptionParser() {
