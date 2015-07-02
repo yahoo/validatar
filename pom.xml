@@ -1,21 +1,18 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+
 <modelVersion>4.0.0</modelVersion>
 <groupId>com.yahoo.validatar</groupId>
 <artifactId>validatar</artifactId>
 <packaging>jar</packaging>
-<version>0.1.6-SNAPSHOT</version>
+<version>0.1.5-SNAPSHOT</version>
 <name>validatar</name>
 <url>https://github.com/yahoo/validatar</url>
 <scm>
   <developerConnection>scm:git:ssh://git@github.com/yahoo/validatar.git</developerConnection>
   <tag>HEAD</tag>
 </scm>
-
-<properties>
-  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-</properties>
 
 <distributionManagement>
   <repository>
@@ -27,7 +24,9 @@
 <build>
   <plugins>
     <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-source-plugin</artifactId>
+      <version>2.4</version>
       <executions>
         <execution>
           <id>attach-sources</id>
@@ -58,7 +57,9 @@
     </plugin>
 
     <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-deploy-plugin</artifactId>
+      <version>2.8.2</version>
       <executions>
         <execution>
           <id>deploy</id>
