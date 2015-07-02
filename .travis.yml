@@ -4,7 +4,7 @@ jdk:
 - oraclejdk7
 
 after_success:
-- mvn clean cobertura:cobertura coveralls:report javadoc:jar
+- mvn clean cobertura:cobertura coveralls:report
 - test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" != "" && mvn deploy --settings travis/settings.xml
 
 branches:
