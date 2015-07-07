@@ -17,6 +17,7 @@
 package com.yahoo.validatar.execution.hive;
 
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.common.TypeSystem;
 
@@ -67,8 +68,7 @@ public class ApiaryTest {
     }
 
     @Test
-    public void testFailSetup() {
-        Apiary apiary = spy(new Apiary());
+    public void testFailSetup() { Apiary apiary = spy(new Apiary());
         try {
             doThrow(new SQLException()).when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
         } catch (SQLException se) {
@@ -115,6 +115,81 @@ public class ApiaryTest {
                          "--hive-setting", "hive.execution.engine=mr"};
         try {
             apiary.setHiveSettings(parser.parse(args), mocked);
+            verify(mocked).executeUpdate("set hive.execution.engine=tez");
+            verify(mocked).executeUpdate("set hive.execution.engine=mr");
+        } catch (SQLException se) {
+            Assert.fail("Should not have thrown an exception");
+        }
+    }
+
+    @Test
+    public void testHiveDatabaseChangeQuerySpecific() {
+        Apiary apiary = new Apiary();
+        Statement mocked = mock(Statement.class);
+
+        Metadata metadata = new Metadata();
+        metadata.key = Apiary.METADATA_DATABASE_KEY;
+        metadata.value = "foo";
+
+        Query query = new Query();
+        query.metadata = new ArrayList<Metadata>();
+        query.metadata.add(metadata);
+
+        try {
+            apiary.setDatabase(query, mocked);
+            verify(mocked).executeUpdate("use foo");
+        } catch (SQLException se) {
+            Assert.fail("Should not have thrown an exception");
+        }
+    }
+
+    @Test
+    public void testHiveDatabaseChangeDefaultNullMetadata() {
+        Apiary apiary = new Apiary();
+        Statement mocked = mock(Statement.class);
+        Query query = new Query();
+
+        try {
+            apiary.setDatabaseFromJDBC("jdbc:hive2://foo.com:20/bar;ssl=true..");
+            apiary.setDatabase(query, mocked);
+            verify(mocked).executeUpdate("use bar");
+        } catch (SQLException se) {
+            Assert.fail("Should not have thrown an exception");
+        }
+    }
+
+    @Test
+    public void testHiveDatabaseChangeDefaultNonRelevantMetadata() {
+        Apiary apiary = new Apiary();
+        Statement mocked = mock(Statement.class);
+
+        Metadata metadata = new Metadata();
+        metadata.key = "bar";
+        metadata.value = "foo";
+
+        Query query = new Query();
+        query.metadata = new ArrayList<Metadata>();
+        query.metadata.add(metadata);
+
+        try {
+            apiary.setDatabaseFromJDBC("jdbc:hive2://foo.com:20/bar;ssl=true..");
+            apiary.setDatabase(query, mocked);
+            verify(mocked).executeUpdate("use bar");
+        } catch (SQLException se) {
+            Assert.fail("Should not have thrown an exception");
+        }
+    }
+
+    @Test
+    public void testHiveDatabaseNoChange() {
+        Apiary apiary = new Apiary();
+        Statement mocked = mock(Statement.class);
+        Query query = new Query();
+
+        try {
+            apiary.setDatabaseFromJDBC("jdbc:hive2://foo.com:20");
+            apiary.setDatabase(query, mocked);
+            verifyZeroInteractions(mocked);
         } catch (SQLException se) {
             Assert.fail("Should not have thrown an exception");
         }

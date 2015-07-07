@@ -30,6 +30,8 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -67,7 +69,12 @@ public class AppTest {
         @Override
         public boolean setup(String[] arguments) {
             try {
-                statement = setupConnection(parser.parse(arguments));
+                OptionSet options = parser.parse(arguments);
+                String driver = (String) options.valueOf("hive-driver");
+                Class.forName(driver);
+                String jdbcConnector = (String) options.valueOf("hive-jdbc");
+                Connection connection = DriverManager.getConnection(jdbcConnector, "", "");
+                statement = connection.createStatement();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

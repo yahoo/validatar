@@ -31,7 +31,10 @@ import java.sql.DriverManager;
 import java.sql.Types;
 
 import java.util.List;
+import java.util.Map;
 import static java.util.Arrays.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.io.IOException;
 
 import joptsimple.OptionParser;
@@ -47,8 +50,15 @@ public class Apiary implements Engine {
 
     public static String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
     public static String SETTING_PREFIX = "set ";
+    public static String DATABASE_CHANGE_PREFIX = "use ";
+
+    public static String METADATA_DATABASE_KEY = "database";
+
+    public static final Pattern DATABASE_REGEX = Pattern.compile("jdbc:hive2://[^:]+:[0-9]+/([^;]+).*");
 
     protected Statement statement;
+
+    private String defaultDatabase = null;
 
     private OptionParser parser = new OptionParser() {
         {
@@ -56,7 +66,7 @@ public class Apiary implements Engine {
                 .withRequiredArg()
                 .required()
                 .describedAs("Queue name");
-            acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
+            acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer with database. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
                 .withRequiredArg()
                 .required()
                 .describedAs("Hive JDBC connector");
@@ -72,7 +82,7 @@ public class Apiary implements Engine {
                 .withRequiredArg()
                 .describedAs("Hive server password")
                 .defaultsTo("anon");
-            acceptsAll(asList("hive-setting"), "Settings and their values. Ex 'hive.execution.engine=mr'")
+            acceptsAll(asList("hive-setting"), "Settings and their values. Ex: 'hive.execution.engine=mr'")
                 .withRequiredArg()
                 .describedAs("Hive generic settings to use.");
             allowsUnrecognizedOptions();
@@ -112,35 +122,42 @@ public class Apiary implements Engine {
         String queryValue = query.value;
         log.info("Running: " + queryValue);
         try {
+            setDatabase(query, statement);
+
             ResultSet result = statement.executeQuery(queryValue);
             ResultSetMetaData metadata = result.getMetaData();
             int columns = metadata.getColumnCount();
 
             Result queryResult = query.createResults();
 
-            // Setup lists
-            for (int i = 1; i < columns + 1; i++) {
-                String name = metadata.getColumnName(i);
-                queryResult.addColumn(name);
-            }
-
-            // Get the output
+            addHeader(metadata, columns, queryResult);
             while (result.next()) {
-                for (int i = 1; i < columns + 1; i++) {
-                    String name = metadata.getColumnName(i);
-                    int type = metadata.getColumnType(i);
-                    TypedObject value = getAsTypedObject(result, i, type);
-                    queryResult.addColumnRow(name, value);
-                    if (value != null) {
-                        log.info("Column: " + name + "\tType: " + type + "\tValue: " + value.data);
-                    }
-                }
+                addRow(result, metadata, columns, queryResult);
             }
         } catch (SQLException e) {
             log.error("SQL problem with query: " + queryName + "\n" + queryValue, e);
             query.setFailure(e.toString());
         }
+    }
 
+    private void addHeader(ResultSetMetaData metadata, int columns, Result queryResult) throws SQLException {
+        for (int i = 1; i < columns + 1; i++) {
+            String name = metadata.getColumnName(i);
+            queryResult.addColumn(name);
+        }
+    }
+
+    private void addRow(ResultSet result, ResultSetMetaData metadata, int columns, Result storage) throws SQLException {
+        for (int i = 1; i < columns + 1; i++) {
+            // The name and type getting is being done per row. We should fix it even though Hive gets it only once.
+            String name = metadata.getColumnName(i);
+            int type = metadata.getColumnType(i);
+            TypedObject value = getAsTypedObject(result, i, type);
+            storage.addColumnRow(name, value);
+            if (value != null) {
+                log.info("Column: " + name + "\tType: " + type + "\tValue: " + value.data);
+            }
+        }
     }
 
     /** {@inheritDoc} */
@@ -158,7 +175,7 @@ public class Apiary implements Engine {
      * @return A non-null TypedObject representation of the value.
      * @throws java.sql.SQLException if any.
      */
-    protected TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
+    TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
         if (results.wasNull()) {
             return null;
         }
@@ -194,7 +211,7 @@ public class Apiary implements Engine {
      * @throws java.lang.ClassNotFoundException if any.
      * @throws java.sql.SQLException if any.
      */
-    protected Statement setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
+    Statement setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
         // Load the JDBC driver
         String driver = (String) options.valueOf("hive-driver");
         log.info("Loading JDBC driver: " + driver);
@@ -202,6 +219,10 @@ public class Apiary implements Engine {
 
         // Get the JDBC connector
         String jdbcConnector = (String) options.valueOf("hive-jdbc");
+
+        // Save default database, if any
+        setDatabaseFromJDBC(jdbcConnector);
+
         log.info("Connecting to: " + jdbcConnector);
         String username = (String) options.valueOf("hive-username");
         String password = (String) options.valueOf("hive-password");
@@ -211,6 +232,15 @@ public class Apiary implements Engine {
         return connection.createStatement();
     }
 
+    void setDatabaseFromJDBC(String jdbc) {
+        Matcher matcher = DATABASE_REGEX.matcher(jdbc);
+        if (matcher.matches()) {
+            this.defaultDatabase = matcher.group(1);
+            log.info("Using default database: " + defaultDatabase);
+        }
+        log.info("No database found in provided jdbc connect string. Expecting database to be set per query: " + jdbc);
+    }
+
     /**
      * Sets the queue and other settings if provided.
      *
@@ -218,7 +248,7 @@ public class Apiary implements Engine {
      * @param statement A {@link java.sql.Statement} to execute the setting updates to.
      * @throws java.sql.SQLException if any.
      */
-    protected void setHiveSettings(OptionSet options, Statement statement) throws SQLException {
+    void setHiveSettings(OptionSet options, Statement statement) throws SQLException {
         String queue = (String) options.valueOf("hive-queue");
 
         log.info("Using queue: " + queue);
@@ -227,6 +257,23 @@ public class Apiary implements Engine {
         for (String setting : (List<String>) options.valuesOf("hive-setting")) {
             log.info("Applying setting " + setting);
             statement.executeUpdate(SETTING_PREFIX + setting);
+        }
+    }
+
+    /**
+     * Sets the database if necessary.
+     *
+     * @param query A {@link com.yahoo.validatar.common.Query } object.
+     * @param statement A {@link java.sql.Statement} to execute the database change to.
+     * @throws java.sql.SQLException if any.
+     */
+    void setDatabase(Query query, Statement statement) throws SQLException {
+        Map<String, String> metadata = query.getMetadata();
+        String database = metadata == null ? null : metadata.get(METADATA_DATABASE_KEY);
+        database = database == null ? this.defaultDatabase : database;
+        if (database != null) {
+            log.info("Changing database to: " + database);
+            statement.executeUpdate(DATABASE_CHANGE_PREFIX + database);
         }
     }
 }
