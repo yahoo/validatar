@@ -31,10 +31,7 @@ import java.sql.DriverManager;
 import java.sql.Types;
 
 import java.util.List;
-import java.util.Map;
 import static java.util.Arrays.*;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.io.IOException;
 
 import joptsimple.OptionParser;
@@ -50,15 +47,8 @@ public class Apiary implements Engine {
 
     public static String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
     public static String SETTING_PREFIX = "set ";
-    public static String DATABASE_CHANGE_PREFIX = "use ";
-
-    public static String METADATA_DATABASE_KEY = "database";
-
-    public static final Pattern DATABASE_REGEX = Pattern.compile("jdbc:hive2://[^:]+:[0-9]+/([^;]+).*");
 
     protected Statement statement;
-
-    private String defaultDatabase = null;
 
     private OptionParser parser = new OptionParser() {
         {
@@ -66,7 +56,9 @@ public class Apiary implements Engine {
                 .withRequiredArg()
                 .required()
                 .describedAs("Queue name");
-            acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer with database. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
+            acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer2 with an optional database. " +
+                                            "If the database is provided, the queries must NOT have one. " +
+                                            "Ex: 'jdbc:hive2://HIVE_SERVER:PORT/[DATABASE_FOR_ALL_QUERIES]' ")
                 .withRequiredArg()
                 .required()
                 .describedAs("Hive JDBC connector");
@@ -122,8 +114,6 @@ public class Apiary implements Engine {
         String queryValue = query.value;
         log.info("Running: " + queryValue);
         try {
-            setDatabase(query, statement);
-
             ResultSet result = statement.executeQuery(queryValue);
             ResultSetMetaData metadata = result.getMetaData();
             int columns = metadata.getColumnCount();
@@ -220,9 +210,6 @@ public class Apiary implements Engine {
         // Get the JDBC connector
         String jdbcConnector = (String) options.valueOf("hive-jdbc");
 
-        // Save default database, if any
-        setDatabaseFromJDBC(jdbcConnector);
-
         log.info("Connecting to: " + jdbcConnector);
         String username = (String) options.valueOf("hive-username");
         String password = (String) options.valueOf("hive-password");
@@ -230,15 +217,6 @@ public class Apiary implements Engine {
         // Start the connection
         Connection connection = DriverManager.getConnection(jdbcConnector, username, password);
         return connection.createStatement();
-    }
-
-    void setDatabaseFromJDBC(String jdbc) {
-        Matcher matcher = DATABASE_REGEX.matcher(jdbc);
-        if (matcher.matches()) {
-            this.defaultDatabase = matcher.group(1);
-            log.info("Using default database: " + defaultDatabase);
-        }
-        log.info("No database found in provided jdbc connect string. Expecting database to be set per query: " + jdbc);
     }
 
     /**
@@ -257,23 +235,6 @@ public class Apiary implements Engine {
         for (String setting : (List<String>) options.valuesOf("hive-setting")) {
             log.info("Applying setting " + setting);
             statement.executeUpdate(SETTING_PREFIX + setting);
-        }
-    }
-
-    /**
-     * Sets the database if necessary.
-     *
-     * @param query A {@link com.yahoo.validatar.common.Query } object.
-     * @param statement A {@link java.sql.Statement} to execute the database change to.
-     * @throws java.sql.SQLException if any.
-     */
-    void setDatabase(Query query, Statement statement) throws SQLException {
-        Map<String, String> metadata = query.getMetadata();
-        String database = metadata == null ? null : metadata.get(METADATA_DATABASE_KEY);
-        database = database == null ? this.defaultDatabase : database;
-        if (database != null) {
-            log.info("Changing database to: " + database);
-            statement.executeUpdate(DATABASE_CHANGE_PREFIX + database);
         }
     }
 }
