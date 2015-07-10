@@ -71,7 +71,16 @@ You may want queries that use a specific date column, or similar changing parame
 
 Simply pass `--parameter KEY=VALUE` in the CLI and the `KEY` will be replaced with `VALUE` in all queries. For example, to query June 23rd 2015, you could use `--parameter DATE=2015-06-23`. If the query uses `${DATE}` in the query it will be replaced before execution with `2015-06-23`.
 
+## Changelog
+
+Version | Notes
+------- | -----
+0.1.4 | Initial release with Hive
+0.1.5 | Typesystem, metadata support
+0.1.6 | No feature release. Source and Javadoc bundled in artifact
+
 ## Members
+
 Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
 

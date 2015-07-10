@@ -17,6 +17,7 @@
 package com.yahoo.validatar.execution.hive;
 
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.common.TypeSystem;
 
@@ -67,8 +68,7 @@ public class ApiaryTest {
     }
 
     @Test
-    public void testFailSetup() {
-        Apiary apiary = spy(new Apiary());
+    public void testFailSetup() { Apiary apiary = spy(new Apiary());
         try {
             doThrow(new SQLException()).when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
         } catch (SQLException se) {
@@ -115,6 +115,8 @@ public class ApiaryTest {
                          "--hive-setting", "hive.execution.engine=mr"};
         try {
             apiary.setHiveSettings(parser.parse(args), mocked);
+            verify(mocked).executeUpdate("set hive.execution.engine=tez");
+            verify(mocked).executeUpdate("set hive.execution.engine=mr");
         } catch (SQLException se) {
             Assert.fail("Should not have thrown an exception");
         }
