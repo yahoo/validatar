@@ -127,7 +127,7 @@ public class ApiaryTest {
         Apiary apiary = new Apiary();
         ResultSet mocked = mock(ResultSet.class);
         doReturn(true).when(mocked).wasNull();
-        Assert.assertNull(apiary.getAsTypedObject(mocked, 0, Types.NULL));
+        Assert.assertNull(apiary.getAsTypedObject(mocked, 0, Types.BIGINT));
     }
 
     @Test
