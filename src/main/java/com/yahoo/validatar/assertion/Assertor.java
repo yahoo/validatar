@@ -25,8 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.apache.log4j.Logger;
 
 public class Assertor {
+    private static final Logger LOG = Logger.getLogger(Assertor.class);
 
     /**
      * Takes a Results object and a List of Test, performs the assertions
@@ -64,6 +66,7 @@ public class Assertor {
     }
 
     private static void assertOneAssertion(String assertion, Result results, Test test) {
+        LOG.info("Running assertion: " + assertion);
         try {
             ANTLRInputStream in = new ANTLRInputStream(assertion);
             GrammarLexer lexer = new GrammarLexer(in);
@@ -75,9 +78,9 @@ public class Assertor {
                 test.addMessage(assertion + " was false for these values " + parser.getLookedUpValues());
             }
         } catch (Exception e) {
-            String message = e.toString();
             test.setFailed();
             test.addMessage(assertion + " : " + e.toString());
+            LOG.error(e);
         }
     }
 

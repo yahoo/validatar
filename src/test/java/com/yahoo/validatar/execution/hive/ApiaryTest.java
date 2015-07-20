@@ -127,7 +127,17 @@ public class ApiaryTest {
         Apiary apiary = new Apiary();
         ResultSet mocked = mock(ResultSet.class);
         doReturn(true).when(mocked).wasNull();
-        Assert.assertNull(apiary.getAsTypedObject(mocked, 0, Types.NULL));
+        Assert.assertNull(apiary.getAsTypedObject(mocked, 0, Types.BIGINT));
+    }
+
+    @Test
+    public void testHiveTypeMappingNullRun() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        when(mocked.wasNull()).thenReturn(false, true, true);
+        Assert.assertNotNull(apiary.getAsTypedObject(mocked, 0, Types.BIGINT));
+        Assert.assertNull(apiary.getAsTypedObject(mocked, 1, Types.BIGINT));
+        Assert.assertNull(apiary.getAsTypedObject(mocked, 2, Types.BIGINT));
     }
 
     @Test
