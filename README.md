@@ -84,7 +84,7 @@ Version | Notes
 
 ## Members
 
-Akshai Sarma, akshaisarma@gmail.com
+Akshai Sarma, akshaisarma@gmail.com  
 Josh Walters, josh@joshwalters.com
 
 ## Contributors
