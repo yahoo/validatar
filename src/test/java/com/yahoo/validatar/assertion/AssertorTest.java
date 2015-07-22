@@ -98,6 +98,18 @@ public class AssertorTest {
     }
 
     @Test
+    public void testEmptyResultsAssertion() {
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<String>();
+        test.asserts.add("AV.pv_count > 1000");
+
+        results.addColumn("AV.pv_count");
+
+        Assertor.assertAll(results, wrap(test));
+        Assert.assertTrue(test.failed());
+    }
+
+    @Test
     public void testNoLookupAssertion() {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<String>();
