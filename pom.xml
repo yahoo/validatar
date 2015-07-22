@@ -4,7 +4,7 @@
     <groupId>com.yahoo.validatar</groupId>
     <artifactId>validatar</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.9</version>
+    <version>0.1.10-SNAPSHOT</version>
     <name>validatar</name>
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/yahoo/validatar.git</developerConnection>
