@@ -7,7 +7,7 @@
     <version>0.1.9-SNAPSHOT</version>
     <name>validatar</name>
     <scm>
-        <url>https://github.com/yahoo/validatar</url>
+        <developerConnection>scm:git:ssh://git@github.com/yahoo/validatar.git</developerConnection>
         <tag>validatar-0.1.9</tag>
     </scm>
 
