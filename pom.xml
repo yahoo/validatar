@@ -8,7 +8,6 @@
     <name>validatar</name>
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/yahoo/validatar.git</developerConnection>
-        <tag>validatar-0.1.9</tag>
     </scm>
 
     <distributionManagement>
