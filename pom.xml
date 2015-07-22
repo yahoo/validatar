@@ -6,6 +6,11 @@
     <packaging>jar</packaging>
     <version>0.1.10-SNAPSHOT</version>
     <name>validatar</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/yahoo/validatar.git</developerConnection>
     </scm>
