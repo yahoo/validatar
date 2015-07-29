@@ -52,10 +52,6 @@ public class Apiary implements Engine {
 
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(asList("hive-queue"), "Which queue to use.")
-                .withRequiredArg()
-                .required()
-                .describedAs("Queue name");
             acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer2 with an optional database. " +
                                             "If the database is provided, the queries must NOT have one. " +
                                             "Ex: 'jdbc:hive2://HIVE_SERVER:PORT/[DATABASE_FOR_ALL_QUERIES]' ")
@@ -220,18 +216,13 @@ public class Apiary implements Engine {
     }
 
     /**
-     * Sets the queue and other settings if provided.
+     * Applies any settings if provided.
      *
      * @param options A {@link joptsimple.OptionSet} object.
      * @param statement A {@link java.sql.Statement} to execute the setting updates to.
      * @throws java.sql.SQLException if any.
      */
     void setHiveSettings(OptionSet options, Statement statement) throws SQLException {
-        String queue = (String) options.valueOf("hive-queue");
-
-        log.info("Using queue: " + queue);
-        statement.executeUpdate("set mapreduce.job.queuename=" + queue);
-
         for (String setting : (List<String>) options.valuesOf("hive-setting")) {
             log.info("Applying setting " + setting);
             statement.executeUpdate(SETTING_PREFIX + setting);

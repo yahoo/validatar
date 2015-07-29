@@ -51,7 +51,7 @@ import static org.mockito.Mockito.*;
 public class ApiaryTest {
     private String[] args = {"--hive-driver", "org.h2.Driver",
                              "--hive-jdbc",   "jdbc:h2:mem:",
-                             "--hive-queue",  "default"};
+                             "--hive-setting",  "mapreduce.job.queuename=default"};
 
     @Test
     public void testGetJDBCConnector() throws ClassNotFoundException, SQLException, Exception {
@@ -106,15 +106,15 @@ public class ApiaryTest {
         Statement mocked = mock(Statement.class);
         OptionParser parser = new OptionParser() {
         {
-            acceptsAll(asList("hive-queue"), "").withRequiredArg();
             acceptsAll(asList("hive-setting"), "").withRequiredArg();
         }};
 
-        String[] args = {"--hive-queue", "default",
+        String[] args = {"--hive-setting", "mapreduce.job.queuename=default",
                          "--hive-setting", "hive.execution.engine=tez",
                          "--hive-setting", "hive.execution.engine=mr"};
         try {
             apiary.setHiveSettings(parser.parse(args), mocked);
+            verify(mocked).executeUpdate("set mapreduce.job.queuename=default");
             verify(mocked).executeUpdate("set hive.execution.engine=tez");
             verify(mocked).executeUpdate("set hive.execution.engine=mr");
         } catch (SQLException se) {
