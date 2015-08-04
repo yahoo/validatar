@@ -78,10 +78,13 @@ Version | Notes
 0.1.4 | Initial release with Hive
 0.1.5 | Typesystem, metadata support
 0.1.6 | No feature release. Source and Javadoc bundled in artifact
+0.1.7 | Multiple Hive databases across Queries
+0.1.8 | Null types in Hive results fix
+0.1.9 | Empty results handling bug fix
 
 ## Members
 
-Akshai Sarma, akshaisarma@gmail.com
+Akshai Sarma, akshaisarma@gmail.com  
 Josh Walters, josh@joshwalters.com
 
 ## Contributors

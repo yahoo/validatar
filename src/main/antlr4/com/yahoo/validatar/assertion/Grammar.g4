@@ -39,11 +39,12 @@ import org.apache.commons.lang3.StringEscapeUtils;
     }
 
     private TypedObject getColumnValue(String name) {
-        TypedObject result = row.get(name);
-        if (result == null) {
+        // Check for no mapping explicitly
+        if (!row.containsKey(name)) {
             throw new RuntimeException("Unable to find value for column: " + name + " in results");
         }
-        lookedUpValues.put(name, result.data.toString());
+        TypedObject result = row.get(name);
+        lookedUpValues.put(name, (result == null ? "null" : result.data.toString()));
         return result;
     }
 

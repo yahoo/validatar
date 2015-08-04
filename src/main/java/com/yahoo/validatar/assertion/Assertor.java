@@ -18,6 +18,7 @@ package com.yahoo.validatar.assertion;
 
 import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
 
 import java.util.Map;
@@ -25,8 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.apache.log4j.Logger;
 
 public class Assertor {
+    private static final Logger LOG = Logger.getLogger(Assertor.class);
 
     /**
      * Takes a Results object and a List of Test, performs the assertions
@@ -36,19 +39,15 @@ public class Assertor {
      * @param tests A list of Test using these results
      */
     public static void assertAll(Result results, List<Test> tests) {
+        // IMPORTANT!
+        // Only interpreting as a single row result set. Temporary, will re-enable later
+        Map<String, TypedObject> singleRow = getAsOneEntry(results);
         for (Test test : tests) {
-            assertOne(results, test);
+            assertOne(singleRow, test);
         }
     }
 
-    /**
-     * Takes a Results object and a Test, performs the assertions
-     * and updates the Tests with the results.
-     *
-     * @param results A Result object containing the results of the queries.
-     * @param test A Test using these Results.
-     */
-    public static void assertOne(Result results, Test test) {
+    private static void assertOne(Map<String, TypedObject> row, Test test) {
         List<String> assertions = test.asserts;
 
         // Check for invalid input
@@ -59,37 +58,36 @@ public class Assertor {
         }
 
         for (String assertion : assertions) {
-            assertOneAssertion(assertion, results, test);
+            assertOneAssertion(assertion, row, test);
         }
     }
 
-    private static void assertOneAssertion(String assertion, Result results, Test test) {
+    private static void assertOneAssertion(String assertion, Map<String, TypedObject> row, Test test) {
+        LOG.info("Running assertion: " + assertion);
         try {
             ANTLRInputStream in = new ANTLRInputStream(assertion);
             GrammarLexer lexer = new GrammarLexer(in);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             GrammarParser parser = new GrammarParser(tokens);
-            parser.setCurrentRow(getAsOneEntry(results));
+            parser.setCurrentRow(row);
             if (!parser.expression().value) {
                 test.setFailed();
                 test.addMessage(assertion + " was false for these values " + parser.getLookedUpValues());
             }
         } catch (Exception e) {
-            String message = e.toString();
             test.setFailed();
             test.addMessage(assertion + " : " + e.toString());
+            LOG.error("Assertion failed with exception", e);
         }
     }
 
     private static Map<String, TypedObject> getAsOneEntry(Result results) {
-        // IMPORTANT!
-        // Only interpreting as a single row result set. Temporary, will re-enable later
         Map<String, TypedObject> row = new HashMap<>();
         for (Map.Entry<String, List<TypedObject>> e : results.getColumns().entrySet()) {
-            row.put(e.getKey(), e.getValue().get(0));
+            List<TypedObject> values = e.getValue();
+            row.put(e.getKey(), values.size() == 0 ? null : values.get(0));
         }
         return row;
     }
-
 }
 

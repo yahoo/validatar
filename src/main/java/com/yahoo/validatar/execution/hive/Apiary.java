@@ -140,9 +140,7 @@ public class Apiary implements Engine {
             int type = metadata.getColumnType(i);
             TypedObject value = getAsTypedObject(result, i, type);
             storage.addColumnRow(name, value);
-            if (value != null) {
-                log.info("Column: " + name + "\tType: " + type + "\tValue: " + value.data);
-            }
+            log.info("Column: " + name + "\tType: " + type + "\tValue: " + (value == null ? "null" : value.data));
         }
     }
 
@@ -158,35 +156,40 @@ public class Apiary implements Engine {
      * @param results The ResultSet that has a confirmed value for reading by its iterator.
      * @param index The index of the column in the results to get.
      * @param type The java.sql.TypesSQL type of the value.
-     * @return A non-null TypedObject representation of the value.
+     * @return A non-null TypedObject representation of the value or null if the result was null.
      * @throws java.sql.SQLException if any.
      */
     TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
-        if (results.wasNull()) {
-            return null;
-        }
+        TypedObject toReturn = null;
         switch(type) {
             case(Types.DATE):
             case(Types.CHAR):
             case(Types.VARCHAR):
-                return new TypedObject(results.getString(index), TypeSystem.Type.STRING);
+                toReturn =  new TypedObject(results.getString(index), TypeSystem.Type.STRING);
+                break;
             case(Types.FLOAT):
             case(Types.DOUBLE):
-                return new TypedObject((Double) results.getDouble(index), TypeSystem.Type.DOUBLE);
+                toReturn =  new TypedObject((Double) results.getDouble(index), TypeSystem.Type.DOUBLE);
+                break;
             case(Types.BOOLEAN):
-                return new TypedObject((Boolean) results.getBoolean(index), TypeSystem.Type.BOOLEAN);
+                toReturn =  new TypedObject((Boolean) results.getBoolean(index), TypeSystem.Type.BOOLEAN);
+                break;
             case(Types.TINYINT):
             case(Types.SMALLINT):
             case(Types.INTEGER):
             case(Types.BIGINT):
-                return new TypedObject((Long) results.getLong(index), TypeSystem.Type.LONG);
+                toReturn =  new TypedObject((Long) results.getLong(index), TypeSystem.Type.LONG);
+                break;
             case(Types.DECIMAL):
-                return new TypedObject(results.getBigDecimal(index), TypeSystem.Type.DECIMAL);
+                toReturn =  new TypedObject(results.getBigDecimal(index), TypeSystem.Type.DECIMAL);
+                break;
             case(Types.TIMESTAMP):
-                return new TypedObject(results.getTimestamp(index), TypeSystem.Type.TIMESTAMP);
+                toReturn =  new TypedObject(results.getTimestamp(index), TypeSystem.Type.TIMESTAMP);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown SQL type encountered from Hive: " + type);
         }
+        return results.wasNull() ? null : toReturn;
     }
 
     /**
