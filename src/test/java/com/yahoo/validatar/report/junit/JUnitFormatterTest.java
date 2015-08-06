@@ -37,7 +37,7 @@ public class JUnitFormatterTest {
     @Test
     public void testWriteReport() throws FileNotFoundException, IOException, org.dom4j.DocumentException {
         Map<String, String> paramMap = new HashMap<String, String>();
-        paramMap.put("DATE","20140807");
+        paramMap.put("DATE", "20140807");
 
         ParseManager manager = new ParseManager();
 

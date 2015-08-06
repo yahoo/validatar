@@ -30,7 +30,9 @@ import java.util.Set;
  * Manages the creation and execution of execution engines.
  */
 public class EngineManager {
-    /** A simple wrapper to mark an engine as started. */
+    /**
+     * A simple wrapper to mark an engine as started.
+     */
     protected class WorkingEngine {
         public boolean isStarted = false;
         private Engine engine = null;
@@ -39,7 +41,7 @@ public class EngineManager {
          * Constructor.
          *
          * @param engine The engine to wrap.
-         * */
+         */
         public WorkingEngine(Engine engine) {
             this.engine = engine;
         }
@@ -48,19 +50,25 @@ public class EngineManager {
          * Getter.
          *
          * @return The wrapped Engine.
-         * */
+         */
         public Engine getEngine() {
             return this.engine;
         }
     }
 
-    /** Manages logging. */
+    /**
+     * Manages logging.
+     */
     protected final Logger log = Logger.getLogger(getClass());
 
-    /** Stores the CLI arguments. */
+    /**
+     * Stores the CLI arguments.
+     */
     protected String[] arguments;
 
-    /** Stores engine names to engine references. */
+    /**
+     * Stores engine names to engine references.
+     */
     protected Map<String, WorkingEngine> engines;
 
     /**

@@ -39,7 +39,6 @@ public class FormatManagerTest {
 
         @Override
         public void printHelp() {
-            return;
         }
 
         @Override

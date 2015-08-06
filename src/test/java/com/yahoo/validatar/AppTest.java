@@ -90,7 +90,7 @@ public class AppTest {
     public void testRunTests() throws Exception {
         String[] args = {"--report-file", "target/AppTest-testRunTests.xml",
                          "--hive-driver", "org.h2.Driver",
-                         "--hive-jdbc",   "jdbc:h2:mem:"};
+                         "--hive-jdbc", "jdbc:h2:mem:"};
         Map<String, String> parameterMap = new HashMap<String, String>();
         File emptyTest = new File("src/test/resources/sample-tests/empty-test.yaml");
         ParseManager parseManager = new ParseManager();
@@ -105,7 +105,7 @@ public class AppTest {
         System.setOut(new PrintStream(new FileOutputStream("target/out")));
         System.setErr(new PrintStream(new FileOutputStream("target/err")));
 
-        String args[] = {"--parameter", "DATE:20140807"};
+        String[] args = {"--parameter", "DATE:20140807"};
         try {
             OptionSet options = App.parse(args);
             Assert.fail("Should have thrown an Exception");
@@ -118,9 +118,9 @@ public class AppTest {
     @Test
     public void testSimpleParameterParse() {
         // Fake CLI args
-        String[] args = { "--test-suite", "tests.yaml",
-                          "--parameter", "DATE=2014071800",
-                          "--parameter", "NAME=ALPHA"};
+        String[] args = {"--test-suite", "tests.yaml",
+                         "--parameter", "DATE=2014071800",
+                         "--parameter", "NAME=ALPHA"};
 
         // Parse CLI args
         Map<String, String> paramMap = null;

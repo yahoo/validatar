@@ -45,8 +45,8 @@ import static org.mockito.Mockito.when;
 
 public class ApiaryTest {
     private String[] args = {"--hive-driver", "org.h2.Driver",
-                             "--hive-jdbc",   "jdbc:h2:mem:",
-                             "--hive-setting",  "mapreduce.job.queuename=default"};
+                             "--hive-jdbc", "jdbc:h2:mem:",
+                             "--hive-setting", "mapreduce.job.queuename=default"};
 
     @Test
     public void testGetJDBCConnector() throws ClassNotFoundException, SQLException, Exception {
@@ -63,7 +63,8 @@ public class ApiaryTest {
     }
 
     @Test
-    public void testFailSetup() { Apiary apiary = spy(new Apiary());
+    public void testFailSetup() {
+        Apiary apiary = spy(new Apiary());
         try {
             doThrow(new SQLException()).when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
         } catch (SQLException se) {
@@ -100,9 +101,10 @@ public class ApiaryTest {
         Apiary apiary = new Apiary();
         Statement mocked = mock(Statement.class);
         OptionParser parser = new OptionParser() {
-        {
-            acceptsAll(asList("hive-setting"), "").withRequiredArg();
-        }};
+            {
+                acceptsAll(asList("hive-setting"), "").withRequiredArg();
+            }
+        };
 
         String[] args = {"--hive-setting", "mapreduce.job.queuename=default",
                          "--hive-setting", "hive.execution.engine=tez",
@@ -234,7 +236,7 @@ public class ApiaryTest {
         Assert.assertEquals(object.type, TypeSystem.Type.TIMESTAMP);
     }
 
-    @Test(expectedExceptions={UnsupportedOperationException.class})
+    @Test(expectedExceptions = {UnsupportedOperationException.class})
     public void testHiveTypeMappingUnknown() throws SQLException {
         Apiary apiary = new Apiary();
         ResultSet mocked = mock(ResultSet.class);

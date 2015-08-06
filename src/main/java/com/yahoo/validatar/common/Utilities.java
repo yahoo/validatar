@@ -23,8 +23,8 @@ public class Utilities {
     /**
      * Takes an item and adds it to a collection if it's not null.
      *
-     * @param <T> The type of the item.
-     * @param item The item to add.
+     * @param <T>        The type of the item.
+     * @param item       The item to add.
      * @param collection The collection to add the item to. Not null.
      * @return The resulting collection.
      */
@@ -38,8 +38,8 @@ public class Utilities {
     /**
      * Takes a collection of item and adds them to a collection if they are not null.
      *
-     * @param <T> The type of the item.
-     * @param items The collection of items to add.
+     * @param <T>        The type of the item.
+     * @param items      The collection of items to add.
      * @param collection The collection to add the items to. Not null.
      * @return The resulting collection.
      */

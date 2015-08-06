@@ -39,7 +39,7 @@ public class ResultTest {
         Result result = new Result();
         result.addColumnRow("a", new TypedObject(2L, TypeSystem.Type.LONG));
         Assert.assertEquals((Long) result.getColumn("a").get(0).data, Long.valueOf(2L));
-        result.addColumnRow("a",new TypedObject(3L, TypeSystem.Type.LONG));
+        result.addColumnRow("a", new TypedObject(3L, TypeSystem.Type.LONG));
         Assert.assertEquals((Long) result.getColumn("a").get(1).data, Long.valueOf(3L));
     }
 

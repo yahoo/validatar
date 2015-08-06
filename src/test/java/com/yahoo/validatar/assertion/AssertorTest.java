@@ -41,7 +41,7 @@ public class AssertorTest {
     }
 
     private TypedObject getTyped(TypeSystem.Type type, Object value) {
-        switch(type) {
+        switch (type) {
             case STRING:
                 return new TypedObject((String) value, TypeSystem.Type.STRING);
             case LONG:

@@ -33,7 +33,9 @@ import static java.util.Arrays.asList;
  * Manages the writing of test reports.
  */
 public class FormatManager {
-    /** Used for logging. */
+    /**
+     * Used for logging.
+     */
     protected Logger log = Logger.getLogger(getClass().getName());
 
     private Map<String, Formatter> availableFormatters;

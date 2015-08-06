@@ -52,7 +52,7 @@ public class Result {
     /**
      * Create and add a new column to the result with the given rows.
      *
-     * @param name The name of the column.
+     * @param name   The name of the column.
      * @param values The column rows.
      */
     public void addColumn(String name, List<TypedObject> values) {
@@ -62,7 +62,7 @@ public class Result {
     /**
      * Add a new row to a column.
      *
-     * @param name The name of the column.
+     * @param name  The name of the column.
      * @param value The value to add to it.
      */
     public void addColumnRow(String name, TypedObject value) {

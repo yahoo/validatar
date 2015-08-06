@@ -35,7 +35,7 @@ public class Assertor {
      * and updates the Tests with the results.
      *
      * @param results A Result object containing the results of the queries.
-     * @param tests A list of Test using these results
+     * @param tests   A list of Test using these results
      */
     public static void assertAll(Result results, List<Test> tests) {
         // IMPORTANT!

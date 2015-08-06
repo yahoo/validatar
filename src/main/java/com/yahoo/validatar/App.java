@@ -40,10 +40,14 @@ import static com.yahoo.validatar.common.Utilities.addNonNull;
 import static java.util.Arrays.asList;
 
 public class App {
-    /** Logging class. */
+    /**
+     * Logging class.
+     */
     protected static final Logger LOG = Logger.getLogger(com.yahoo.validatar.App.class.getName());
 
-    /** The CLI parser. */
+    /**
+     * The CLI parser.
+     */
     public static final OptionParser PARSER = new OptionParser() {
         {
             acceptsAll(asList("parameter"), "Parameter to replace all '${VAR}' in the query string. Ex: --parameter DATE=2014-07-24")
@@ -62,7 +66,7 @@ public class App {
     /**
      * Split parameters for string replacement.
      *
-     * @param options Option set
+     * @param options       Option set
      * @param parameterName Option parameter to split
      * @return Map of parameters and replacement strings
      */
@@ -97,13 +101,13 @@ public class App {
     /**
      * Run the testSuite and parameters with the given Parse, Engine and Format Managers.
      *
-     * @param testSuite The {@link java.io.File} where the TestSuite(s) are.
-     * @param parameters An optional {@link java.util.Map} of parameters to their values to expand.
-     * @param parseManager A {@link com.yahoo.validatar.parse.ParseManager} to use.
+     * @param testSuite     The {@link java.io.File} where the TestSuite(s) are.
+     * @param parameters    An optional {@link java.util.Map} of parameters to their values to expand.
+     * @param parseManager  A {@link com.yahoo.validatar.parse.ParseManager} to use.
      * @param engineManager A {@link com.yahoo.validatar.execution.EngineManager} to use.
      * @param formatManager A {@link com.yahoo.validatar.report.FormatManager} to use.
      * @throws java.io.FileNotFoundException if any.
-     * @throws java.io.IOException if any.
+     * @throws java.io.IOException           if any.
      */
     public static void run(File testSuite, Map<String, String> parameters, ParseManager parseManager,
                            EngineManager engineManager, FormatManager formatManager) throws FileNotFoundException, IOException {
@@ -149,7 +153,7 @@ public class App {
      * Main.
      *
      * @param args The input arguments.
-     * @throws java.io.IOException if any.
+     * @throws java.io.IOException           if any.
      * @throws java.io.FileNotFoundException if any.
      */
     public static void main(String[] args) throws IOException, FileNotFoundException {

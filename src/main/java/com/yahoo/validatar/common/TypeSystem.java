@@ -78,6 +78,7 @@ public class TypeSystem {
      * The mapping of an ArithmeticOperator to its implementation.
      */
     private static final Map<ArithmeticOperator, TypeArithmetic> ARITHMETIC = new HashMap<>();
+
     static {
         ARITHMETIC.put(ArithmeticOperator.ADD, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
@@ -213,6 +214,7 @@ public class TypeSystem {
      * The mapping of an RelationalOperator to its implementation.
      */
     private static final Map<RelationalOperator, TypeRelation> RELATIONAL = new HashMap<>();
+
     static {
         RELATIONAL.put(RelationalOperator.NEGATE, new TypeRelation() {
             public TypedObject perform(TypedObject first, TypedObject second) {
@@ -233,15 +235,16 @@ public class TypeSystem {
 
     /**
      * The mapping of Type to its convertor.
-     *
+     * <p/>
      * In general, we don't want lossy casting, or strange casting like a boolean to a short etc.
      * But we will follow the basic Java widening primitive rules.
      * https://docs.oracle.com/javase/specs/jls/se7/html/jls-5.html
-     *
+     * <p/>
      * Exceptions:
      * Timestamp to and from Long will do a millis since epoch
      */
     private static final Map<Type, TypeConvertor> CONVERTORS = new HashMap<>();
+
     static {
         CONVERTORS.put(Type.LONG, new TypeConvertor() {
             public boolean convert(TypedObject source) {
@@ -391,7 +394,8 @@ public class TypeSystem {
      * first, in that order.  Throws an ClassCastException if neither could be done or if the
      * final Type wasn't what was passed in. Throws an NullPointerException if either argument
      * is null. If successful, first and second will be the of the same type.
-     * @param first The first {@link com.yahoo.validatar.common.TypedObject}.
+     *
+     * @param first  The first {@link com.yahoo.validatar.common.TypedObject}.
      * @param second The first {@link com.yahoo.validatar.common.TypedObject}.
      */
     public static void unifyType(TypedObject first, TypedObject second) {
@@ -414,8 +418,8 @@ public class TypeSystem {
      * Perform arithmetic on two TypedObjects.
      *
      * @param operator The {@link com.yahoo.validatar.common.TypeSystem.ArithmeticOperator} operator to perform.
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
+     * @param first    The LHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
+     * @param second   The RHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
      * @return The resulting {@link com.yahoo.validatar.common.TypedObject}.
      */
     public static TypedObject doArithmetic(ArithmeticOperator operator, TypedObject first, TypedObject second) {
@@ -425,7 +429,7 @@ public class TypeSystem {
 
         if (result == null) {
             throw new ClassCastException("Unable to perform operation: " + operator + " on " +
-                                         first.data.toString() + " and " + second.data.toString());
+                                          first.data.toString() + " and " + second.data.toString());
         }
         return result;
     }
@@ -434,8 +438,8 @@ public class TypeSystem {
      * Perform a binary relational operator on two TypedObjects.
      *
      * @param operator The {@link com.yahoo.validatar.common.TypeSystem.RelationalOperator} operator to perform.
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} of the relation
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} of the relation. Can be null.
+     * @param first    The LHS {@link com.yahoo.validatar.common.TypedObject} of the relation
+     * @param second   The RHS {@link com.yahoo.validatar.common.TypedObject} of the relation. Can be null.
      * @return The resulting TypedObject.
      */
     public static TypedObject doRelational(RelationalOperator operator, TypedObject first, TypedObject second) {
@@ -448,7 +452,7 @@ public class TypeSystem {
      * Perform a unary relational operator on a TypedObject.
      *
      * @param operator The {@link com.yahoo.validatar.common.TypeSystem.RelationalOperator} operator to perform.
-     * @param input The input {@link com.yahoo.validatar.common.TypedObject}.
+     * @param input    The input {@link com.yahoo.validatar.common.TypedObject}.
      * @return The resulting {@link com.yahoo.validatar.common.TypedObject}.
      */
     public static TypedObject doRelational(RelationalOperator operator, TypedObject input) {
@@ -460,7 +464,7 @@ public class TypeSystem {
     /**
      * Compare two TypedObjects.
      *
-     * @param first The first {@link com.yahoo.validatar.common.TypedObject} to compare.
+     * @param first  The first {@link com.yahoo.validatar.common.TypedObject} to compare.
      * @param second The second {@link com.yahoo.validatar.common.TypedObject} to compare.
      * @return -1 if first is less than second, 1 if first is greater than second and 0 if first equals second.
      */
@@ -480,7 +484,7 @@ public class TypeSystem {
     /**
      * Helper method that returns the sum of the first and second.
      *
-     * @param first A {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  A {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second A {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -491,7 +495,7 @@ public class TypeSystem {
     /**
      * Helper method that returns the difference of the first and second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -502,7 +506,7 @@ public class TypeSystem {
     /**
      * Helper method that returns the product of the first and second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -513,7 +517,7 @@ public class TypeSystem {
     /**
      * Helper method that returns the quotient of the first divided by second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -524,7 +528,7 @@ public class TypeSystem {
     /**
      * Helper method that returns the modulus of the first and second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -546,7 +550,7 @@ public class TypeSystem {
     /**
      * Helper method that returns true iff first equals second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -557,7 +561,7 @@ public class TypeSystem {
     /**
      * Helper method that returns true iff first not equals second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -568,7 +572,7 @@ public class TypeSystem {
     /**
      * Helper method that returns true iff first is less than second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -579,7 +583,7 @@ public class TypeSystem {
     /**
      * Helper method that returns true iff first is less than or equal to second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -590,7 +594,7 @@ public class TypeSystem {
     /**
      * Helper method that returns true iff first is greater than second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -601,7 +605,7 @@ public class TypeSystem {
     /**
      * Helper method that returns true iff first is greater than or equal to second.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -622,7 +626,7 @@ public class TypeSystem {
     /**
      * Helper method to do logical and.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */
@@ -633,7 +637,7 @@ public class TypeSystem {
     /**
      * Helper method to do logical or.
      *
-     * @param first The LHS {@link com.yahoo.validatar.common.TypedObject} object.
+     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
      * @return The {@link com.yahoo.validatar.common.TypedObject} result.
      */

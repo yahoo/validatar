@@ -51,7 +51,9 @@ public class JUnitFormatter implements Formatter {
     };
     private String outputFile;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean setup(String[] arguments) {
         outputFile = (String) parser.parse(arguments).valueOf("report-file");
@@ -60,7 +62,7 @@ public class JUnitFormatter implements Formatter {
 
     /**
      * {@inheritDoc}
-     *
+     * <p/>
      * Writes out the report for the given testSuites in the JUnit XML format.
      */
     @Override
@@ -72,23 +74,23 @@ public class JUnitFormatter implements Formatter {
         // Output for each test suite
         for (TestSuite testSuite : testSuites) {
             Element testSuiteRoot = testSuitesRoot.addElement("testsuite")
-                                                  .addAttribute("tests", Integer.toString(testSuite.queries.size() + testSuite.tests.size()))
-                                                  .addAttribute("name", testSuite.name);
+                                     .addAttribute("tests", Integer.toString(testSuite.queries.size() + testSuite.tests.size()))
+                                     .addAttribute("name", testSuite.name);
 
-            for (Query query: testSuite.queries) {
+            for (Query query : testSuite.queries) {
                 Element queryNode = testSuiteRoot.addElement("testcase")
-                                                 .addAttribute("name", query.name);
+                                     .addAttribute("name", query.name);
                 if (query.failed()) {
                     String failureMessage = StringUtils.join(query.getMessages(), ", ");
                     queryNode.addElement("failed").addText(failureMessage);
                 }
             }
-            for (Test test: testSuite.tests) {
+            for (Test test : testSuite.tests) {
                 Element testNode = testSuiteRoot.addElement("testcase").addAttribute("name", test.name);
                 if (test.failed()) {
                     String failedAsserts = StringUtils.join(test.getMessages(), ", ");
                     String failureMessage = "Description: " + test.description + ";\n" +
-                                            "Failed asserts: " + failedAsserts + "\n";
+                                             "Failed asserts: " + failedAsserts + "\n";
                     testNode.addElement("failed").addText(failureMessage);
                 }
             }
@@ -100,7 +102,9 @@ public class JUnitFormatter implements Formatter {
         writer.close();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void printHelp() {
         try {
@@ -110,7 +114,9 @@ public class JUnitFormatter implements Formatter {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return JUNIT;

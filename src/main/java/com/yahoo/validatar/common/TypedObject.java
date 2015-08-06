@@ -20,7 +20,9 @@ package com.yahoo.validatar.common;
  * This is the custom annotated object that is used in our assertion language.
  */
 public class TypedObject {
-    /** We are now handling type safety. */
+    /**
+     * We are now handling type safety.
+     */
     @SuppressWarnings("unchecked")
     public Comparable data;
     public TypeSystem.Type type;
