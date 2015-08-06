@@ -16,19 +16,28 @@
 
 package com.yahoo.validatar.common;
 
-import static com.yahoo.validatar.common.TypeSystem.*;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.AfterMethod;
+import static com.yahoo.validatar.common.TypeSystem.Type;
+import static com.yahoo.validatar.common.TypeSystem.add;
+import static com.yahoo.validatar.common.TypeSystem.asTypedObject;
+import static com.yahoo.validatar.common.TypeSystem.divide;
+import static com.yahoo.validatar.common.TypeSystem.isEqualTo;
+import static com.yahoo.validatar.common.TypeSystem.isGreaterThan;
+import static com.yahoo.validatar.common.TypeSystem.isGreaterThanOrEqual;
+import static com.yahoo.validatar.common.TypeSystem.isLessThan;
+import static com.yahoo.validatar.common.TypeSystem.isLessThanOrEqual;
+import static com.yahoo.validatar.common.TypeSystem.isNotEqualTo;
+import static com.yahoo.validatar.common.TypeSystem.logicalAnd;
+import static com.yahoo.validatar.common.TypeSystem.logicalNegate;
+import static com.yahoo.validatar.common.TypeSystem.logicalOr;
+import static com.yahoo.validatar.common.TypeSystem.modulus;
+import static com.yahoo.validatar.common.TypeSystem.multiply;
+import static com.yahoo.validatar.common.TypeSystem.subtract;
 
 public class TypeSystemTest {
     private TypeSystem system = new TypeSystem();

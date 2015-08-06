@@ -18,7 +18,6 @@ package com.yahoo.validatar.parse.yaml;
 
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.parse.Parser;
-
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 

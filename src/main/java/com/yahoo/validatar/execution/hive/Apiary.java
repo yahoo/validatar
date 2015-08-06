@@ -16,28 +16,26 @@
 
 package com.yahoo.validatar.execution.hive;
 
-import com.yahoo.validatar.execution.Engine;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
-
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
-import java.sql.DriverManager;
-import java.sql.Types;
-
-import java.util.List;
-import static java.util.Arrays.*;
-import java.io.IOException;
-
+import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.List;
+
+import static java.util.Arrays.asList;
 
 public class Apiary implements Engine {
     protected final Logger log = Logger.getLogger(getClass());

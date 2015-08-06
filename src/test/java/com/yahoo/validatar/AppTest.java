@@ -16,33 +16,26 @@
 
 package com.yahoo.validatar;
 
-import com.yahoo.validatar.common.TestSuite;
-import com.yahoo.validatar.report.FormatManager;
-import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.execution.EngineManager;
 import com.yahoo.validatar.execution.hive.Apiary;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import com.yahoo.validatar.parse.ParseManager;
+import com.yahoo.validatar.report.FormatManager;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import static java.util.Arrays.*;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.util.Arrays.asList;
 
 public class AppTest {
     private class MemoryDB extends Apiary {

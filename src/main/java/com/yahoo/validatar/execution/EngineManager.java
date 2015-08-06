@@ -17,17 +17,14 @@
 package com.yahoo.validatar.execution;
 
 import com.yahoo.validatar.common.Query;
-
 import org.apache.log4j.Logger;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-
 import org.reflections.Reflections;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Manages the creation and execution of execution engines.
@@ -136,9 +133,6 @@ public class EngineManager {
      * @return true iff the required engines were loaded.
      */
     protected boolean startEngines(List<Query> queries) {
-        // Stores list of errors when starting engine, if any.
-        List<String> errors = new ArrayList<String>();
-
         // Get the set of all required engines.
         Set<String> requiredEngines = distinctEngines(queries);
 
@@ -150,7 +144,6 @@ public class EngineManager {
             if (workingEngine == null) {
                 log.error("Engine " + engine + " not loaded but required by query.");
                 allSetup = false;
-                continue;
             } else if (!workingEngine.isStarted) {
                 workingEngine.isStarted = workingEngine.getEngine().setup(arguments);
                 if (!workingEngine.isStarted) {

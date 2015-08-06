@@ -16,10 +16,10 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.sql.Timestamp;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is a class that wraps the supported types that the assertor will work with

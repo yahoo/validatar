@@ -16,8 +16,8 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is an abstraction of something that can be "run" to produce something. The

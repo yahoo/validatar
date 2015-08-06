@@ -16,16 +16,16 @@
 
 package com.yahoo.validatar.assertion;
 
-import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.TypedObject;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.log4j.Logger;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.apache.log4j.Logger;
+import java.util.Map;
 
 public class Assertor {
     private static final Logger LOG = Logger.getLogger(Assertor.class);

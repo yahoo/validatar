@@ -16,28 +16,24 @@
 
 package com.yahoo.validatar.report.junit;
 
-import com.yahoo.validatar.common.TestSuite;
-import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Test;
+import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.report.Formatter;
-
-import java.io.FileWriter;
-import java.io.IOException;
-
+import joptsimple.OptionParser;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.XMLWriter;
 import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 
-import joptsimple.OptionParser;
-
-import org.apache.commons.lang3.StringUtils;
-
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
-import static java.util.Arrays.*;
 
-import org.apache.log4j.Logger;
+import static java.util.Arrays.asList;
 
 public class JUnitFormatter implements Formatter {
     protected final Logger log = Logger.getLogger(getClass());

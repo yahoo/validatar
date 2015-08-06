@@ -19,7 +19,6 @@ package com.yahoo.validatar.report;
 import com.yahoo.validatar.common.TestSuite;
 
 import java.io.IOException;
-
 import java.util.List;
 
 /**

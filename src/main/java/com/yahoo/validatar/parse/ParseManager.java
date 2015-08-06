@@ -18,24 +18,22 @@ package com.yahoo.validatar.parse;
 
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
-import static com.yahoo.validatar.common.Utilities.*;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import org.apache.log4j.Logger;
+import org.reflections.Reflections;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.reflections.Reflections;
-
-import org.apache.log4j.Logger;
+import static com.yahoo.validatar.common.Utilities.addNonNull;
 
 public class ParseManager implements FileLoadable {
 

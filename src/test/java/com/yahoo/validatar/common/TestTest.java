@@ -16,14 +16,6 @@
 
 package com.yahoo.validatar.common;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

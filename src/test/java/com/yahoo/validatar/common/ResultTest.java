@@ -16,14 +16,12 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class ResultTest {
     @Test

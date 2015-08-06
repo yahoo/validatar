@@ -17,18 +17,17 @@
 package com.yahoo.validatar.report;
 
 import com.yahoo.validatar.common.TestSuite;
-
-import org.apache.log4j.Logger;
-
 import joptsimple.OptionParser;
-import static java.util.Arrays.*;
-import java.util.Set;
+import org.apache.log4j.Logger;
+import org.reflections.Reflections;
+
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.io.IOException;
+import java.util.Set;
 
-import org.reflections.Reflections;
+import static java.util.Arrays.asList;
 
 /**
  * Manages the writing of test reports.

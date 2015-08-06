@@ -16,30 +16,22 @@
 
 package com.yahoo.validatar.report.junit;
 
-import com.yahoo.validatar.parse.yaml.YAML;
-import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.common.TestSuite;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import java.nio.file.Paths;
-import java.nio.file.Files;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
+import com.yahoo.validatar.parse.ParseManager;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.util.NodeComparator;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JUnitFormatterTest {
     @Test

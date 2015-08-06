@@ -16,14 +16,12 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.AfterMethod;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class UtilitiesTest {
     private Utilities utilities = new Utilities();

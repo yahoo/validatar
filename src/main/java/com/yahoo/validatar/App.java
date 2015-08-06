@@ -16,30 +16,28 @@
 
 package com.yahoo.validatar;
 
-import com.yahoo.validatar.common.TestSuite;
-import com.yahoo.validatar.common.Test;
+import com.yahoo.validatar.assertion.Assertor;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.Test;
+import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.execution.EngineManager;
 import com.yahoo.validatar.parse.ParseManager;
-import com.yahoo.validatar.assertion.Assertor;
 import com.yahoo.validatar.report.FormatManager;
-import static com.yahoo.validatar.common.Utilities.*;
-
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import org.apache.log4j.Logger;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import static java.util.Arrays.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import static com.yahoo.validatar.common.Utilities.addNonNull;
+import static java.util.Arrays.asList;
 
 public class App {
     /** Logging class. */

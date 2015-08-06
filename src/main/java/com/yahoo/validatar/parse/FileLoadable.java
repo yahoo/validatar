@@ -18,10 +18,9 @@ package com.yahoo.validatar.parse;
 
 import com.yahoo.validatar.common.TestSuite;
 
-import java.util.List;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 public interface FileLoadable {
     /**
