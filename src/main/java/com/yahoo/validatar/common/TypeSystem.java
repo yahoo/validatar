@@ -81,7 +81,7 @@ public class TypeSystem {
     static {
         ARITHMETIC.put(ArithmeticOperator.ADD, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                switch(first.type) {
+                switch (first.type) {
                     case STRING: {
                         String data = (String) first.data + (String) second.data;
                         return asTypedObject(data);
@@ -110,7 +110,7 @@ public class TypeSystem {
         });
         ARITHMETIC.put(ArithmeticOperator.SUBTRACT, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                switch(first.type) {
+                switch (first.type) {
                     case LONG: {
                         Long data = (Long) first.data - (Long) second.data;
                         return asTypedObject(data);
@@ -136,7 +136,7 @@ public class TypeSystem {
         });
         ARITHMETIC.put(ArithmeticOperator.MULTIPLY, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                switch(first.type) {
+                switch (first.type) {
                     case LONG: {
                         Long data = (Long) first.data * (Long) second.data;
                         return asTypedObject(data);
@@ -162,7 +162,7 @@ public class TypeSystem {
         });
         ARITHMETIC.put(ArithmeticOperator.DIVIDE, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                switch(first.type) {
+                switch (first.type) {
                     case LONG: {
                         Long data = (Long) first.data / (Long) second.data;
                         return asTypedObject(data);
@@ -188,7 +188,7 @@ public class TypeSystem {
         });
         ARITHMETIC.put(ArithmeticOperator.MODULUS, new TypeArithmetic() {
             public TypedObject perform(TypedObject first, TypedObject second) {
-                switch(first.type) {
+                switch (first.type) {
                     case LONG: {
                         Long data = (Long) first.data % (Long) second.data;
                         return asTypedObject(data);
@@ -245,7 +245,7 @@ public class TypeSystem {
     static {
         CONVERTORS.put(Type.LONG, new TypeConvertor() {
             public boolean convert(TypedObject source) {
-                switch(source.type) {
+                switch (source.type) {
                     case STRING:
                         source.data = Long.valueOf((String) source.data);
                         source.type = Type.LONG;
@@ -266,7 +266,7 @@ public class TypeSystem {
         });
         CONVERTORS.put(Type.DOUBLE, new TypeConvertor() {
             public boolean convert(TypedObject source) {
-                switch(source.type) {
+                switch (source.type) {
                     case STRING:
                         source.data = Double.valueOf((String) source.data);
                         source.type = Type.DOUBLE;
@@ -287,7 +287,7 @@ public class TypeSystem {
         });
         CONVERTORS.put(Type.DECIMAL, new TypeConvertor() {
             public boolean convert(TypedObject source) {
-                switch(source.type) {
+                switch (source.type) {
                     case STRING:
                         source.data = new BigDecimal((String) source.data);
                         source.type = Type.DECIMAL;
@@ -314,7 +314,7 @@ public class TypeSystem {
         });
         CONVERTORS.put(Type.BOOLEAN, new TypeConvertor() {
             public boolean convert(TypedObject source) {
-                switch(source.type) {
+                switch (source.type) {
                     case STRING:
                         source.data = Boolean.valueOf((String) source.data);
                         source.type = Type.BOOLEAN;
@@ -332,7 +332,7 @@ public class TypeSystem {
         });
         CONVERTORS.put(Type.STRING, new TypeConvertor() {
             public boolean convert(TypedObject source) {
-                switch(source.type) {
+                switch (source.type) {
                     case STRING:
                         return true;
                     case LONG:
@@ -359,7 +359,7 @@ public class TypeSystem {
         });
         CONVERTORS.put(Type.TIMESTAMP, new TypeConvertor() {
             public boolean convert(TypedObject source) {
-                switch(source.type) {
+                switch (source.type) {
                     case LONG:
                         source.data = new Timestamp((Long) source.data);
                         source.type = Type.TIMESTAMP;

@@ -17,8 +17,8 @@
 package com.yahoo.validatar.common;
 
 import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Query extends Executable {
     public String name;
@@ -69,10 +69,6 @@ public class Query extends Executable {
         if (metadata == null) {
             return null;
         }
-        Map<String, String> metas = new HashMap<>();
-        for (Metadata meta : metadata) {
-            metas.put(meta.key, meta.value);
-        }
-        return metas;
+        return metadata.stream().collect(Collectors.toMap(meta -> meta.key, meta -> meta.value));
     }
 }

@@ -161,7 +161,7 @@ public class Apiary implements Engine {
      */
     TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
         TypedObject toReturn = null;
-        switch(type) {
+        switch (type) {
             case(Types.DATE):
             case(Types.CHAR):
             case(Types.VARCHAR):

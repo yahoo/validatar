@@ -18,7 +18,6 @@ package com.yahoo.validatar.assertion;
 
 import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.Result;
-import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
 
 import java.util.Map;
