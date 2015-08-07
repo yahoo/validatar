@@ -98,7 +98,7 @@ public class Apiary implements Engine {
      */
     @Override
     public void printHelp() {
-        System.out.println(ENGINE_NAME + " help:");
+        System.out.println("\nHive engine options:\n");
         try {
             parser.printHelpOn(System.out);
         } catch (IOException e) {

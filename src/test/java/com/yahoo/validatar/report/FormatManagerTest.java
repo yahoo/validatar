@@ -58,7 +58,7 @@ public class FormatManagerTest {
         System.setErr(new PrintStream(new FileOutputStream("target/err")));
         String[] args = {"--report-format", "INVALID"};
         try {
-            FormatManager manager = new FormatManager(args);
+            new FormatManager(args);
             Assert.fail("Should have thrown an Exception");
         } catch (RuntimeException re) {
         }

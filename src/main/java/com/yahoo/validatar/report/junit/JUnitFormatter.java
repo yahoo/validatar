@@ -107,11 +107,13 @@ public class JUnitFormatter implements Formatter {
      */
     @Override
     public void printHelp() {
+        System.out.println("\nJUnit report options:\n");
         try {
             parser.printHelpOn(System.out);
         } catch (IOException e) {
             log.error(e);
         }
+        System.out.println();
     }
 
     /**

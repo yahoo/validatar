@@ -97,9 +97,9 @@ public class EngineManager {
                 engines.put(engine.getName(), new WorkingEngine(engine));
                 log.debug("Added engine " + engine.getName() + " to list of engines.");
             } catch (InstantiationException e) {
-                log.error("Error instantiating " + ((engine == null) ? engineClass : engine.getName()) + " engine.", e);
+                log.error("Error instantiating " + engineClass + " engine.", e);
             } catch (IllegalAccessException e) {
-                log.error("Illegal access while loading " + ((engine == null) ? engineClass : engine.getName()) + " engine.", e);
+                log.error("Illegal access while loading " + engineClass + " engine.", e);
             }
         }
     }
@@ -111,14 +111,14 @@ public class EngineManager {
      */
     protected void setEngines(List<Engine> engines) {
         List<Engine> all = engines == null ? Collections.emptyList() : engines;
-        this.engines = all.stream().collect(Collectors.toMap(engine -> engine.getName(), engine -> new WorkingEngine(engine)));
+        this.engines = all.stream().collect(Collectors.toMap(Engine::getName, WorkingEngine::new));
     }
 
     /**
      * Returns a set of the distinct engines given a list of queries.
      *
      * @param queries List of queries.
-     * @return Set of names of distinct required engines.
+     * @return A non null Set of names of distinct required engines.
      */
     private Set<String> distinctEngines(List<Query> queries) {
         List<Query> all = queries == null ? Collections.emptyList() : queries;
@@ -132,7 +132,7 @@ public class EngineManager {
      * @return true iff the required engines were loaded.
      */
     protected boolean startEngines(List<Query> queries) {
-        return distinctEngines(queries).stream().map(engine -> startEngine(engine)).allMatch(b -> b);
+        return distinctEngines(queries).stream().map(this::startEngine).allMatch(b -> b);
     }
 
     private boolean startEngine(String engine) {
@@ -157,7 +157,7 @@ public class EngineManager {
      * Prints the help message for each engine.
      */
     public void printHelp() {
-        engines.values().stream().forEach(entry -> entry.getEngine().printHelp());
+        engines.values().stream().map(WorkingEngine::getEngine).forEach(Engine::printHelp);
     }
 
     /**

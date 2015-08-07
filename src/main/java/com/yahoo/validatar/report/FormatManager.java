@@ -116,11 +116,11 @@ public class FormatManager {
      * Print help for all available formatters on System.out.
      */
     public void printHelp() {
-        System.out.println();
+        System.out.println("\nReporting options:\n");
         try {
             parser.printHelpOn(System.out);
+            System.out.println();
             for (Map.Entry<String, Formatter> entry : availableFormatters.entrySet()) {
-                System.out.println(entry.getKey());
                 entry.getValue().printHelp();
             }
         } catch (IOException ioe) {

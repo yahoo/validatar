@@ -94,8 +94,7 @@ public class App {
         try {
             return PARSER.parse(args);
         } catch (Exception e) {
-            PARSER.printHelpOn(System.out);
-            throw new RuntimeException("Unable to parse arguments", e);
+            return null;
         }
     }
 
@@ -155,24 +154,25 @@ public class App {
      *
      * @param args The input arguments.
      * @throws java.io.IOException           if any.
-     * @throws java.io.FileNotFoundException if any.
      */
-    public static void main(String[] args) throws IOException, FileNotFoundException {
+    public static void main(String[] args) throws IOException  {
         // Parse CLI args
         OptionSet options = parse(args);
-        Map<String, String> parameterMap = splitParameters(options, "parameter");
 
         ParseManager parseManager = new ParseManager();
         EngineManager engineManager = new EngineManager(args);
         FormatManager formatManager = new FormatManager(args);
 
-        // Check if user wants to see help
-        if (options.has("h") || options.has("help")) {
+        // Check if user needs help
+        if (options == null || options.has("h") || options.has("help")) {
+            System.out.println("\nApplication options:\n");
             PARSER.printHelpOn(System.out);
+            System.out.println();
             engineManager.printHelp();
             formatManager.printHelp();
             return;
         }
+        Map<String, String> parameterMap = splitParameters(options, "parameter");
         run((File) options.valueOf("test-suite"), parameterMap, parseManager, engineManager, formatManager);
     }
 }

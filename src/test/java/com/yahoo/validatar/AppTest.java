@@ -106,17 +106,14 @@ public class AppTest {
         System.setErr(new PrintStream(new FileOutputStream("target/err")));
 
         String[] args = {"--parameter", "DATE:20140807"};
-        try {
-            OptionSet options = App.parse(args);
-            Assert.fail("Should have thrown an Exception");
-        } catch (RuntimeException re) {
-        }
+        Assert.assertNull(App.parse(args));
+
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
         System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
     }
 
     @Test
-    public void testSimpleParameterParse() {
+    public void testSimpleParameterParse() throws IOException {
         // Fake CLI args
         String[] args = {"--test-suite", "tests.yaml",
                          "--parameter", "DATE=2014071800",
@@ -124,18 +121,12 @@ public class AppTest {
 
         // Parse CLI args
         Map<String, String> paramMap = null;
-        OptionSet options = null;
-        try {
-            options = App.parse(args);
-            paramMap = App.splitParameters(options, "parameter");
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail("Should not reach here.");
-        }
+        OptionSet options = App.parse(args);
+        paramMap = App.splitParameters(options, "parameter");
 
         // Check parse
         File testFile = (File) options.valueOf("test-suite");
-        Assert.assertEquals((String) testFile.getName(), "tests.yaml");
+        Assert.assertEquals(testFile.getName(), "tests.yaml");
 
         Assert.assertEquals(paramMap.get("DATE"), "2014071800");
         Assert.assertEquals(paramMap.get("NAME"), "ALPHA");
