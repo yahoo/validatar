@@ -69,6 +69,6 @@ public class Query extends Executable {
         if (metadata == null) {
             return null;
         }
-        return metadata.stream().collect(Collectors.toMap(meta -> meta.key, meta -> meta.value));
+        return metadata.stream().collect(Collectors.toMap(entry -> entry.key, entry -> entry.value));
     }
 }

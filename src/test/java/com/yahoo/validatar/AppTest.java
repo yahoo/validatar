@@ -35,23 +35,23 @@ import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 public class AppTest {
     private class MemoryDB extends Apiary {
         private OptionParser parser = new OptionParser() {
             {
-                acceptsAll(asList("hive-driver"), "Fully qualified package name to the hive driver.")
+                acceptsAll(singletonList("hive-driver"), "Fully qualified package name to the hive driver.")
                     .withRequiredArg()
                     .describedAs("Hive driver");
-                acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
+                acceptsAll(singletonList("hive-jdbc"), "JDBC string to the HiveServer. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
                     .withRequiredArg()
                     .describedAs("Hive JDBC connector.");
-                acceptsAll(asList("hive-username"), "Hive server username.")
+                acceptsAll(singletonList("hive-username"), "Hive server username.")
                     .withRequiredArg()
                     .describedAs("Hive server username.")
                     .defaultsTo("anon");
-                acceptsAll(asList("hive-password"), "Hive server password.")
+                acceptsAll(singletonList("hive-password"), "Hive server password.")
                     .withRequiredArg()
                     .describedAs("Hive server password.")
                     .defaultsTo("anon");
@@ -79,7 +79,7 @@ public class AppTest {
         public CustomEngineManager(String[] arguments) {
             super();
             this.arguments = arguments;
-            this.engines = new HashMap<String, WorkingEngine>();
+            this.engines = new HashMap<>();
             MemoryDB db = new MemoryDB();
             db.setup(arguments);
             engines.put(Apiary.ENGINE_NAME, new WorkingEngine(db));
@@ -91,7 +91,7 @@ public class AppTest {
         String[] args = {"--report-file", "target/AppTest-testRunTests.xml",
                          "--hive-driver", "org.h2.Driver",
                          "--hive-jdbc", "jdbc:h2:mem:"};
-        Map<String, String> parameterMap = new HashMap<String, String>();
+        Map<String, String> parameterMap = new HashMap<>();
         File emptyTest = new File("src/test/resources/sample-tests/empty-test.yaml");
         ParseManager parseManager = new ParseManager();
         EngineManager engineManager = new CustomEngineManager(args);

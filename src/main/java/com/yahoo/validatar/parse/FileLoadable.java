@@ -30,5 +30,5 @@ public interface FileLoadable {
      * @return A list of TestSuites representing the TestSuites in path. Empty if no TestSuite found.
      * @throws java.io.FileNotFoundException if any.
      */
-    public List<TestSuite> load(File path) throws FileNotFoundException;
+    List<TestSuite> load(File path) throws FileNotFoundException;
 }

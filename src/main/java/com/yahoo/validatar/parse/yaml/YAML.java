@@ -32,8 +32,7 @@ public class YAML implements Parser {
     @Override
     public TestSuite parse(InputStream data) {
         Yaml yaml = new Yaml(new Constructor(TestSuite.class));
-        TestSuite testSuite = (TestSuite) yaml.load(data);
-        return testSuite;
+        return (TestSuite) yaml.load(data);
     }
 
     /**

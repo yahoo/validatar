@@ -31,7 +31,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
@@ -102,7 +102,7 @@ public class ApiaryTest {
         Statement mocked = mock(Statement.class);
         OptionParser parser = new OptionParser() {
             {
-                acceptsAll(asList("hive-setting"), "").withRequiredArg();
+                acceptsAll(singletonList("hive-setting"), "").withRequiredArg();
             }
         };
 

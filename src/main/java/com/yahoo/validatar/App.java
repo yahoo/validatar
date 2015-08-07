@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.yahoo.validatar.common.Utilities.addNonNull;
+import static java.util.Collections.singletonList;
 import static java.util.Arrays.asList;
 
 public class App {
@@ -50,10 +51,10 @@ public class App {
      */
     public static final OptionParser PARSER = new OptionParser() {
         {
-            acceptsAll(asList("parameter"), "Parameter to replace all '${VAR}' in the query string. Ex: --parameter DATE=2014-07-24")
+            acceptsAll(singletonList("parameter"), "Parameter to replace all '${VAR}' in the query string. Ex: --parameter DATE=2014-07-24")
                 .withRequiredArg()
                 .describedAs("Parameter");
-            acceptsAll(asList("test-suite"), "File or folder that contains the test suite file(s).")
+            acceptsAll(singletonList("test-suite"), "File or folder that contains the test suite file(s).")
                 .withRequiredArg()
                 .required()
                 .ofType(File.class)
@@ -71,7 +72,7 @@ public class App {
      * @return Map of parameters and replacement strings
      */
     public static Map<String, String> splitParameters(OptionSet options, String parameterName) {
-        Map<String, String> parameterMap = new HashMap<String, String>();
+        Map<String, String> parameterMap = new HashMap<>();
         for (String parameter : (List<String>) options.valuesOf(parameterName)) {
             String[] tokens = parameter.split("=");
             if (tokens.length != 2) {
@@ -116,8 +117,8 @@ public class App {
         List<TestSuite> suites = ParseManager.expandParameters(parseManager.load(testSuite), parameters);
 
         // Get the queries and tests
-        List<Query> queries = new ArrayList<Query>();
-        List<Test> tests = new ArrayList<Test>();
+        List<Query> queries = new ArrayList<>();
+        List<Test> tests = new ArrayList<>();
         for (TestSuite suite : suites) {
             addNonNull(suite.queries, queries);
             addNonNull(suite.tests, tests);

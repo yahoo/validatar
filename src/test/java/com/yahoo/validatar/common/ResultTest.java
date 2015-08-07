@@ -19,15 +19,16 @@ package com.yahoo.validatar.common;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.singletonList;
 
 public class ResultTest {
     @Test
     public void testPrefix() {
         Result result = new Result("foo.");
-        result.addColumn("a", Arrays.asList(new TypedObject(1L, TypeSystem.Type.LONG)));
+        result.addColumn("a", singletonList(new TypedObject(1L, TypeSystem.Type.LONG)));
 
         Assert.assertEquals(result.getColumn("a").size(), 1);
         Assert.assertEquals((Long) result.getColumn("a").get(0).data, Long.valueOf(1L));

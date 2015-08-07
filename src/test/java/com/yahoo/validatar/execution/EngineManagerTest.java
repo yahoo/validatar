@@ -117,9 +117,9 @@ public class EngineManagerTest extends LogCaptor {
     public void setup() {
         query = new Query();
         query.engine = MockPassingEngine.ENGINE_NAME;
-        queries = new ArrayList<Query>();
+        queries = new ArrayList<>();
         queries.add(query);
-        engines = new ArrayList<Engine>();
+        engines = new ArrayList<>();
         engines.add(new MockFailingEngine());
         engines.add(new MockPassingEngine());
         engines.add(new MockRunningEngine());

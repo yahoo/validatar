@@ -46,7 +46,7 @@ public class Result {
      * @param name The name of the column.
      */
     public void addColumn(String name) {
-        data.put(prefix + name, new ArrayList<TypedObject>());
+        data.put(prefix + name, new ArrayList<>());
     }
 
     /**

@@ -31,12 +31,12 @@ public interface Formatter {
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      * @return true iff setup was succesful.
      */
-    public boolean setup(String[] arguments);
+    boolean setup(String[] arguments);
 
     /**
      * Prints the help for using this formatter.
      */
-    public void printHelp();
+    void printHelp();
 
     /**
      * Write the results of the test suites out.
@@ -44,12 +44,12 @@ public interface Formatter {
      * @param testSuites List of TestSuites to generate the report with
      * @throws java.io.IOException if any.
      */
-    public void writeReport(List<TestSuite> testSuites) throws IOException;
+    void writeReport(List<TestSuite> testSuites) throws IOException;
 
     /**
      * Returns the name of the Formatter. Ex: 'JUnit' etc.
      *
      * @return Name of the formatter.
      */
-    public String getName();
+    String getName();
 }

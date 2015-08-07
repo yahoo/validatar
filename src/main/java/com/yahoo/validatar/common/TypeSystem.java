@@ -54,7 +54,7 @@ public class TypeSystem {
          * Returns null if it cannot, else it returns a new TypedObject with the
          * result with the same type the inputs.
          */
-        public TypedObject perform(TypedObject first, TypedObject second);
+        TypedObject perform(TypedObject first, TypedObject second);
     }
 
     private interface TypeRelation {
@@ -63,7 +63,7 @@ public class TypeSystem {
          * Returns null if it cannot, else it returns a new BOOLEAN TypedObject with the
          * result
          */
-        public TypedObject perform(TypedObject first, TypedObject second);
+        TypedObject perform(TypedObject first, TypedObject second);
     }
 
     private interface TypeConvertor {
@@ -71,7 +71,7 @@ public class TypeSystem {
          * Takes a TypedObject and tries to convert it to a different Type.
          * Returns true iff it succeeds. source.type is then the new Type.
          */
-        public boolean convert(TypedObject source);
+        boolean convert(TypedObject source);
     }
 
     /**

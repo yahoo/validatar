@@ -33,7 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 public class JUnitFormatter implements Formatter {
     protected final Logger log = Logger.getLogger(getClass());
@@ -42,7 +42,7 @@ public class JUnitFormatter implements Formatter {
 
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(asList("report-file"), "File to store the test reports.")
+            acceptsAll(singletonList("report-file"), "File to store the test reports.")
                 .withRequiredArg()
                 .describedAs("Report file")
                 .defaultsTo("report.xml");

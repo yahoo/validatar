@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 /**
  * Manages the writing of test reports.
@@ -45,7 +45,7 @@ public class FormatManager {
     // it can be moved to inside the respective formatters.
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(asList("report-format"), "Which report format to use.")
+            acceptsAll(singletonList("report-format"), "Which report format to use.")
                 .withRequiredArg()
                 .describedAs("Report format")
                 .defaultsTo("junit");
@@ -83,7 +83,7 @@ public class FormatManager {
     private Formatter findFormatter(String name, String[] arguments) {
         Reflections reflections = new Reflections("com.yahoo.validatar.report");
         Set<Class<? extends Formatter>> subTypes = reflections.getSubTypesOf(Formatter.class);
-        availableFormatters = new HashMap<String, Formatter>();
+        availableFormatters = new HashMap<>();
         Formatter searchingFor = null;
         for (Class<? extends Formatter> formatterClass : subTypes) {
             try {

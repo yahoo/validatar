@@ -81,10 +81,11 @@ Version | Notes
 0.1.7 | Multiple Hive databases across Queries
 0.1.8 | Null types in Hive results fix
 0.1.9 | Empty results handling bug fix
+0.2.0 | Internal switch to Java 8. hive-queue is no longer a setting. Use hive-setting.
 
 ## Members
 
-Akshai Sarma, akshaisarma@gmail.com  
+Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
 
 ## Contributors

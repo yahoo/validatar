@@ -47,7 +47,7 @@ public class ParseManager implements FileLoadable {
      * Constructor. Default.
      */
     public ParseManager() {
-        availableParsers = new HashMap<String, Parser>();
+        availableParsers = new HashMap<>();
 
         Reflections reflections = new Reflections("com.yahoo.validatar.parse");
         Set<Class<? extends Parser>> subTypes = reflections.getSubTypesOf(Parser.class);
@@ -69,7 +69,7 @@ public class ParseManager implements FileLoadable {
      */
     @Override
     public List<TestSuite> load(File path) throws FileNotFoundException {
-        List<TestSuite> testSuites = new ArrayList<TestSuite>();
+        List<TestSuite> testSuites = new ArrayList<>();
         if (path == null) {
             return testSuites;
         }

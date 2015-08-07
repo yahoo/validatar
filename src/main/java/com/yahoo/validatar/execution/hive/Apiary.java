@@ -35,7 +35,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 public class Apiary implements Engine {
     protected final Logger log = Logger.getLogger(getClass());
@@ -52,25 +52,25 @@ public class Apiary implements Engine {
 
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer2 with an optional database. " +
+            acceptsAll(singletonList("hive-jdbc"), "JDBC string to the HiveServer2 with an optional database. " +
                                              "If the database is provided, the queries must NOT have one. " +
                                              "Ex: 'jdbc:hive2://HIVE_SERVER:PORT/[DATABASE_FOR_ALL_QUERIES]' ")
                 .withRequiredArg()
                 .required()
                 .describedAs("Hive JDBC connector");
-            acceptsAll(asList("hive-driver"), "Fully qualified package name to the hive driver.")
+            acceptsAll(singletonList("hive-driver"), "Fully qualified package name to the hive driver.")
                 .withRequiredArg()
                 .describedAs("Hive driver")
                 .defaultsTo(DRIVER_NAME);
-            acceptsAll(asList("hive-username"), "Hive server username.")
+            acceptsAll(singletonList("hive-username"), "Hive server username.")
                 .withRequiredArg()
                 .describedAs("Hive server username")
                 .defaultsTo("anon");
-            acceptsAll(asList("hive-password"), "Hive server password.")
+            acceptsAll(singletonList("hive-password"), "Hive server password.")
                 .withRequiredArg()
                 .describedAs("Hive server password")
                 .defaultsTo("anon");
-            acceptsAll(asList("hive-setting"), "Settings and their values. Ex: 'hive.execution.engine=mr'")
+            acceptsAll(singletonList("hive-setting"), "Settings and their values. Ex: 'hive.execution.engine=mr'")
                 .withRequiredArg()
                 .describedAs("Hive generic settings to use.");
             allowsUnrecognizedOptions();
@@ -126,6 +126,7 @@ public class Apiary implements Engine {
             while (result.next()) {
                 addRow(result, metadata, columns, queryResult);
             }
+            result.close();
         } catch (SQLException e) {
             log.error("SQL problem with query: " + queryName + "\n" + queryValue, e);
             query.setFailure(e.toString());

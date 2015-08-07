@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AssertorTest {
@@ -33,10 +34,8 @@ public class AssertorTest {
     private Assertor assertor = new Assertor();
 
     private List<com.yahoo.validatar.common.Test> wrap(com.yahoo.validatar.common.Test... tests) {
-        List<com.yahoo.validatar.common.Test> asList = new ArrayList<com.yahoo.validatar.common.Test>();
-        for (com.yahoo.validatar.common.Test test : tests) {
-            asList.add(test);
-        }
+        List<com.yahoo.validatar.common.Test> asList = new ArrayList<>();
+        Collections.addAll(asList, tests);
         return asList;
     }
 
@@ -87,7 +86,7 @@ public class AssertorTest {
         Assert.assertTrue(test.failed());
         Assert.assertEquals("No assertion was provided!", test.getMessages().get(0));
 
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         Assertor.assertAll(results, wrap(test));
         Assert.assertTrue(test.failed());
         Assert.assertEquals("No assertion was provided!", test.getMessages().get(0));
@@ -96,7 +95,7 @@ public class AssertorTest {
     @Test
     public void testEmptyResultsAssertion() {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("AV.pv_count > 1000");
 
         results.addColumn("AV.pv_count");
@@ -108,7 +107,7 @@ public class AssertorTest {
     @Test
     public void testNoLookupAssertion() {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("100 > 1000");
 
         Assertor.assertAll(results, wrap(test));
@@ -122,7 +121,7 @@ public class AssertorTest {
         addToResult("AV.li_count", TypeSystem.Type.LONG, 155L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("AV.pv_count > 1000");
 
         Assertor.assertAll(results, wrap(test));
@@ -134,7 +133,7 @@ public class AssertorTest {
         addToResult("largest_spaceid", TypeSystem.Type.STRING, "104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("largest_spaceid == \"104255\"");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
@@ -145,7 +144,7 @@ public class AssertorTest {
         addToResult("largest_spaceid", TypeSystem.Type.STRING, "  104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("largest_spaceid == \"  104255\"");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
@@ -156,7 +155,7 @@ public class AssertorTest {
         addToResult("largest_spaceid", TypeSystem.Type.STRING, "104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("\tlargest_spaceid                == \"104255\"      ");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
@@ -168,7 +167,7 @@ public class AssertorTest {
         addToResult("li_count", TypeSystem.Type.LONG, 155L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("pv_count > 1000 && li_count < 100");
         Assertor.assertAll(results, wrap(test));
 
@@ -181,7 +180,7 @@ public class AssertorTest {
         addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("pv_count > -1000");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
@@ -192,7 +191,7 @@ public class AssertorTest {
         addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("!(pv_count < 1000)");
 
         Assertor.assertAll(results, wrap(test));
@@ -204,7 +203,7 @@ public class AssertorTest {
         addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("pv_count >= 104255");
         test.asserts.add("pv_count <= 104255");
 
@@ -217,7 +216,7 @@ public class AssertorTest {
         addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("pv_count < 104255*2");
         test.asserts.add("pv_count > 104255/2");
 
@@ -230,7 +229,7 @@ public class AssertorTest {
         addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("pv_count < 104255+1");
         test.asserts.add("pv_count > 104255-1");
 
@@ -243,7 +242,7 @@ public class AssertorTest {
         addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("pv_count == 104255");
         test.asserts.add("pv_count != 104255-1");
 
@@ -257,7 +256,7 @@ public class AssertorTest {
         addToResult("li_count", TypeSystem.Type.LONG, 155L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("pv_count == 104255 && pv_count > li_count || pv_count == 5");
         test.asserts.add("pv_count != 104255 && pv_count > li_count || li_count == 155");
 
@@ -272,37 +271,37 @@ public class AssertorTest {
         addToResult("foo.pv_count", TypeSystem.Type.LONG, 0L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, 100000, 0.05)");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, 100000, 0.01)");
         Assertor.assertAll(results, wrap(test));
         Assert.assertTrue(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, 100000, 11241)");
         Assertor.assertAll(results, wrap(test));
         Assert.assertTrue(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, pv_count, 0.01)");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("approx(10000, 10010, 0.01)");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, foo.pv_count, 0.10)");
         Assertor.assertAll(results, wrap(test));
         Assert.assertTrue(test.failed());
@@ -314,7 +313,7 @@ public class AssertorTest {
         addToResult("li_count", TypeSystem.Type.LONG, 155L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("((pv_count == 104255 && pv_count < li_count) || (li_count*10000 > pv_count))");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
@@ -325,7 +324,7 @@ public class AssertorTest {
         addToResult("str", TypeSystem.Type.STRING, "\u0001");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("str == \"\\u0001\"");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
@@ -336,7 +335,7 @@ public class AssertorTest {
         addToResult("str", TypeSystem.Type.STRING, "Foo's Bar");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("str == \"Foo's Bar\"");
         Assertor.assertAll(results, wrap(test));
         Assert.assertFalse(test.failed());
@@ -347,7 +346,7 @@ public class AssertorTest {
         addToResult("bool", TypeSystem.Type.BOOLEAN, true);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("bool == true");
         test.asserts.add("bool != false");
         test.asserts.add("bool");
@@ -362,7 +361,7 @@ public class AssertorTest {
         addToResult("counts", TypeSystem.Type.LONG, 29L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
-        test.asserts = new ArrayList<String>();
+        test.asserts = new ArrayList<>();
         test.asserts.add("counts % 19 == 10");
 
         Assertor.assertAll(results, wrap(test));
