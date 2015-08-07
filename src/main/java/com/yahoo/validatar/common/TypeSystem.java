@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This is a class that wraps the supported types that the assertor will work with
@@ -381,11 +382,9 @@ public class TypeSystem {
     }
 
     private static void checkType(TypedObject object, Type type) {
-        if (object == null) {
-            throw new NullPointerException("Cannot operate on null argument");
-        }
+        Objects.requireNonNull(object);
         if (object.type != type) {
-            throw new ClassCastException("Input: " + object.data.toString() + " was not of the expected type: " + type);
+            throw new ClassCastException("Type check failed. " + object + " was not of the expected type: " + type);
         }
     }
 
@@ -409,8 +408,7 @@ public class TypeSystem {
         }
 
         if (!isUnified) {
-            throw new ClassCastException("Type conversion could not be performed for types: " + first.type + " and " + second.type +
-                                          " with values: " + first.data.toString() + " and " + second.data.toString());
+            throw new ClassCastException("Type conversion could not be performed for " + first + " and " + second);
         }
     }
 
@@ -428,8 +426,7 @@ public class TypeSystem {
         TypedObject result = ARITHMETIC.get(operator).perform(first, second);
 
         if (result == null) {
-            throw new ClassCastException("Unable to perform operation: " + operator + " on " +
-                                          first.data.toString() + " and " + second.data.toString());
+            throw new ClassCastException("Unable to perform operation: " + operator + " on " + first + " and " + second);
         }
         return result;
     }

@@ -44,7 +44,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
             throw new RuntimeException("Unable to find value for column: " + name + " in results");
         }
         TypedObject result = row.get(name);
-        lookedUpValues.put(name, (result == null ? "null" : result.data.toString()));
+        lookedUpValues.put(name, (result == null ? "null" : result.toString()));
         return result;
     }
 

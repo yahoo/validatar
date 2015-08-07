@@ -24,11 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -111,7 +107,7 @@ public class EngineManager {
     /**
      * For testing purposes to inject engines. Will always override existing engines.
      *
-     * @param enginesToUse A list of engines to use as the engines to work with.
+     * @param engines A list of engines to use as the engines to work with.
      */
     protected void setEngines(List<Engine> engines) {
         List<Engine> all = engines == null ? Collections.emptyList() : engines;
@@ -139,7 +135,7 @@ public class EngineManager {
         return distinctEngines(queries).stream().map(engine -> startEngine(engine)).allMatch(b -> b);
     }
 
-    protected boolean startEngine(String engine) {
+    private boolean startEngine(String engine) {
         WorkingEngine working = engines.get(engine);
         if (working == null) {
             log.error("Engine " + engine + " not loaded but required by query.");

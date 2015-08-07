@@ -169,7 +169,7 @@ public class Apiary implements Engine {
      * @throws java.sql.SQLException if any.
      */
     TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
-        TypedObject toReturn = null;
+        TypedObject toReturn;
         switch (type) {
             case (Types.DATE):
             case (Types.CHAR):

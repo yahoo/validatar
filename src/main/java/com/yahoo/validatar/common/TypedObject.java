@@ -16,6 +16,8 @@
 
 package com.yahoo.validatar.common;
 
+import java.util.Objects;
+
 /**
  * This is the custom annotated object that is used in our assertion language.
  */
@@ -34,7 +36,13 @@ public class TypedObject {
      * @param type The {@link com.yahoo.validatar.common.TypeSystem.Type} of the object.
      */
     public TypedObject(Comparable data, TypeSystem.Type type) {
+        Objects.requireNonNull(data);
         this.data = data;
         this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "<Type: " + type + ", Value: " + data.toString() + ">";
     }
 }
