@@ -17,7 +17,11 @@
 package com.yahoo.validatar;
 
 import com.yahoo.validatar.assertion.Assertor;
-import com.yahoo.validatar.common.*;
+import com.yahoo.validatar.common.Helpable;
+import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.Test;
+import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.execution.EngineManager;
 import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.report.FormatManager;
@@ -27,11 +31,15 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.singletonList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 public class App {
     /**
@@ -99,7 +107,7 @@ public class App {
      * @param parseManager  A {@link com.yahoo.validatar.parse.ParseManager} to use.
      * @param engineManager A {@link com.yahoo.validatar.execution.EngineManager} to use.
      * @param formatManager A {@link com.yahoo.validatar.report.FormatManager} to use.
-     * @throws java.io.IOException           if any.
+     * @throws java.io.IOException if any.
      */
     public static void run(File testSuite, Map<String, String> parameters, ParseManager parseManager,
                            EngineManager engineManager, FormatManager formatManager) throws IOException {
@@ -122,7 +130,6 @@ public class App {
         // Get the results
         Result data = queries.stream().map(Query::getResult).reduce(new Result(), Result::merge);
 
-
         // Get the tests
         List<Test> tests = suites.stream()
                             .map(s -> s.tests).filter(Objects::nonNull)
@@ -144,7 +151,7 @@ public class App {
      * Main.
      *
      * @param args The input arguments.
-     * @throws java.io.IOException           if any.
+     * @throws java.io.IOException if any.
      */
     public static void main(String[] args) throws IOException  {
         // Parse CLI args

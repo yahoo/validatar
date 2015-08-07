@@ -34,6 +34,11 @@
             <property name="severity" value="error"/>
         </module>
 
+        <!-- No star imports checking. -->
+        <module name="AvoidStarImport">
+            <property name="severity" value="error"/>
+        </module>
+
         <!-- Method name check. -->
         <module name="MethodName">
             <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>

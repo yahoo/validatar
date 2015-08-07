@@ -16,7 +16,11 @@
 
 package com.yahoo.validatar.execution.hive;
 
-import com.yahoo.validatar.common.*;
+import com.yahoo.validatar.common.Helpable;
+import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.TypeSystem;
+import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
