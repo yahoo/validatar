@@ -27,7 +27,7 @@ public interface FileLoadable {
      * Load test file(s) from a provided path. If a folder, load all test files. If a file, load it.
      *
      * @param path The folder with the test file(s) or the test file.j
-     * @return A list of TestSuites representing the TestSuites in path. Empty if no TestSuite found.
+     * @return A non null list of TestSuites representing the TestSuites in path. Empty if no TestSuite found.
      * @throws java.io.FileNotFoundException if any.
      */
     List<TestSuite> load(File path) throws FileNotFoundException;

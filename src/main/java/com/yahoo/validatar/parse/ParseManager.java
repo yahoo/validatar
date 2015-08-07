@@ -18,6 +18,7 @@ package com.yahoo.validatar.parse;
 
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.reflections.Reflections;
 
@@ -32,8 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.yahoo.validatar.common.Utilities.addNonNull;
 
 public class ParseManager implements FileLoadable {
 
@@ -76,13 +75,13 @@ public class ParseManager implements FileLoadable {
 
         if (path.isFile()) {
             log.info("TestSuite parameter is a file, loading...");
-            addNonNull(getTestSuite(path), testSuites);
+            CollectionUtils.addIgnoreNull(testSuites, getTestSuite(path));
         } else {
             log.info("TestSuite parameter is a folder, loading all files inside...");
             File[] files = path.listFiles();
             Arrays.sort(files);
             for (File file : files) {
-                addNonNull(getTestSuite(file), testSuites);
+                CollectionUtils.addIgnoreNull(testSuites, getTestSuite(file));
             }
         }
         return testSuites;

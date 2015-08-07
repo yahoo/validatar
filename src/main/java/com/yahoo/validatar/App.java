@@ -26,14 +26,10 @@ import joptsimple.OptionSet;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static com.yahoo.validatar.common.Utilities.addNonNull;
 import static java.util.Collections.singletonList;
 import static java.util.Arrays.asList;
 
@@ -103,23 +99,19 @@ public class App {
      * @param parseManager  A {@link com.yahoo.validatar.parse.ParseManager} to use.
      * @param engineManager A {@link com.yahoo.validatar.execution.EngineManager} to use.
      * @param formatManager A {@link com.yahoo.validatar.report.FormatManager} to use.
-     * @throws java.io.FileNotFoundException if any.
      * @throws java.io.IOException           if any.
      */
     public static void run(File testSuite, Map<String, String> parameters, ParseManager parseManager,
-                           EngineManager engineManager, FormatManager formatManager) throws FileNotFoundException, IOException {
+                           EngineManager engineManager, FormatManager formatManager) throws IOException {
         // Load the test suite file(s)
         LOG.info("Parsing test files...");
         List<TestSuite> suites = ParseManager.expandParameters(parseManager.load(testSuite), parameters);
 
-        // Get the queries and tests
-        List<Query> queries = new ArrayList<>();
-        List<Test> tests = new ArrayList<>();
-        for (TestSuite suite : suites) {
-            addNonNull(suite.queries, queries);
-            addNonNull(suite.tests, tests);
-        }
-
+        // Get the queries
+        List<Query> queries = suites.stream()
+                              .map(s -> s.queries).filter(Objects::nonNull)
+                              .flatMap(Collection::stream).filter(Objects::nonNull)
+                              .collect(Collectors.toList());
         // Run the queries
         LOG.info("Running queries...");
         if (!engineManager.run(queries)) {
@@ -127,13 +119,15 @@ public class App {
             return;
         }
 
-        // Get the data
-        Result data = new Result();
-        for (TestSuite suite : suites) {
-            for (Query query : suite.queries) {
-                data.merge(query.getResult());
-            }
-        }
+        // Get the results
+        Result data = queries.stream().map(Query::getResult).reduce(new Result(), Result::merge);
+
+
+        // Get the tests
+        List<Test> tests = suites.stream()
+                            .map(s -> s.tests).filter(Objects::nonNull)
+                            .flatMap(Collection::stream).filter(Objects::nonNull)
+                            .collect(Collectors.toList());
 
         // Run the tests
         LOG.info("Running tests...");

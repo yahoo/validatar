@@ -79,11 +79,13 @@ public class Result {
      * unless there were collisions.
      *
      * @param result The result to merge with.
+     * @result The merged result, i.e. this.
      */
-    public void merge(Result result) {
+    public Result merge(Result result) {
         if (result != null) {
             data.putAll(result.data);
         }
+        return this;
     }
 
     /**
