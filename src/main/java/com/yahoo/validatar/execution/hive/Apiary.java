@@ -16,10 +16,7 @@
 
 package com.yahoo.validatar.execution.hive;
 
-import com.yahoo.validatar.common.Query;
-import com.yahoo.validatar.common.Result;
-import com.yahoo.validatar.common.TypeSystem;
-import com.yahoo.validatar.common.TypedObject;
+import com.yahoo.validatar.common.*;
 import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -98,13 +95,7 @@ public class Apiary implements Engine {
      */
     @Override
     public void printHelp() {
-        System.out.println("\nHive engine options:\n");
-        try {
-            parser.printHelpOn(System.out);
-        } catch (IOException e) {
-            log.error(e);
-        }
-        System.out.println();
+        Helpable.printHelp("Hive engine options", parser);
     }
 
     /**

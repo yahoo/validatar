@@ -16,9 +16,10 @@
 
 package com.yahoo.validatar.execution;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
 
-public interface Engine {
+public interface Engine extends Helpable {
     /**
      * Setups the engine using the input parameters.
      *
@@ -26,11 +27,6 @@ public interface Engine {
      * @return true iff setup was succesful.
      */
     boolean setup(String[] arguments);
-
-    /**
-     * Prints the help for using this engine.
-     */
-    void printHelp();
 
     /**
      * Executes the given query on this Engine and places the result into it.

@@ -16,6 +16,7 @@
 
 package com.yahoo.validatar.report;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.TestSuite;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ import java.util.List;
 /**
  * Interface for writing test report files.
  */
-public interface Formatter {
+public interface Formatter extends Helpable {
     /**
      * Setups the engine using the input parameters.
      *
@@ -32,11 +33,6 @@ public interface Formatter {
      * @return true iff setup was succesful.
      */
     boolean setup(String[] arguments);
-
-    /**
-     * Prints the help for using this formatter.
-     */
-    void printHelp();
 
     /**
      * Write the results of the test suites out.

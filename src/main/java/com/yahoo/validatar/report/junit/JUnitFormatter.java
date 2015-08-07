@@ -16,6 +16,7 @@
 
 package com.yahoo.validatar.report.junit;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.TestSuite;
@@ -107,13 +108,7 @@ public class JUnitFormatter implements Formatter {
      */
     @Override
     public void printHelp() {
-        System.out.println("\nJUnit report options:\n");
-        try {
-            parser.printHelpOn(System.out);
-        } catch (IOException e) {
-            log.error(e);
-        }
-        System.out.println();
+        Helpable.printHelp("Junit report options", parser);
     }
 
     /**

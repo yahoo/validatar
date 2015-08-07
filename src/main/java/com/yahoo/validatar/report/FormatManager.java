@@ -16,6 +16,7 @@
 
 package com.yahoo.validatar.report;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.TestSuite;
 import joptsimple.OptionParser;
 import org.apache.log4j.Logger;
@@ -116,17 +117,7 @@ public class FormatManager {
      * Print help for all available formatters on System.out.
      */
     public void printHelp() {
-        System.out.println("\nReporting options:\n");
-        try {
-            parser.printHelpOn(System.out);
-            System.out.println();
-            for (Map.Entry<String, Formatter> entry : availableFormatters.entrySet()) {
-                entry.getValue().printHelp();
-            }
-        } catch (IOException ioe) {
-            log.error(ioe);
-            throw new RuntimeException("Could not print help for formatter");
-        }
-        System.out.println();
+        Helpable.printHelp("Reporting options", parser);
+        availableFormatters.values().stream().forEach(Formatter::printHelp);
     }
 }

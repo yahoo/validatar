@@ -17,10 +17,7 @@
 package com.yahoo.validatar;
 
 import com.yahoo.validatar.assertion.Assertor;
-import com.yahoo.validatar.common.Query;
-import com.yahoo.validatar.common.Result;
-import com.yahoo.validatar.common.Test;
-import com.yahoo.validatar.common.TestSuite;
+import com.yahoo.validatar.common.*;
 import com.yahoo.validatar.execution.EngineManager;
 import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.report.FormatManager;
@@ -165,9 +162,7 @@ public class App {
 
         // Check if user needs help
         if (options == null || options.has("h") || options.has("help")) {
-            System.out.println("\nApplication options:\n");
-            PARSER.printHelpOn(System.out);
-            System.out.println();
+            Helpable.printHelp("Application options", PARSER);
             engineManager.printHelp();
             formatManager.printHelp();
             return;

@@ -16,6 +16,7 @@
 
 package com.yahoo.validatar.execution;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
 import org.apache.log4j.Logger;
 import org.reflections.Reflections;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * Manages the creation and execution of execution engines.
  */
-public class EngineManager {
+public class EngineManager implements Helpable {
     /**
      * A simple wrapper to mark an engine as started.
      */
@@ -154,7 +155,7 @@ public class EngineManager {
     }
 
     /**
-     * Prints the help message for each engine.
+     * {@inheritDoc}
      */
     public void printHelp() {
         engines.values().stream().map(WorkingEngine::getEngine).forEach(Engine::printHelp);
