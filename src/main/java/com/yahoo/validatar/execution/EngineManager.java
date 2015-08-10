@@ -116,24 +116,17 @@ public class EngineManager implements Helpable {
     }
 
     /**
-     * Returns a set of the distinct engines given a list of queries.
-     *
-     * @param queries List of queries.
-     * @return A non null Set of names of distinct required engines.
-     */
-    private Set<String> distinctEngines(List<Query> queries) {
-        List<Query> all = queries == null ? Collections.emptyList() : queries;
-        return all.stream().map(query -> query.engine).collect(Collectors.toSet());
-    }
-
-    /**
      * For a list of queries, start corresponding engines.
      *
      * @param queries Queries to check for engine support.
      * @return true iff the required engines were loaded.
      */
     protected boolean startEngines(List<Query> queries) {
-        return distinctEngines(queries).stream().map(this::startEngine).allMatch(b -> b);
+        List<Query> all = queries == null ? Collections.emptyList() : queries;
+        // Queries -> engine name Set -> start engine -> verify all started
+        return all.stream().map(q -> q.engine).collect(Collectors.toSet())
+               .stream().map(this::startEngine)
+               .allMatch(b -> b);
     }
 
     private boolean startEngine(String engine) {
@@ -142,6 +135,7 @@ public class EngineManager implements Helpable {
             log.error("Engine " + engine + " not loaded but required by query.");
             return false;
         }
+        // Already started?
         if (working.isStarted) {
             return true;
         }

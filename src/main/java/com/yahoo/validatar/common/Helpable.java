@@ -14,6 +14,7 @@ public interface Helpable {
     void printHelp();
 
     /**
+     * Prints the parser's help with the given header.
      * @param header A String header to write.
      * @param parser A @link {joptsimple.OptionParser} parser that will be used to print help to System.out.
      */

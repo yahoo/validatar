@@ -113,13 +113,14 @@ public class App {
                            EngineManager engineManager, FormatManager formatManager) throws IOException {
         // Load the test suite file(s)
         LOG.info("Parsing test files...");
-        List<TestSuite> suites = ParseManager.expandParameters(parseManager.load(testSuite), parameters);
+        List<TestSuite> suites = parseManager.load(testSuite);
+        LOG.info("Expanding parameters...");
+        ParseManager.expandParameters(suites, parameters);
 
-        // Get the queries
-        List<Query> queries = suites.stream()
-                              .map(s -> s.queries).filter(Objects::nonNull)
-                              .flatMap(Collection::stream).filter(Objects::nonNull)
-                              .collect(Collectors.toList());
+        // Get the non-null queries
+        List<Query> queries = suites.stream().map(s -> s.queries).filter(Objects::nonNull)
+                              .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
+
         // Run the queries
         LOG.info("Running queries...");
         if (!engineManager.run(queries)) {
@@ -127,14 +128,12 @@ public class App {
             return;
         }
 
-        // Get the results
+        // Get the query results and merge them into one
         Result data = queries.stream().map(Query::getResult).reduce(new Result(), Result::merge);
 
-        // Get the tests
-        List<Test> tests = suites.stream()
-                            .map(s -> s.tests).filter(Objects::nonNull)
-                            .flatMap(Collection::stream).filter(Objects::nonNull)
-                            .collect(Collectors.toList());
+        // Get the non-null tests
+        List<Test> tests = suites.stream().map(s -> s.tests).filter(Objects::nonNull)
+                           .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
 
         // Run the tests
         LOG.info("Running tests...");

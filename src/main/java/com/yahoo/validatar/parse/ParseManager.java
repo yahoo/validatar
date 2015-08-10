@@ -18,21 +18,23 @@ package com.yahoo.validatar.parse;
 
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.reflections.Reflections;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ParseManager implements FileLoadable {
 
@@ -67,24 +69,21 @@ public class ParseManager implements FileLoadable {
      * {@inheritDoc}
      */
     @Override
-    public List<TestSuite> load(File path) throws FileNotFoundException {
-        List<TestSuite> testSuites = new ArrayList<>();
+    public List<TestSuite> load(File path) {
         if (path == null) {
-            return testSuites;
+            return Collections.emptyList();
         }
+        return getFiles(path).map(f -> getTestSuite(f)).collect(Collectors.toList());
+    }
 
+    private Stream<File> getFiles(File path) {
         if (path.isFile()) {
             log.info("TestSuite parameter is a file, loading...");
-            CollectionUtils.addIgnoreNull(testSuites, getTestSuite(path));
-        } else {
-            log.info("TestSuite parameter is a folder, loading all files inside...");
-            File[] files = path.listFiles();
-            Arrays.sort(files);
-            for (File file : files) {
-                CollectionUtils.addIgnoreNull(testSuites, getTestSuite(file));
-            }
+            return Stream.of(path);
         }
-        return testSuites;
+        log.info("TestSuite parameter is a folder, loading all files inside...");
+        File[] files = path.listFiles();
+        return files == null ? Stream.empty() : Stream.of(files).sorted();
     }
 
     /**
@@ -92,59 +91,61 @@ public class ParseManager implements FileLoadable {
      * in the map, in place.
      *
      * @param suites       A list of TestSuites containing parametrized queries.
-     * @param parameterMap A map of parameters to their values.
-     * @return The list of TestSuite with replaced queries for chainability.
+     * @param parameterMap A non null map of parameters to their values.
      */
-    public static List<TestSuite> expandParameters(List<TestSuite> suites, Map<String, String> parameterMap) {
-        for (TestSuite suite : suites) {
-            expandParameters(suite, parameterMap);
-        }
-        return suites;
+    public static void expandParameters(List<TestSuite> suites, Map<String, String> parameterMap) {
+        Objects.requireNonNull(suites);
+        Objects.requireNonNull(parameterMap);
+
+        suites.stream().filter(Objects::nonNull).map(s -> s.queries)
+        .flatMap(Collection::stream).filter(Objects::nonNull)
+        .forEach(q -> expandParameters(q, parameterMap));
     }
 
     /**
-     * Takes a non null TestSuite and a map and replaces all the variables in the query with the value
-     * in the map, in place.
+     * Takes a non null Query and replaces all the variables in the query
+     * with the value in the map, in place.
      *
-     * @param suite        A TestSuite containing parametrized queries.
+     * @param query        A query that is parametrized.
      * @param parameterMap A map of parameters to their values.
      */
-    public static void expandParameters(TestSuite suite, Map<String, String> parameterMap) {
-        if (parameterMap == null) {
-            return;
-        }
-        for (Query query : suite.queries) {
-            Matcher matcher = REGEX.matcher(query.value);
-            StringBuffer newQuery = new StringBuffer();
-            while (matcher.find()) {
-                String parameterValue = parameterMap.get(matcher.group(1));
-                if (parameterValue != null) {
-                    matcher.appendReplacement(newQuery, parameterValue);
-                }
+    public static void expandParameters(Query query, Map<String, String> parameterMap) {
+        Objects.requireNonNull(query);
+        Matcher matcher = REGEX.matcher(query.value);
+        StringBuffer newQuery = new StringBuffer();
+        while (matcher.find()) {
+            String parameterValue = parameterMap.get(matcher.group(1));
+            if (parameterValue != null) {
+                matcher.appendReplacement(newQuery, parameterValue);
             }
-            matcher.appendTail(newQuery);
-            query.value = newQuery.toString();
         }
+        matcher.appendTail(newQuery);
+        query.value = newQuery.toString();
     }
 
     /**
-     * Takes a non-null File and parses a TestSuite out of it.
+     * Takes a non null File and parses a TestSuite out of it.
      *
-     * @param path A File object representing the file.
+     * @param path A non null File object representing the file.
      * @return The parsed TestSuite from the file. Null if it cannot be parsed.
-     * @throws java.io.FileNotFoundException if any.
      */
-    protected TestSuite getTestSuite(File path) throws FileNotFoundException {
-        TestSuite suite = null;
-        if (path.isFile()) {
-            Parser parser = availableParsers.get(getFileExtension(path.getName()));
-            if (parser == null) {
-                log.error("Unable to parse " + path + ". File extension does not match any known parsers. Skipping...");
-            } else {
-                suite = parser.parse(new FileInputStream(path));
-            }
+    protected TestSuite getTestSuite(File path) {
+        Objects.requireNonNull(path);
+        if (!path.isFile()) {
+            log.error("Path " + path + " is not a file.");
+            return null;
         }
-        return suite;
+        Parser parser = availableParsers.get(getFileExtension(path.getName()));
+        if (parser == null) {
+            log.error("Unable to parse " + path + ". File extension does not match any known parsers. Skipping...");
+            return null;
+        }
+        try {
+            return parser.parse(new FileInputStream(path));
+        } catch (FileNotFoundException e) {
+            log.error(e);
+            return null;
+        }
     }
 
     private String getFileExtension(String fileName) {

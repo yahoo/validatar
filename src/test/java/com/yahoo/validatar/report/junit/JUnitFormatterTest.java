@@ -41,8 +41,8 @@ public class JUnitFormatterTest {
 
         ParseManager manager = new ParseManager();
 
-        List<TestSuite> testSuites = ParseManager.expandParameters(manager.load((new File("src/test/resources/sample-tests/"))),
-                                                                   paramMap);
+        List<TestSuite> testSuites = manager.load((new File("src/test/resources/sample-tests/")));
+        ParseManager.expandParameters(testSuites, paramMap);
 
         Assert.assertEquals(testSuites.size(), 3);
 
