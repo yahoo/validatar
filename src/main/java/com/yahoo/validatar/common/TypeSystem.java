@@ -40,14 +40,14 @@ public class TypeSystem {
      * These are the binary operations we will support.
      */
     public enum BinaryOperation {
-        ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULUS, OR, AND;
+        ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULUS, OR, AND
     }
 
     /**
      * These are the unary operations we will support.
      */
     public enum UnaryOperation {
-        CAST, NEGATE;
+        CAST, NEGATE
     }
 
     /*
@@ -133,32 +133,26 @@ public class TypeSystem {
     private static Map<Type, Operations> operations = new HashMap<>();
     static {
         operations.put(Type.LONG, new Operations() {
-            @Override
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject((Long) first.data + (Long) second.data);
             }
 
-            @Override
             public TypedObject subtract(TypedObject first, TypedObject second) {
                 return asTypedObject((Long) first.data - (Long) second.data);
             }
 
-            @Override
             public TypedObject multiply(TypedObject first, TypedObject second) {
                 return asTypedObject((Long) first.data * (Long) second.data);
             }
 
-            @Override
             public TypedObject divide(TypedObject first, TypedObject second) {
                 return asTypedObject((Long) first.data / (Long) second.data);
             }
 
-            @Override
             public TypedObject modulus(TypedObject first, TypedObject second) {
                 return asTypedObject((Long) first.data % (Long) second.data);
             }
 
-            @Override
             public TypedObject cast(TypedObject object) {
                 switch (object.type) {
                     case STRING:
@@ -181,27 +175,22 @@ public class TypeSystem {
         });
 
         operations.put(Type.DOUBLE, new Operations() {
-            @Override
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject((Double) first.data + (Double) second.data);
             }
 
-            @Override
             public TypedObject subtract(TypedObject first, TypedObject second) {
                 return asTypedObject((Double) first.data - (Double) second.data);
             }
 
-            @Override
             public TypedObject multiply(TypedObject first, TypedObject second) {
                 return asTypedObject((Double) first.data * (Double) second.data);
             }
 
-            @Override
             public TypedObject divide(TypedObject first, TypedObject second) {
                 return asTypedObject((Double) first.data / (Double) second.data);
             }
 
-            @Override
             public TypedObject cast(TypedObject object) {
                 switch (object.type) {
                     case STRING:
@@ -224,32 +213,26 @@ public class TypeSystem {
         });
 
         operations.put(Type.DECIMAL, new Operations() {
-            @Override
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject(((BigDecimal) first.data).add((BigDecimal) second.data));
             }
 
-            @Override
             public TypedObject subtract(TypedObject first, TypedObject second) {
                 return asTypedObject(((BigDecimal) first.data).subtract((BigDecimal) second.data));
             }
 
-            @Override
             public TypedObject multiply(TypedObject first, TypedObject second) {
                 return asTypedObject(((BigDecimal) first.data).multiply((BigDecimal) second.data));
             }
 
-            @Override
             public TypedObject divide(TypedObject first, TypedObject second) {
                 return asTypedObject(((BigDecimal) first.data).divide((BigDecimal) second.data));
             }
 
-            @Override
             public TypedObject modulus(TypedObject first, TypedObject second) {
                 return asTypedObject(((BigDecimal) first.data).divideAndRemainder((BigDecimal) second.data)[1]);
             }
 
-            @Override
             public TypedObject cast(TypedObject object) {
                 switch (object.type) {
                     case STRING:
@@ -276,22 +259,18 @@ public class TypeSystem {
         });
 
         operations.put(Type.BOOLEAN, new Operations() {
-            @Override
             public TypedObject or(TypedObject first, TypedObject second) {
                 return asTypedObject((Boolean) first.data || (Boolean) second.data);
             }
 
-            @Override
             public TypedObject and(TypedObject first, TypedObject second) {
                 return asTypedObject((Boolean) first.data && (Boolean) second.data);
             }
 
-            @Override
             public TypedObject negate(TypedObject object) {
                 return asTypedObject(!(Boolean) object.data);
             }
 
-            @Override
             public TypedObject cast(TypedObject object) {
                 switch (object.type) {
                     case STRING:
@@ -312,12 +291,10 @@ public class TypeSystem {
         });
 
         operations.put(Type.STRING, new Operations() {
-            @Override
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject((String) first.data + (String) second.data);
             }
 
-            @Override
             public TypedObject cast(TypedObject object) {
                 switch (object.type) {
                     case STRING:
@@ -344,32 +321,26 @@ public class TypeSystem {
         });
 
         operations.put(Type.TIMESTAMP, new Operations() {
-            @Override
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() + ((Timestamp) second.data).getTime()));
             }
 
-            @Override
             public TypedObject subtract(TypedObject first, TypedObject second) {
                 return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() - ((Timestamp) second.data).getTime()));
             }
 
-            @Override
             public TypedObject multiply(TypedObject first, TypedObject second) {
                 return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() * ((Timestamp) second.data).getTime()));
             }
 
-            @Override
             public TypedObject divide(TypedObject first, TypedObject second) {
                 return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() / ((Timestamp) second.data).getTime()));
             }
 
-            @Override
             public TypedObject modulus(TypedObject first, TypedObject second) {
                 return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() % ((Timestamp) second.data).getTime()));
             }
 
-            @Override
             public TypedObject cast(TypedObject object) {
                 switch (object.type) {
                     case LONG:
@@ -418,8 +389,8 @@ public class TypeSystem {
      * Perform a binary operation on two TypedObjects.
      *
      * @param operation The {@link com.yahoo.validatar.common.TypeSystem.BinaryOperation} operator to perform.
-     * @param first    The LHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
-     * @param second   The RHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
+     * @param first     The LHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
+     * @param second    The RHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
      * @return The resulting {@link com.yahoo.validatar.common.TypedObject}.
      */
     public static TypedObject perform(BinaryOperation operation, TypedObject first, TypedObject second) {
