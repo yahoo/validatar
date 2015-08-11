@@ -33,7 +33,7 @@ import static java.util.Collections.singletonList;
 /**
  * Manages the writing of test reports.
  */
-public class FormatManager {
+public class FormatManager implements Helpable {
     /**
      * Used for logging.
      */
