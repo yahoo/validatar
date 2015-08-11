@@ -200,8 +200,8 @@ public class TypeSystem {
     private static final Map<RelationalOperator, Operator> RELATIONAL = new HashMap<>();
     static {
         RELATIONAL.put(RelationalOperator.NEGATE, (first, second) -> asTypedObject(!(Boolean) first.data));
-        RELATIONAL.put(RelationalOperator.OR, (first, second) -> asTypedObject((Boolean) first.data || (Boolean) second.data));
-        RELATIONAL.put(RelationalOperator.AND, (first, second) -> asTypedObject((Boolean) first.data && (Boolean) second.data));
+        RELATIONAL.put(RelationalOperator.OR,     (first, second) -> asTypedObject((Boolean) first.data || (Boolean) second.data));
+        RELATIONAL.put(RelationalOperator.AND,    (first, second) -> asTypedObject((Boolean) first.data && (Boolean) second.data));
     }
 
     /**
@@ -214,9 +214,9 @@ public class TypeSystem {
      * Exceptions:
      * Timestamp to and from Long will do a millis since epoch
      */
-    private static final Map<Type, Caster> CONVERTORS = new HashMap<>();
+    private static final Map<Type, Caster> CASTERS = new HashMap<>();
     static {
-        CONVERTORS.put(Type.LONG, source -> {
+        CASTERS.put(Type.LONG, source -> {
             switch (source.type) {
                 case STRING:
                     source.data = Long.valueOf((String) source.data);
@@ -235,7 +235,7 @@ public class TypeSystem {
                     return false;
             }
         });
-        CONVERTORS.put(Type.DOUBLE, source -> {
+        CASTERS.put(Type.DOUBLE, source -> {
             switch (source.type) {
                 case STRING:
                     source.data = Double.valueOf((String) source.data);
@@ -254,7 +254,7 @@ public class TypeSystem {
                     return false;
             }
         });
-        CONVERTORS.put(Type.DECIMAL, source -> {
+        CASTERS.put(Type.DECIMAL, source -> {
             switch (source.type) {
                 case STRING:
                     source.data = new BigDecimal((String) source.data);
@@ -279,7 +279,7 @@ public class TypeSystem {
                     return false;
             }
         });
-        CONVERTORS.put(Type.BOOLEAN, source -> {
+        CASTERS.put(Type.BOOLEAN, source -> {
             switch (source.type) {
                 case STRING:
                     source.data = Boolean.valueOf((String) source.data);
@@ -295,7 +295,7 @@ public class TypeSystem {
                     return false;
             }
         });
-        CONVERTORS.put(Type.STRING, source -> {
+        CASTERS.put(Type.STRING, source -> {
             switch (source.type) {
                 case STRING:
                     return true;
@@ -320,7 +320,7 @@ public class TypeSystem {
                     return false;
             }
         });
-        CONVERTORS.put(Type.TIMESTAMP, source -> {
+        CASTERS.put(Type.TIMESTAMP, source -> {
             switch (source.type) {
                 case LONG:
                     source.data = new Timestamp((Long) source.data);
@@ -359,9 +359,9 @@ public class TypeSystem {
             throw new NullPointerException("Cannot operate on null arguments. Argument 1: " + first + " Argument 2: " + second);
         }
         // Relying on the type system to return false if invalid conversions were tried and true if it was converted.
-        boolean isUnified = CONVERTORS.get(first.type).cast(second);
+        boolean isUnified = CASTERS.get(first.type).cast(second);
         if (!isUnified) {
-            isUnified = CONVERTORS.get(second.type).cast(first);
+            isUnified = CASTERS.get(second.type).cast(first);
         }
 
         if (!isUnified) {
