@@ -396,7 +396,7 @@ public class TypeSystem {
     public static TypedObject perform(BinaryOperation operation, TypedObject first, TypedObject second) {
         unifyType(first, second);
 
-        // Both are now the same type, do the arithmetic
+        // Both are now the same type, do the operation
         TypedObject result = operations.get(first.type).dispatch(operation).apply(first, second);
 
         if (result == null) {
