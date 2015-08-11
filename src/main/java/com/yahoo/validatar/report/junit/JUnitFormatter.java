@@ -60,7 +60,6 @@ public class JUnitFormatter implements Formatter {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * Writes out the report for the given testSuites in the JUnit XML format.
      */
     @Override
