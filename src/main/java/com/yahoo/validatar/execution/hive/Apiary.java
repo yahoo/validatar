@@ -77,9 +77,6 @@ public class Apiary implements Engine {
         }
     };
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean setup(String[] arguments) {
         OptionSet options = parser.parse(arguments);
@@ -93,17 +90,11 @@ public class Apiary implements Engine {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void printHelp() {
         Helpable.printHelp("Hive engine options", parser);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void execute(Query query) {
         String queryName = query.name;
@@ -145,9 +136,6 @@ public class Apiary implements Engine {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getName() {
         return ENGINE_NAME;

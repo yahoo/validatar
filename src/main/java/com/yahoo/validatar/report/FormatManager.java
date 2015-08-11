@@ -113,9 +113,7 @@ public class FormatManager {
         formatterToUse.writeReport(testSuites);
     }
 
-    /**
-     * Print help for all available formatters on System.out.
-     */
+    @Override
     public void printHelp() {
         Helpable.printHelp("Reporting options", parser);
         availableFormatters.values().stream().forEach(Formatter::printHelp);

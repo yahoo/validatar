@@ -26,18 +26,12 @@ import java.io.InputStream;
 public class YAML implements Parser {
     public static final String NAME = "yaml";
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public TestSuite parse(InputStream data) {
         Yaml yaml = new Yaml(new Constructor(TestSuite.class));
         return (TestSuite) yaml.load(data);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getName() {
         return NAME;

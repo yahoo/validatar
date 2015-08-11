@@ -64,9 +64,6 @@ public class ParseManager implements FileLoadable {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<TestSuite> load(File path) {
         return getFiles(path).map(this::getTestSuite).filter(Objects::nonNull).collect(Collectors.toList());

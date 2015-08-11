@@ -52,9 +52,6 @@ public class JUnitFormatter implements Formatter {
     };
     private String outputFile;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean setup(String[] arguments) {
         outputFile = (String) parser.parse(arguments).valueOf("report-file");
@@ -103,17 +100,11 @@ public class JUnitFormatter implements Formatter {
         writer.close();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void printHelp() {
         Helpable.printHelp("Junit report options", parser);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getName() {
         return JUNIT;
