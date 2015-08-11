@@ -49,164 +49,147 @@ public class TypeSystem {
         NEGATE, OR, AND
     }
 
-    private interface TypeArithmetic {
+    @FunctionalInterface
+    private interface Operator {
         /**
-         * Takes two of the same TypedObjects and performs an arithmetic on them.
+         * Takes two of the same TypedObjects and performs an operation on them.
          * Returns null if it cannot, else it returns a new TypedObject with the
          * result with the same type the inputs.
          */
         TypedObject perform(TypedObject first, TypedObject second);
     }
 
-    private interface TypeRelation {
-        /**
-         * Takes two of the same TypedObjects and performs an relational operator on them.
-         * Returns null if it cannot, else it returns a new BOOLEAN TypedObject with the
-         * result
-         */
-        TypedObject perform(TypedObject first, TypedObject second);
-    }
-
-    private interface TypeConvertor {
+    @FunctionalInterface
+    private interface Caster {
         /**
          * Takes a TypedObject and tries to convert it to a different Type.
          * Returns true iff it succeeds. source.type is then the new Type.
          */
-        boolean convert(TypedObject source);
+        boolean cast(TypedObject source);
     }
 
     /**
      * The mapping of an ArithmeticOperator to its implementation.
      */
-    private static final Map<ArithmeticOperator, TypeArithmetic> ARITHMETIC = new HashMap<>();
-
+    private static final Map<ArithmeticOperator, Operator> ARITHMETIC = new HashMap<>();
     static {
-        ARITHMETIC.put(ArithmeticOperator.ADD, new TypeArithmetic() {
-            public TypedObject perform(TypedObject first, TypedObject second) {
-                switch (first.type) {
-                    case STRING: {
-                        String data = (String) first.data + (String) second.data;
-                        return asTypedObject(data);
-                    }
-                    case LONG: {
-                        Long data = (Long) first.data + (Long) second.data;
-                        return asTypedObject(data);
-                    }
-                    case DOUBLE: {
-                        Double data = (Double) first.data + (Double) second.data;
-                        return asTypedObject(data);
-                    }
-                    case DECIMAL: {
-                        BigDecimal data = ((BigDecimal) first.data).add((BigDecimal) second.data);
-                        return asTypedObject(data);
-                    }
-                    case TIMESTAMP: {
-                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() + ((Timestamp) second.data).getTime());
-                        return asTypedObject(data);
-                    }
-                    case BOOLEAN:
-                    default:
-                        return null;
+        ARITHMETIC.put(ArithmeticOperator.ADD, (first, second) -> {
+             switch (first.type) {
+                 case STRING: {
+                     String data = (String) first.data + (String) second.data;
+                     return asTypedObject(data);
+                 }
+                 case LONG: {
+                     Long data = (Long) first.data + (Long) second.data;
+                     return asTypedObject(data);
+                 }
+                 case DOUBLE: {
+                     Double data = (Double) first.data + (Double) second.data;
+                     return asTypedObject(data);
+                 }
+                 case DECIMAL: {
+                     BigDecimal data = ((BigDecimal) first.data).add((BigDecimal) second.data);
+                     return asTypedObject(data);
+                 }
+                 case TIMESTAMP: {
+                     Timestamp data = new Timestamp(((Timestamp) first.data).getTime() + ((Timestamp) second.data).getTime());
+                     return asTypedObject(data);
+                 }
+                 case BOOLEAN:
+                 default:
+                     return null;
+             }
+         }
+        );
+        ARITHMETIC.put(ArithmeticOperator.SUBTRACT, (first, second) -> {
+            switch (first.type) {
+                case LONG: {
+                    Long data = (Long) first.data - (Long) second.data;
+                    return asTypedObject(data);
                 }
+                case DOUBLE: {
+                    Double data = (Double) first.data - (Double) second.data;
+                    return asTypedObject(data);
+                }
+                case DECIMAL: {
+                    BigDecimal data = ((BigDecimal) first.data).subtract((BigDecimal) second.data);
+                    return asTypedObject(data);
+                }
+                case TIMESTAMP: {
+                    Timestamp data = new Timestamp(((Timestamp) first.data).getTime() - ((Timestamp) second.data).getTime());
+                    return asTypedObject(data);
+                }
+                case STRING:
+                case BOOLEAN:
+                default:
+                    return null;
             }
         });
-        ARITHMETIC.put(ArithmeticOperator.SUBTRACT, new TypeArithmetic() {
-            public TypedObject perform(TypedObject first, TypedObject second) {
-                switch (first.type) {
-                    case LONG: {
-                        Long data = (Long) first.data - (Long) second.data;
-                        return asTypedObject(data);
-                    }
-                    case DOUBLE: {
-                        Double data = (Double) first.data - (Double) second.data;
-                        return asTypedObject(data);
-                    }
-                    case DECIMAL: {
-                        BigDecimal data = ((BigDecimal) first.data).subtract((BigDecimal) second.data);
-                        return asTypedObject(data);
-                    }
-                    case TIMESTAMP: {
-                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() - ((Timestamp) second.data).getTime());
-                        return asTypedObject(data);
-                    }
-                    case STRING:
-                    case BOOLEAN:
-                    default:
-                        return null;
+        ARITHMETIC.put(ArithmeticOperator.MULTIPLY, (first, second) -> {
+            switch (first.type) {
+                case LONG: {
+                    Long data = (Long) first.data * (Long) second.data;
+                    return asTypedObject(data);
                 }
+                case DOUBLE: {
+                    Double data = (Double) first.data * (Double) second.data;
+                    return asTypedObject(data);
+                }
+                case DECIMAL: {
+                    BigDecimal data = ((BigDecimal) first.data).multiply((BigDecimal) second.data);
+                    return asTypedObject(data);
+                }
+                case TIMESTAMP: {
+                    Timestamp data = new Timestamp(((Timestamp) first.data).getTime() * ((Timestamp) second.data).getTime());
+                    return asTypedObject(data);
+                }
+                case STRING:
+                case BOOLEAN:
+                default:
+                    return null;
             }
         });
-        ARITHMETIC.put(ArithmeticOperator.MULTIPLY, new TypeArithmetic() {
-            public TypedObject perform(TypedObject first, TypedObject second) {
-                switch (first.type) {
-                    case LONG: {
-                        Long data = (Long) first.data * (Long) second.data;
-                        return asTypedObject(data);
-                    }
-                    case DOUBLE: {
-                        Double data = (Double) first.data * (Double) second.data;
-                        return asTypedObject(data);
-                    }
-                    case DECIMAL: {
-                        BigDecimal data = ((BigDecimal) first.data).multiply((BigDecimal) second.data);
-                        return asTypedObject(data);
-                    }
-                    case TIMESTAMP: {
-                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() * ((Timestamp) second.data).getTime());
-                        return asTypedObject(data);
-                    }
-                    case STRING:
-                    case BOOLEAN:
-                    default:
-                        return null;
+        ARITHMETIC.put(ArithmeticOperator.DIVIDE, (first, second) -> {
+            switch (first.type) {
+                case LONG: {
+                    Long data = (Long) first.data / (Long) second.data;
+                    return asTypedObject(data);
                 }
+                case DOUBLE: {
+                    Double data = (Double) first.data / (Double) second.data;
+                    return asTypedObject(data);
+                }
+                case DECIMAL: {
+                    BigDecimal data = ((BigDecimal) first.data).divide((BigDecimal) second.data);
+                    return asTypedObject(data);
+                }
+                case TIMESTAMP: {
+                    Timestamp data = new Timestamp(((Timestamp) first.data).getTime() / ((Timestamp) second.data).getTime());
+                    return asTypedObject(data);
+                }
+                case STRING:
+                case BOOLEAN:
+                default:
+                    return null;
             }
         });
-        ARITHMETIC.put(ArithmeticOperator.DIVIDE, new TypeArithmetic() {
-            public TypedObject perform(TypedObject first, TypedObject second) {
-                switch (first.type) {
-                    case LONG: {
-                        Long data = (Long) first.data / (Long) second.data;
-                        return asTypedObject(data);
-                    }
-                    case DOUBLE: {
-                        Double data = (Double) first.data / (Double) second.data;
-                        return asTypedObject(data);
-                    }
-                    case DECIMAL: {
-                        BigDecimal data = ((BigDecimal) first.data).divide((BigDecimal) second.data);
-                        return asTypedObject(data);
-                    }
-                    case TIMESTAMP: {
-                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() / ((Timestamp) second.data).getTime());
-                        return asTypedObject(data);
-                    }
-                    case STRING:
-                    case BOOLEAN:
-                    default:
-                        return null;
+        ARITHMETIC.put(ArithmeticOperator.MODULUS, (first, second) -> {
+            switch (first.type) {
+                case LONG: {
+                    Long data = (Long) first.data % (Long) second.data;
+                    return asTypedObject(data);
                 }
-            }
-        });
-        ARITHMETIC.put(ArithmeticOperator.MODULUS, new TypeArithmetic() {
-            public TypedObject perform(TypedObject first, TypedObject second) {
-                switch (first.type) {
-                    case LONG: {
-                        Long data = (Long) first.data % (Long) second.data;
-                        return asTypedObject(data);
-                    }
-                    case TIMESTAMP:
-                        Timestamp data = new Timestamp(((Timestamp) first.data).getTime() % ((Timestamp) second.data).getTime());
-                        return asTypedObject(data);
-                    case STRING:
-                    case DOUBLE:
-                    case DECIMAL:
-                        BigDecimal[] results = ((BigDecimal) first.data).divideAndRemainder((BigDecimal) second.data);
-                        return asTypedObject(results[1]);
-                    case BOOLEAN:
-                    default:
-                        return null;
-                }
+                case TIMESTAMP:
+                    Timestamp data = new Timestamp(((Timestamp) first.data).getTime() % ((Timestamp) second.data).getTime());
+                    return asTypedObject(data);
+                case STRING:
+                case DOUBLE:
+                case DECIMAL:
+                    BigDecimal[] results = ((BigDecimal) first.data).divideAndRemainder((BigDecimal) second.data);
+                    return asTypedObject(results[1]);
+                case BOOLEAN:
+                default:
+                    return null;
             }
         });
     }
@@ -214,24 +197,11 @@ public class TypeSystem {
     /**
      * The mapping of an RelationalOperator to its implementation.
      */
-    private static final Map<RelationalOperator, TypeRelation> RELATIONAL = new HashMap<>();
-
+    private static final Map<RelationalOperator, Operator> RELATIONAL = new HashMap<>();
     static {
-        RELATIONAL.put(RelationalOperator.NEGATE, new TypeRelation() {
-            public TypedObject perform(TypedObject first, TypedObject second) {
-                return asTypedObject(!(Boolean) first.data);
-            }
-        });
-        RELATIONAL.put(RelationalOperator.OR, new TypeRelation() {
-            public TypedObject perform(TypedObject first, TypedObject second) {
-                return asTypedObject((Boolean) first.data || (Boolean) second.data);
-            }
-        });
-        RELATIONAL.put(RelationalOperator.AND, new TypeRelation() {
-            public TypedObject perform(TypedObject first, TypedObject second) {
-                return asTypedObject((Boolean) first.data && (Boolean) second.data);
-            }
-        });
+        RELATIONAL.put(RelationalOperator.NEGATE, (first, second) -> asTypedObject(!(Boolean) first.data));
+        RELATIONAL.put(RelationalOperator.OR, (first, second) -> asTypedObject((Boolean) first.data || (Boolean) second.data));
+        RELATIONAL.put(RelationalOperator.AND, (first, second) -> asTypedObject((Boolean) first.data && (Boolean) second.data));
     }
 
     /**
@@ -244,139 +214,126 @@ public class TypeSystem {
      * Exceptions:
      * Timestamp to and from Long will do a millis since epoch
      */
-    private static final Map<Type, TypeConvertor> CONVERTORS = new HashMap<>();
-
+    private static final Map<Type, Caster> CONVERTORS = new HashMap<>();
     static {
-        CONVERTORS.put(Type.LONG, new TypeConvertor() {
-            public boolean convert(TypedObject source) {
-                switch (source.type) {
-                    case STRING:
-                        source.data = Long.valueOf((String) source.data);
-                        source.type = Type.LONG;
-                        return true;
-                    case LONG:
-                        return true;
-                    case TIMESTAMP:
-                        source.data = ((Timestamp) source.data).getTime();
-                        source.type = Type.LONG;
-                        return true;
-                    case DOUBLE:
-                    case DECIMAL:
-                    case BOOLEAN:
-                    default:
-                        return false;
-                }
+        CONVERTORS.put(Type.LONG, source -> {
+            switch (source.type) {
+                case STRING:
+                    source.data = Long.valueOf((String) source.data);
+                    source.type = Type.LONG;
+                    return true;
+                case LONG:
+                    return true;
+                case TIMESTAMP:
+                    source.data = ((Timestamp) source.data).getTime();
+                    source.type = Type.LONG;
+                    return true;
+                case DOUBLE:
+                case DECIMAL:
+                case BOOLEAN:
+                default:
+                    return false;
             }
         });
-        CONVERTORS.put(Type.DOUBLE, new TypeConvertor() {
-            public boolean convert(TypedObject source) {
-                switch (source.type) {
-                    case STRING:
-                        source.data = Double.valueOf((String) source.data);
-                        source.type = Type.DOUBLE;
-                        return true;
-                    case DOUBLE:
-                        return true;
-                    case LONG:
-                        source.data = ((Long) source.data).doubleValue();
-                        source.type = Type.DOUBLE;
-                        return true;
-                    case DECIMAL:
-                    case BOOLEAN:
-                    case TIMESTAMP:
-                    default:
-                        return false;
-                }
+        CONVERTORS.put(Type.DOUBLE, source -> {
+            switch (source.type) {
+                case STRING:
+                    source.data = Double.valueOf((String) source.data);
+                    source.type = Type.DOUBLE;
+                    return true;
+                case DOUBLE:
+                    return true;
+                case LONG:
+                    source.data = ((Long) source.data).doubleValue();
+                    source.type = Type.DOUBLE;
+                    return true;
+                case DECIMAL:
+                case BOOLEAN:
+                case TIMESTAMP:
+                default:
+                    return false;
             }
         });
-        CONVERTORS.put(Type.DECIMAL, new TypeConvertor() {
-            public boolean convert(TypedObject source) {
-                switch (source.type) {
-                    case STRING:
-                        source.data = new BigDecimal((String) source.data);
-                        source.type = Type.DECIMAL;
-                        return true;
-                    case LONG:
-                        source.data = BigDecimal.valueOf((Long) source.data);
-                        source.type = Type.DECIMAL;
-                        return true;
-                    case DOUBLE:
-                        source.data = BigDecimal.valueOf((Double) source.data);
-                        source.type = Type.DECIMAL;
-                        return true;
-                    case DECIMAL:
-                        return true;
-                    case TIMESTAMP:
-                        source.data = BigDecimal.valueOf(((Timestamp) source.data).getTime());
-                        source.type = Type.DECIMAL;
-                        return true;
-                    case BOOLEAN:
-                    default:
-                        return false;
-                }
+        CONVERTORS.put(Type.DECIMAL, source -> {
+            switch (source.type) {
+                case STRING:
+                    source.data = new BigDecimal((String) source.data);
+                    source.type = Type.DECIMAL;
+                    return true;
+                case LONG:
+                    source.data = BigDecimal.valueOf((Long) source.data);
+                    source.type = Type.DECIMAL;
+                    return true;
+                case DOUBLE:
+                    source.data = BigDecimal.valueOf((Double) source.data);
+                    source.type = Type.DECIMAL;
+                    return true;
+                case DECIMAL:
+                    return true;
+                case TIMESTAMP:
+                    source.data = BigDecimal.valueOf(((Timestamp) source.data).getTime());
+                    source.type = Type.DECIMAL;
+                    return true;
+                case BOOLEAN:
+                default:
+                    return false;
             }
         });
-        CONVERTORS.put(Type.BOOLEAN, new TypeConvertor() {
-            public boolean convert(TypedObject source) {
-                switch (source.type) {
-                    case STRING:
-                        source.data = Boolean.valueOf((String) source.data);
-                        source.type = Type.BOOLEAN;
-                        return true;
-                    case BOOLEAN:
-                        return true;
-                    case LONG:
-                    case DOUBLE:
-                    case DECIMAL:
-                    case TIMESTAMP:
-                    default:
-                        return false;
-                }
+        CONVERTORS.put(Type.BOOLEAN, source -> {
+            switch (source.type) {
+                case STRING:
+                    source.data = Boolean.valueOf((String) source.data);
+                    source.type = Type.BOOLEAN;
+                    return true;
+                case BOOLEAN:
+                    return true;
+                case LONG:
+                case DOUBLE:
+                case DECIMAL:
+                case TIMESTAMP:
+                default:
+                    return false;
             }
         });
-        CONVERTORS.put(Type.STRING, new TypeConvertor() {
-            public boolean convert(TypedObject source) {
-                switch (source.type) {
-                    case STRING:
-                        return true;
-                    case LONG:
-                        source.data = ((Long) source.data).toString();
-                        source.type = Type.STRING;
-                        return true;
-                    case DOUBLE:
-                        source.data = ((Double) source.data).toString();
-                        source.type = Type.STRING;
-                        return true;
-                    case DECIMAL:
-                        source.data = ((BigDecimal) source.data).toString();
-                        source.type = Type.STRING;
-                        return true;
-                    case BOOLEAN:
-                        source.data = ((Boolean) source.data).toString();
-                        source.type = Type.STRING;
-                        return true;
-                    case TIMESTAMP:
-                    default:
-                        return false;
-                }
+        CONVERTORS.put(Type.STRING, source -> {
+            switch (source.type) {
+                case STRING:
+                    return true;
+                case LONG:
+                    source.data = ((Long) source.data).toString();
+                    source.type = Type.STRING;
+                    return true;
+                case DOUBLE:
+                    source.data = ((Double) source.data).toString();
+                    source.type = Type.STRING;
+                    return true;
+                case DECIMAL:
+                    source.data = ((BigDecimal) source.data).toString();
+                    source.type = Type.STRING;
+                    return true;
+                case BOOLEAN:
+                    source.data = ((Boolean) source.data).toString();
+                    source.type = Type.STRING;
+                    return true;
+                case TIMESTAMP:
+                default:
+                    return false;
             }
         });
-        CONVERTORS.put(Type.TIMESTAMP, new TypeConvertor() {
-            public boolean convert(TypedObject source) {
-                switch (source.type) {
-                    case LONG:
-                        source.data = new Timestamp((Long) source.data);
-                        source.type = Type.TIMESTAMP;
-                        return true;
-                    case TIMESTAMP:
-                        return true;
-                    case STRING:
-                    case DOUBLE:
-                    case DECIMAL:
-                    case BOOLEAN:
-                    default:
-                        return false;
-                }
+        CONVERTORS.put(Type.TIMESTAMP, source -> {
+            switch (source.type) {
+                case LONG:
+                    source.data = new Timestamp((Long) source.data);
+                    source.type = Type.TIMESTAMP;
+                    return true;
+                case TIMESTAMP:
+                    return true;
+                case STRING:
+                case DOUBLE:
+                case DECIMAL:
+                case BOOLEAN:
+                default:
+                    return false;
             }
         });
     }
@@ -402,9 +359,9 @@ public class TypeSystem {
             throw new NullPointerException("Cannot operate on null arguments. Argument 1: " + first + " Argument 2: " + second);
         }
         // Relying on the type system to return false if invalid conversions were tried and true if it was converted.
-        boolean isUnified = CONVERTORS.get(first.type).convert(second);
+        boolean isUnified = CONVERTORS.get(first.type).cast(second);
         if (!isUnified) {
-            isUnified = CONVERTORS.get(second.type).convert(first);
+            isUnified = CONVERTORS.get(second.type).cast(first);
         }
 
         if (!isUnified) {

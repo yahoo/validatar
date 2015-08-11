@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,13 +69,13 @@ public class ParseManager implements FileLoadable {
      */
     @Override
     public List<TestSuite> load(File path) {
-        if (path == null) {
-            return Collections.emptyList();
-        }
-        return getFiles(path).map(f -> getTestSuite(f)).collect(Collectors.toList());
+        return getFiles(path).map(this::getTestSuite).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private Stream<File> getFiles(File path) {
+        if (path == null) {
+            return Stream.empty();
+        }
         if (path.isFile()) {
             log.info("TestSuite parameter is a file, loading...");
             return Stream.of(path);

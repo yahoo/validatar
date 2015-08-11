@@ -79,7 +79,7 @@ public class Result {
      * unless there were collisions.
      *
      * @param result The result to merge with.
-     * @result The merged result, i.e. this.
+     * @return The merged result, i.e. this.
      */
     public Result merge(Result result) {
         if (result != null) {

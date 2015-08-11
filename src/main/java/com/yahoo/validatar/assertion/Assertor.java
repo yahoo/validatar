@@ -41,24 +41,18 @@ public class Assertor {
         // IMPORTANT!
         // Only interpreting as a single row result set. Temporary, will re-enable later
         Map<String, TypedObject> singleRow = getAsOneEntry(results);
-        for (Test test : tests) {
-            assertOne(singleRow, test);
-        }
+        tests.stream().forEach(t -> assertOne(singleRow, t));
     }
 
     private static void assertOne(Map<String, TypedObject> row, Test test) {
         List<String> assertions = test.asserts;
-
         // Check for invalid input
         if (assertions == null || assertions.size() == 0) {
             test.setFailed();
             test.addMessage("No assertion was provided!");
             return;
         }
-
-        for (String assertion : assertions) {
-            assertOneAssertion(assertion, row, test);
-        }
+        assertions.stream().forEach(a -> assertOneAssertion(a, row, test));
     }
 
     private static void assertOneAssertion(String assertion, Map<String, TypedObject> row, Test test) {
@@ -81,12 +75,11 @@ public class Assertor {
     }
 
     private static Map<String, TypedObject> getAsOneEntry(Result results) {
-        Map<String, TypedObject> row = new HashMap<>();
-        for (Map.Entry<String, List<TypedObject>> e : results.getColumns().entrySet()) {
-            List<TypedObject> values = e.getValue();
-            row.put(e.getKey(), values.size() == 0 ? null : values.get(0));
-        }
-        return row;
+        // Need an actual collector instead of Collectors.toMap since merge doesn't work with null values.
+        return results.getColumns().entrySet().stream()
+               .collect(HashMap::new,
+                        (m, e) -> m.put(e.getKey(), e.getValue().size() == 0 ? null : e.getValue().get(0)),
+                        HashMap::putAll);
     }
 }
 

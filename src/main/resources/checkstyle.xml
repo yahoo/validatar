@@ -122,10 +122,11 @@
             <property name="severity" value="error"/>
         </module>
 
-        <!-- Enforce correct 4 space indentation. -->
+        <!-- Enforce correct 4 space indentation.
+        Have to disable till lambda support is added to indentation
         <module name="Indentation">
             <property name="severity" value="error"/>
-        </module>
+        </module-->
 
         <!-- No empty blocks -->
         <module name="EmptyBlock">
