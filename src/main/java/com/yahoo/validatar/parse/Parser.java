@@ -27,13 +27,13 @@ public interface Parser {
      * @param data The InputStream containing the tests.
      * @return A TestSuite object representing the parsed testfile.
      */
-    public TestSuite parse(InputStream data);
+    TestSuite parse(InputStream data);
 
     /**
      * Returns the name of this Parser.
      *
      * @return The {@link java.lang.String} name.
      */
-    public String getName();
+    String getName();
 }
 

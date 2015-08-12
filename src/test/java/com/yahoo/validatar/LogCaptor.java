@@ -16,14 +16,18 @@
 
 package com.yahoo.validatar;
 
-import java.util.List;
-
-import static org.mockito.Mockito.*;
-import org.mockito.ArgumentCaptor;
-import org.apache.log4j.Level;
 import org.apache.log4j.Appender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
+import org.mockito.ArgumentCaptor;
+
+import java.util.List;
+
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Extend this class to capture logging output without printing to stdout

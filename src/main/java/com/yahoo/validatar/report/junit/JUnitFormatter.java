@@ -16,28 +16,25 @@
 
 package com.yahoo.validatar.report.junit;
 
-import com.yahoo.validatar.common.TestSuite;
-import com.yahoo.validatar.common.Test;
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Test;
+import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.report.Formatter;
-
-import java.io.FileWriter;
-import java.io.IOException;
-
+import joptsimple.OptionParser;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.XMLWriter;
 import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 
-import joptsimple.OptionParser;
-
-import org.apache.commons.lang3.StringUtils;
-
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
-import static java.util.Arrays.*;
 
-import org.apache.log4j.Logger;
+import static java.util.Collections.singletonList;
 
 public class JUnitFormatter implements Formatter {
     protected final Logger log = Logger.getLogger(getClass());
@@ -46,7 +43,7 @@ public class JUnitFormatter implements Formatter {
 
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(asList("report-file"), "File to store the test reports.")
+            acceptsAll(singletonList("report-file"), "File to store the test reports.")
                 .withRequiredArg()
                 .describedAs("Report file")
                 .defaultsTo("report.xml");
@@ -55,7 +52,6 @@ public class JUnitFormatter implements Formatter {
     };
     private String outputFile;
 
-    /** {@inheritDoc} */
     @Override
     public boolean setup(String[] arguments) {
         outputFile = (String) parser.parse(arguments).valueOf("report-file");
@@ -64,7 +60,6 @@ public class JUnitFormatter implements Formatter {
 
     /**
      * {@inheritDoc}
-     *
      * Writes out the report for the given testSuites in the JUnit XML format.
      */
     @Override
@@ -76,23 +71,23 @@ public class JUnitFormatter implements Formatter {
         // Output for each test suite
         for (TestSuite testSuite : testSuites) {
             Element testSuiteRoot = testSuitesRoot.addElement("testsuite")
-                                                  .addAttribute("tests", Integer.toString(testSuite.queries.size() + testSuite.tests.size()))
-                                                  .addAttribute("name", testSuite.name);
+                                     .addAttribute("tests", Integer.toString(testSuite.queries.size() + testSuite.tests.size()))
+                                     .addAttribute("name", testSuite.name);
 
-            for (Query query: testSuite.queries) {
+            for (Query query : testSuite.queries) {
                 Element queryNode = testSuiteRoot.addElement("testcase")
-                                                 .addAttribute("name", query.name);
+                                     .addAttribute("name", query.name);
                 if (query.failed()) {
                     String failureMessage = StringUtils.join(query.getMessages(), ", ");
                     queryNode.addElement("failed").addText(failureMessage);
                 }
             }
-            for (Test test: testSuite.tests) {
+            for (Test test : testSuite.tests) {
                 Element testNode = testSuiteRoot.addElement("testcase").addAttribute("name", test.name);
                 if (test.failed()) {
                     String failedAsserts = StringUtils.join(test.getMessages(), ", ");
                     String failureMessage = "Description: " + test.description + ";\n" +
-                                            "Failed asserts: " + failedAsserts + "\n";
+                                             "Failed asserts: " + failedAsserts + "\n";
                     testNode.addElement("failed").addText(failureMessage);
                 }
             }
@@ -104,17 +99,11 @@ public class JUnitFormatter implements Formatter {
         writer.close();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void printHelp() {
-        try {
-            parser.printHelpOn(System.out);
-        } catch (IOException e) {
-            log.error(e);
-        }
+        Helpable.printHelp("Junit report options", parser);
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getName() {
         return JUNIT;

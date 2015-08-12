@@ -16,33 +16,16 @@
 
 package com.yahoo.validatar.report;
 
-import com.yahoo.validatar.parse.yaml.YAML;
-import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.common.TestSuite;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-
-import java.nio.file.Paths;
-import java.nio.file.Files;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.util.NodeComparator;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.List;
 
 public class FormatManagerTest {
     // Used for tests
@@ -56,7 +39,6 @@ public class FormatManagerTest {
 
         @Override
         public void printHelp() {
-            return;
         }
 
         @Override
@@ -76,7 +58,7 @@ public class FormatManagerTest {
         System.setErr(new PrintStream(new FileOutputStream("target/err")));
         String[] args = {"--report-format", "INVALID"};
         try {
-            FormatManager manager = new FormatManager(args);
+            new FormatManager(args);
             Assert.fail("Should have thrown an Exception");
         } catch (RuntimeException re) {
         }

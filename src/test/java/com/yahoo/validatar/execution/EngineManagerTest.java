@@ -16,22 +16,21 @@
 
 package com.yahoo.validatar.execution;
 
+import com.yahoo.validatar.LogCaptor;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
-import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.common.TypeSystem;
-import com.yahoo.validatar.LogCaptor;
+import com.yahoo.validatar.common.TypedObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.AfterMethod;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EngineManagerTest extends LogCaptor {
 
@@ -118,9 +117,9 @@ public class EngineManagerTest extends LogCaptor {
     public void setup() {
         query = new Query();
         query.engine = MockPassingEngine.ENGINE_NAME;
-        queries = new ArrayList<Query>();
+        queries = new ArrayList<>();
         queries.add(query);
-        engines = new ArrayList<Engine>();
+        engines = new ArrayList<>();
         engines.add(new MockFailingEngine());
         engines.add(new MockPassingEngine());
         engines.add(new MockRunningEngine());

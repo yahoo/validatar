@@ -18,18 +18,13 @@ package com.yahoo.validatar.parse.yaml;
 
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileInputStream;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Map;
 
 public class YAMLTest {
     private YAML yaml = new YAML();

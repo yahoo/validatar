@@ -16,25 +16,27 @@
 
 package com.yahoo.validatar.report;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.TestSuite;
-
-import org.apache.log4j.Logger;
-
 import joptsimple.OptionParser;
-import static java.util.Arrays.*;
-import java.util.Set;
+import org.apache.log4j.Logger;
+import org.reflections.Reflections;
+
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.io.IOException;
+import java.util.Set;
 
-import org.reflections.Reflections;
+import static java.util.Collections.singletonList;
 
 /**
  * Manages the writing of test reports.
  */
-public class FormatManager {
-    /** Used for logging. */
+public class FormatManager implements Helpable {
+    /**
+     * Used for logging.
+     */
     protected Logger log = Logger.getLogger(getClass().getName());
 
     private Map<String, Formatter> availableFormatters;
@@ -44,7 +46,7 @@ public class FormatManager {
     // it can be moved to inside the respective formatters.
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(asList("report-format"), "Which report format to use.")
+            acceptsAll(singletonList("report-format"), "Which report format to use.")
                 .withRequiredArg()
                 .describedAs("Report format")
                 .defaultsTo("junit");
@@ -82,7 +84,7 @@ public class FormatManager {
     private Formatter findFormatter(String name, String[] arguments) {
         Reflections reflections = new Reflections("com.yahoo.validatar.report");
         Set<Class<? extends Formatter>> subTypes = reflections.getSubTypesOf(Formatter.class);
-        availableFormatters = new HashMap<String, Formatter>();
+        availableFormatters = new HashMap<>();
         Formatter searchingFor = null;
         for (Class<? extends Formatter> formatterClass : subTypes) {
             try {
@@ -111,21 +113,9 @@ public class FormatManager {
         formatterToUse.writeReport(testSuites);
     }
 
-    /**
-     * Print help for all available formatters on System.out.
-     */
+    @Override
     public void printHelp() {
-        System.out.println();
-        try {
-            parser.printHelpOn(System.out);
-            for (Map.Entry<String, Formatter> entry : availableFormatters.entrySet()) {
-                System.out.println(entry.getKey());
-                entry.getValue().printHelp();
-            }
-        } catch (IOException ioe) {
-            log.error(ioe);
-            throw new RuntimeException("Could not print help for formatter");
-        }
-        System.out.println();
+        Helpable.printHelp("Reporting options", parser);
+        availableFormatters.values().stream().forEach(Formatter::printHelp);
     }
 }

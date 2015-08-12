@@ -16,24 +16,25 @@
 
 package com.yahoo.validatar.execution;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
-
 import org.apache.log4j.Logger;
+import org.reflections.Reflections;
 
-import java.util.Map;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
-
-import org.reflections.Reflections;
+import java.util.stream.Collectors;
 
 /**
  * Manages the creation and execution of execution engines.
  */
-public class EngineManager {
-    /** A simple wrapper to mark an engine as started. */
+public class EngineManager implements Helpable {
+    /**
+     * A simple wrapper to mark an engine as started.
+     */
     protected class WorkingEngine {
         public boolean isStarted = false;
         private Engine engine = null;
@@ -42,7 +43,7 @@ public class EngineManager {
          * Constructor.
          *
          * @param engine The engine to wrap.
-         * */
+         */
         public WorkingEngine(Engine engine) {
             this.engine = engine;
         }
@@ -51,19 +52,25 @@ public class EngineManager {
          * Getter.
          *
          * @return The wrapped Engine.
-         * */
+         */
         public Engine getEngine() {
             return this.engine;
         }
     }
 
-    /** Manages logging. */
+    /**
+     * Manages logging.
+     */
     protected final Logger log = Logger.getLogger(getClass());
 
-    /** Stores the CLI arguments. */
+    /**
+     * Stores the CLI arguments.
+     */
     protected String[] arguments;
 
-    /** Stores engine names to engine references. */
+    /**
+     * Stores engine names to engine references.
+     */
     protected Map<String, WorkingEngine> engines;
 
     /**
@@ -81,7 +88,7 @@ public class EngineManager {
         this.arguments = arguments;
 
         // Create the engines map, engine name -> engine
-        engines = new HashMap<String, WorkingEngine>();
+        engines = new HashMap<>();
         Reflections reflections = new Reflections("com.yahoo.validatar.execution");
         Set<Class<? extends Engine>> subTypes = reflections.getSubTypesOf(Engine.class);
         for (java.lang.Class<? extends com.yahoo.validatar.execution.Engine> engineClass : subTypes) {
@@ -91,9 +98,9 @@ public class EngineManager {
                 engines.put(engine.getName(), new WorkingEngine(engine));
                 log.debug("Added engine " + engine.getName() + " to list of engines.");
             } catch (InstantiationException e) {
-                log.error("Error instantiating " + ((engine == null) ? engineClass : engine.getName()) + " engine.", e);
+                log.error("Error instantiating " + engineClass + " engine.", e);
             } catch (IllegalAccessException e) {
-                log.error("Illegal access while loading " + ((engine == null) ? engineClass : engine.getName()) + " engine.", e);
+                log.error("Illegal access while loading " + engineClass + " engine.", e);
             }
         }
     }
@@ -101,32 +108,11 @@ public class EngineManager {
     /**
      * For testing purposes to inject engines. Will always override existing engines.
      *
-     * @param enginesToUse A list of engines to use as the engines to work with.
+     * @param engines A list of engines to use as the engines to work with.
      */
-    protected void setEngines(List<Engine> enginesToUse) {
-        engines = new HashMap<String, WorkingEngine>();
-        if (enginesToUse == null) {
-            return;
-        }
-        for (Engine engine : enginesToUse) {
-            engines.put(engine.getName(), new WorkingEngine(engine));
-        }
-    }
-
-    /**
-     * Returns a set of the distinct engines given a list of queries.
-     *
-     * @param queries List of queries.
-     * @return Set of names of distinct required engines.
-     */
-    private Set<String> distinctEngines(List<Query> queries) {
-        Set<String> requiredEngines = new HashSet<String>();
-        if (queries != null) {
-            for (Query query : queries) {
-                requiredEngines.add(query.engine);
-            }
-        }
-        return requiredEngines;
+    protected void setEngines(List<Engine> engines) {
+        List<Engine> all = engines == null ? Collections.emptyList() : engines;
+        this.engines = all.stream().collect(Collectors.toMap(Engine::getName, WorkingEngine::new));
     }
 
     /**
@@ -136,40 +122,35 @@ public class EngineManager {
      * @return true iff the required engines were loaded.
      */
     protected boolean startEngines(List<Query> queries) {
-        // Stores list of errors when starting engine, if any.
-        List<String> errors = new ArrayList<String>();
-
-        // Get the set of all required engines.
-        Set<String> requiredEngines = distinctEngines(queries);
-
-        boolean allSetup = true;
-
-        // Check that each required engine has been loaded.
-        for (String engine : requiredEngines) {
-            WorkingEngine workingEngine = engines.get(engine);
-            if (workingEngine == null) {
-                log.error("Engine " + engine + " not loaded but required by query.");
-                allSetup = false;
-                continue;
-            } else if (!workingEngine.isStarted) {
-                workingEngine.isStarted = workingEngine.getEngine().setup(arguments);
-                if (!workingEngine.isStarted) {
-                    log.error("Required engine " + engine + " could not be setup.");
-                    workingEngine.getEngine().printHelp();
-                }
-                allSetup &= workingEngine.isStarted;
-            }
-        }
-        return allSetup;
+        List<Query> all = queries == null ? Collections.emptyList() : queries;
+        // Queries -> engine name Set -> start engine -> verify all started
+        return all.stream().map(q -> q.engine).collect(Collectors.toSet())
+               .stream().map(this::startEngine)
+               .allMatch(b -> b);
     }
 
-    /**
-     * Prints the help message for each engine.
-     */
-    public void printHelp() {
-        for (WorkingEngine entry : engines.values()) {
-            entry.getEngine().printHelp();
+    private boolean startEngine(String engine) {
+        WorkingEngine working = engines.get(engine);
+        if (working == null) {
+            log.error("Engine " + engine + " not loaded but required by query.");
+            return false;
         }
+        // Already started?
+        if (working.isStarted) {
+            return true;
+        }
+        working.isStarted = working.getEngine().setup(arguments);
+        if (!working.isStarted) {
+            log.error("Required engine " + engine + " could not be setup.");
+            working.getEngine().printHelp();
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void printHelp() {
+        engines.values().stream().map(WorkingEngine::getEngine).forEach(Engine::printHelp);
     }
 
     /**
@@ -182,12 +163,8 @@ public class EngineManager {
         if (!startEngines(queries)) {
             return false;
         }
-
         // Run each query.
-        for (Query query : queries) {
-            engines.get(query.engine).getEngine().execute(query);
-        }
-
+        queries.stream().forEach(query -> engines.get(query.engine).getEngine().execute(query));
         return true;
     }
 }

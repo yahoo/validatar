@@ -16,41 +16,33 @@
 
 package com.yahoo.validatar.report.junit;
 
-import com.yahoo.validatar.parse.yaml.YAML;
-import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.common.TestSuite;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import java.nio.file.Paths;
-import java.nio.file.Files;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
+import com.yahoo.validatar.parse.ParseManager;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.util.NodeComparator;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JUnitFormatterTest {
     @Test
     public void testWriteReport() throws FileNotFoundException, IOException, org.dom4j.DocumentException {
-        Map<String, String> paramMap = new HashMap<String, String>();
-        paramMap.put("DATE","20140807");
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put("DATE", "20140807");
 
         ParseManager manager = new ParseManager();
 
-        List<TestSuite> testSuites = ParseManager.expandParameters(manager.load((new File("src/test/resources/sample-tests/"))),
-                                                                   paramMap);
+        List<TestSuite> testSuites = manager.load((new File("src/test/resources/sample-tests/")));
+        ParseManager.expandParameters(testSuites, paramMap);
 
         Assert.assertEquals(testSuites.size(), 3);
 
