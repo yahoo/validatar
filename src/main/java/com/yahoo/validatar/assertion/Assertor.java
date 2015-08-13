@@ -16,17 +16,16 @@
 
 package com.yahoo.validatar.assertion;
 
-import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.Result;
-import com.yahoo.validatar.common.TypeSystem;
+import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.TypedObject;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.log4j.Logger;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.apache.log4j.Logger;
+import java.util.Map;
 
 public class Assertor {
     private static final Logger LOG = Logger.getLogger(Assertor.class);
@@ -36,30 +35,24 @@ public class Assertor {
      * and updates the Tests with the results.
      *
      * @param results A Result object containing the results of the queries.
-     * @param tests A list of Test using these results
+     * @param tests   A list of Test using these results
      */
     public static void assertAll(Result results, List<Test> tests) {
         // IMPORTANT!
         // Only interpreting as a single row result set. Temporary, will re-enable later
         Map<String, TypedObject> singleRow = getAsOneEntry(results);
-        for (Test test : tests) {
-            assertOne(singleRow, test);
-        }
+        tests.stream().forEach(t -> assertOne(singleRow, t));
     }
 
     private static void assertOne(Map<String, TypedObject> row, Test test) {
         List<String> assertions = test.asserts;
-
         // Check for invalid input
         if (assertions == null || assertions.size() == 0) {
             test.setFailed();
             test.addMessage("No assertion was provided!");
             return;
         }
-
-        for (String assertion : assertions) {
-            assertOneAssertion(assertion, row, test);
-        }
+        assertions.stream().forEach(a -> assertOneAssertion(a, row, test));
     }
 
     private static void assertOneAssertion(String assertion, Map<String, TypedObject> row, Test test) {
@@ -82,12 +75,11 @@ public class Assertor {
     }
 
     private static Map<String, TypedObject> getAsOneEntry(Result results) {
-        Map<String, TypedObject> row = new HashMap<>();
-        for (Map.Entry<String, List<TypedObject>> e : results.getColumns().entrySet()) {
-            List<TypedObject> values = e.getValue();
-            row.put(e.getKey(), values.size() == 0 ? null : values.get(0));
-        }
-        return row;
+        // Need an actual collector instead of Collectors.toMap since merge doesn't work with null values.
+        return results.getColumns().entrySet().stream()
+               .collect(HashMap::new,
+                        (m, e) -> m.put(e.getKey(), e.getValue().size() == 0 ? null : e.getValue().get(0)),
+                        HashMap::putAll);
     }
 }
 

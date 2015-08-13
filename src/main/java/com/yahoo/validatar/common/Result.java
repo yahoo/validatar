@@ -16,10 +16,10 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
 
 public class Result {
     private Map<String, List<TypedObject>> data = new HashMap<>();
@@ -46,13 +46,13 @@ public class Result {
      * @param name The name of the column.
      */
     public void addColumn(String name) {
-        data.put(prefix + name, new ArrayList<TypedObject>());
+        data.put(prefix + name, new ArrayList<>());
     }
 
     /**
      * Create and add a new column to the result with the given rows.
      *
-     * @param name The name of the column.
+     * @param name   The name of the column.
      * @param values The column rows.
      */
     public void addColumn(String name, List<TypedObject> values) {
@@ -62,7 +62,7 @@ public class Result {
     /**
      * Add a new row to a column.
      *
-     * @param name The name of the column.
+     * @param name  The name of the column.
      * @param value The value to add to it.
      */
     public void addColumnRow(String name, TypedObject value) {
@@ -79,11 +79,13 @@ public class Result {
      * unless there were collisions.
      *
      * @param result The result to merge with.
+     * @return The merged result, i.e. this.
      */
-    public void merge(Result result) {
+    public Result merge(Result result) {
         if (result != null) {
             data.putAll(result.data);
         }
+        return this;
     }
 
     /**

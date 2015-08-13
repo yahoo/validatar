@@ -16,49 +16,42 @@
 
 package com.yahoo.validatar;
 
-import com.yahoo.validatar.common.TestSuite;
-import com.yahoo.validatar.report.FormatManager;
-import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.execution.EngineManager;
 import com.yahoo.validatar.execution.hive.Apiary;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import com.yahoo.validatar.parse.ParseManager;
+import com.yahoo.validatar.report.FormatManager;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import static java.util.Arrays.*;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
 
 public class AppTest {
     private class MemoryDB extends Apiary {
         private OptionParser parser = new OptionParser() {
             {
-                acceptsAll(asList("hive-driver"), "Fully qualified package name to the hive driver.")
+                acceptsAll(singletonList("hive-driver"), "Fully qualified package name to the hive driver.")
                     .withRequiredArg()
                     .describedAs("Hive driver");
-                acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
+                acceptsAll(singletonList("hive-jdbc"), "JDBC string to the HiveServer. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
                     .withRequiredArg()
                     .describedAs("Hive JDBC connector.");
-                acceptsAll(asList("hive-username"), "Hive server username.")
+                acceptsAll(singletonList("hive-username"), "Hive server username.")
                     .withRequiredArg()
                     .describedAs("Hive server username.")
                     .defaultsTo("anon");
-                acceptsAll(asList("hive-password"), "Hive server password.")
+                acceptsAll(singletonList("hive-password"), "Hive server password.")
                     .withRequiredArg()
                     .describedAs("Hive server password.")
                     .defaultsTo("anon");
@@ -86,7 +79,7 @@ public class AppTest {
         public CustomEngineManager(String[] arguments) {
             super();
             this.arguments = arguments;
-            this.engines = new HashMap<String, WorkingEngine>();
+            this.engines = new HashMap<>();
             MemoryDB db = new MemoryDB();
             db.setup(arguments);
             engines.put(Apiary.ENGINE_NAME, new WorkingEngine(db));
@@ -97,8 +90,8 @@ public class AppTest {
     public void testRunTests() throws Exception {
         String[] args = {"--report-file", "target/AppTest-testRunTests.xml",
                          "--hive-driver", "org.h2.Driver",
-                         "--hive-jdbc",   "jdbc:h2:mem:"};
-        Map<String, String> parameterMap = new HashMap<String, String>();
+                         "--hive-jdbc", "jdbc:h2:mem:"};
+        Map<String, String> parameterMap = new HashMap<>();
         File emptyTest = new File("src/test/resources/sample-tests/empty-test.yaml");
         ParseManager parseManager = new ParseManager();
         EngineManager engineManager = new CustomEngineManager(args);
@@ -112,37 +105,28 @@ public class AppTest {
         System.setOut(new PrintStream(new FileOutputStream("target/out")));
         System.setErr(new PrintStream(new FileOutputStream("target/err")));
 
-        String args[] = {"--parameter", "DATE:20140807"};
-        try {
-            OptionSet options = App.parse(args);
-            Assert.fail("Should have thrown an Exception");
-        } catch (RuntimeException re) {
-        }
+        String[] args = {"--parameter", "DATE:20140807"};
+        Assert.assertNull(App.parse(args));
+
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
         System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
     }
 
     @Test
-    public void testSimpleParameterParse() {
+    public void testSimpleParameterParse() throws IOException {
         // Fake CLI args
-        String[] args = { "--test-suite", "tests.yaml",
-                          "--parameter", "DATE=2014071800",
-                          "--parameter", "NAME=ALPHA"};
+        String[] args = {"--test-suite", "tests.yaml",
+                         "--parameter", "DATE=2014071800",
+                         "--parameter", "NAME=ALPHA"};
 
         // Parse CLI args
         Map<String, String> paramMap = null;
-        OptionSet options = null;
-        try {
-            options = App.parse(args);
-            paramMap = App.splitParameters(options, "parameter");
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail("Should not reach here.");
-        }
+        OptionSet options = App.parse(args);
+        paramMap = App.splitParameters(options, "parameter");
 
         // Check parse
         File testFile = (File) options.valueOf("test-suite");
-        Assert.assertEquals((String) testFile.getName(), "tests.yaml");
+        Assert.assertEquals(testFile.getName(), "tests.yaml");
 
         Assert.assertEquals(paramMap.get("DATE"), "2014071800");
         Assert.assertEquals(paramMap.get("NAME"), "ALPHA");

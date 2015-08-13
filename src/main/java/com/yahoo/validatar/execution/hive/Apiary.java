@@ -16,33 +16,33 @@
 
 package com.yahoo.validatar.execution.hive;
 
-import com.yahoo.validatar.execution.Engine;
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
-
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
-import java.sql.DriverManager;
-import java.sql.Types;
-
-import java.util.List;
-import static java.util.Arrays.*;
-import java.io.IOException;
-
+import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
 import org.apache.log4j.Logger;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
 
 public class Apiary implements Engine {
     protected final Logger log = Logger.getLogger(getClass());
 
-    /** Engine name. */
+    /**
+     * Engine name.
+     */
     public static final String ENGINE_NAME = "hive";
 
     public static String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
@@ -52,32 +52,31 @@ public class Apiary implements Engine {
 
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(asList("hive-jdbc"), "JDBC string to the HiveServer2 with an optional database. " +
-                                            "If the database is provided, the queries must NOT have one. " +
-                                            "Ex: 'jdbc:hive2://HIVE_SERVER:PORT/[DATABASE_FOR_ALL_QUERIES]' ")
+            acceptsAll(singletonList("hive-jdbc"), "JDBC string to the HiveServer2 with an optional database. " +
+                                             "If the database is provided, the queries must NOT have one. " +
+                                             "Ex: 'jdbc:hive2://HIVE_SERVER:PORT/[DATABASE_FOR_ALL_QUERIES]' ")
                 .withRequiredArg()
                 .required()
                 .describedAs("Hive JDBC connector");
-            acceptsAll(asList("hive-driver"), "Fully qualified package name to the hive driver.")
+            acceptsAll(singletonList("hive-driver"), "Fully qualified package name to the hive driver.")
                 .withRequiredArg()
                 .describedAs("Hive driver")
                 .defaultsTo(DRIVER_NAME);
-            acceptsAll(asList("hive-username"), "Hive server username.")
+            acceptsAll(singletonList("hive-username"), "Hive server username.")
                 .withRequiredArg()
                 .describedAs("Hive server username")
                 .defaultsTo("anon");
-            acceptsAll(asList("hive-password"), "Hive server password.")
+            acceptsAll(singletonList("hive-password"), "Hive server password.")
                 .withRequiredArg()
                 .describedAs("Hive server password")
                 .defaultsTo("anon");
-            acceptsAll(asList("hive-setting"), "Settings and their values. Ex: 'hive.execution.engine=mr'")
+            acceptsAll(singletonList("hive-setting"), "Settings and their values. Ex: 'hive.execution.engine=mr'")
                 .withRequiredArg()
                 .describedAs("Hive generic settings to use.");
             allowsUnrecognizedOptions();
         }
     };
 
-    /** {@inheritDoc} */
     @Override
     public boolean setup(String[] arguments) {
         OptionSet options = parser.parse(arguments);
@@ -91,19 +90,11 @@ public class Apiary implements Engine {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void printHelp() {
-        System.out.println(ENGINE_NAME + " help:");
-        try {
-            parser.printHelpOn(System.out);
-        } catch (IOException e) {
-            log.error(e);
-        }
-        System.out.println();
+        Helpable.printHelp("Hive engine options", parser);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(Query query) {
         String queryName = query.name;
@@ -120,6 +111,7 @@ public class Apiary implements Engine {
             while (result.next()) {
                 addRow(result, metadata, columns, queryResult);
             }
+            result.close();
         } catch (SQLException e) {
             log.error("SQL problem with query: " + queryName + "\n" + queryValue, e);
             query.setFailure(e.toString());
@@ -144,7 +136,6 @@ public class Apiary implements Engine {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getName() {
         return ENGINE_NAME;
@@ -154,37 +145,37 @@ public class Apiary implements Engine {
      * Takes a value and its type and returns it as the appropriate TypedObject.
      *
      * @param results The ResultSet that has a confirmed value for reading by its iterator.
-     * @param index The index of the column in the results to get.
-     * @param type The java.sql.TypesSQL type of the value.
+     * @param index   The index of the column in the results to get.
+     * @param type    The java.sql.TypesSQL type of the value.
      * @return A non-null TypedObject representation of the value or null if the result was null.
      * @throws java.sql.SQLException if any.
      */
     TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
-        TypedObject toReturn = null;
-        switch(type) {
-            case(Types.DATE):
-            case(Types.CHAR):
-            case(Types.VARCHAR):
-                toReturn =  new TypedObject(results.getString(index), TypeSystem.Type.STRING);
+        TypedObject toReturn;
+        switch (type) {
+            case (Types.DATE):
+            case (Types.CHAR):
+            case (Types.VARCHAR):
+                toReturn = new TypedObject(results.getString(index), TypeSystem.Type.STRING);
                 break;
-            case(Types.FLOAT):
-            case(Types.DOUBLE):
-                toReturn =  new TypedObject((Double) results.getDouble(index), TypeSystem.Type.DOUBLE);
+            case (Types.FLOAT):
+            case (Types.DOUBLE):
+                toReturn = new TypedObject(results.getDouble(index), TypeSystem.Type.DOUBLE);
                 break;
-            case(Types.BOOLEAN):
-                toReturn =  new TypedObject((Boolean) results.getBoolean(index), TypeSystem.Type.BOOLEAN);
+            case (Types.BOOLEAN):
+                toReturn = new TypedObject(results.getBoolean(index), TypeSystem.Type.BOOLEAN);
                 break;
-            case(Types.TINYINT):
-            case(Types.SMALLINT):
-            case(Types.INTEGER):
-            case(Types.BIGINT):
-                toReturn =  new TypedObject((Long) results.getLong(index), TypeSystem.Type.LONG);
+            case (Types.TINYINT):
+            case (Types.SMALLINT):
+            case (Types.INTEGER):
+            case (Types.BIGINT):
+                toReturn = new TypedObject(results.getLong(index), TypeSystem.Type.LONG);
                 break;
-            case(Types.DECIMAL):
-                toReturn =  new TypedObject(results.getBigDecimal(index), TypeSystem.Type.DECIMAL);
+            case (Types.DECIMAL):
+                toReturn = new TypedObject(results.getBigDecimal(index), TypeSystem.Type.DECIMAL);
                 break;
-            case(Types.TIMESTAMP):
-                toReturn =  new TypedObject(results.getTimestamp(index), TypeSystem.Type.TIMESTAMP);
+            case (Types.TIMESTAMP):
+                toReturn = new TypedObject(results.getTimestamp(index), TypeSystem.Type.TIMESTAMP);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown SQL type encountered from Hive: " + type);
@@ -198,7 +189,7 @@ public class Apiary implements Engine {
      * @param options A {@link joptsimple.OptionSet} object.
      * @return The created {@link java.sql.Statement} object.
      * @throws java.lang.ClassNotFoundException if any.
-     * @throws java.sql.SQLException if any.
+     * @throws java.sql.SQLException            if any.
      */
     Statement setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
         // Load the JDBC driver
@@ -221,7 +212,7 @@ public class Apiary implements Engine {
     /**
      * Applies any settings if provided.
      *
-     * @param options A {@link joptsimple.OptionSet} object.
+     * @param options   A {@link joptsimple.OptionSet} object.
      * @param statement A {@link java.sql.Statement} to execute the setting updates to.
      * @throws java.sql.SQLException if any.
      */

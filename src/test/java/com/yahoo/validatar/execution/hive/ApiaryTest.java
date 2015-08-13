@@ -17,41 +17,36 @@
 package com.yahoo.validatar.execution.hive;
 
 import com.yahoo.validatar.common.Query;
-import com.yahoo.validatar.common.Metadata;
-import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.common.TypeSystem;
-
+import com.yahoo.validatar.common.TypedObject;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.Types;
-import java.sql.Timestamp;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import static java.util.Arrays.*;
-
-import java.math.BigDecimal;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.AfterMethod;
 
-import static org.mockito.Mockito.*;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+
+import static java.util.Collections.singletonList;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ApiaryTest {
     private String[] args = {"--hive-driver", "org.h2.Driver",
-                             "--hive-jdbc",   "jdbc:h2:mem:",
-                             "--hive-setting",  "mapreduce.job.queuename=default"};
+                             "--hive-jdbc", "jdbc:h2:mem:",
+                             "--hive-setting", "mapreduce.job.queuename=default"};
 
     @Test
     public void testGetJDBCConnector() throws ClassNotFoundException, SQLException, Exception {
@@ -68,7 +63,8 @@ public class ApiaryTest {
     }
 
     @Test
-    public void testFailSetup() { Apiary apiary = spy(new Apiary());
+    public void testFailSetup() {
+        Apiary apiary = spy(new Apiary());
         try {
             doThrow(new SQLException()).when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
         } catch (SQLException se) {
@@ -105,9 +101,10 @@ public class ApiaryTest {
         Apiary apiary = new Apiary();
         Statement mocked = mock(Statement.class);
         OptionParser parser = new OptionParser() {
-        {
-            acceptsAll(asList("hive-setting"), "").withRequiredArg();
-        }};
+            {
+                acceptsAll(singletonList("hive-setting"), "").withRequiredArg();
+            }
+        };
 
         String[] args = {"--hive-setting", "mapreduce.job.queuename=default",
                          "--hive-setting", "hive.execution.engine=tez",
@@ -239,7 +236,7 @@ public class ApiaryTest {
         Assert.assertEquals(object.type, TypeSystem.Type.TIMESTAMP);
     }
 
-    @Test(expectedExceptions={UnsupportedOperationException.class})
+    @Test(expectedExceptions = {UnsupportedOperationException.class})
     public void testHiveTypeMappingUnknown() throws SQLException {
         Apiary apiary = new Apiary();
         ResultSet mocked = mock(ResultSet.class);

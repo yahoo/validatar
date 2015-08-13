@@ -16,8 +16,8 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is an abstraction of something that can be "run" to produce something. The
@@ -43,7 +43,7 @@ public abstract class Executable {
      */
     public void addMessage(String message) {
         if (this.messages == null) {
-            this.messages = new ArrayList<String>();
+            this.messages = new ArrayList<>();
         }
         this.messages.add(message);
     }
@@ -68,6 +68,6 @@ public abstract class Executable {
      * @return True iff in the failure status.
      */
     public boolean failed() {
-        return failed == true;
+        return failed;
     }
 }

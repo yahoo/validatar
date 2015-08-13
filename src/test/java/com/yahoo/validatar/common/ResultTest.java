@@ -16,20 +16,19 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
 
 public class ResultTest {
     @Test
     public void testPrefix() {
         Result result = new Result("foo.");
-        result.addColumn("a", Arrays.asList(new TypedObject(1L, TypeSystem.Type.LONG)));
+        result.addColumn("a", singletonList(new TypedObject(1L, TypeSystem.Type.LONG)));
 
         Assert.assertEquals(result.getColumn("a").size(), 1);
         Assert.assertEquals((Long) result.getColumn("a").get(0).data, Long.valueOf(1L));
@@ -41,7 +40,7 @@ public class ResultTest {
         Result result = new Result();
         result.addColumnRow("a", new TypedObject(2L, TypeSystem.Type.LONG));
         Assert.assertEquals((Long) result.getColumn("a").get(0).data, Long.valueOf(2L));
-        result.addColumnRow("a",new TypedObject(3L, TypeSystem.Type.LONG));
+        result.addColumnRow("a", new TypedObject(3L, TypeSystem.Type.LONG));
         Assert.assertEquals((Long) result.getColumn("a").get(1).data, Long.valueOf(3L));
     }
 

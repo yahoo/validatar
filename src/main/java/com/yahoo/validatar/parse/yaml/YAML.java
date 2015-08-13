@@ -18,7 +18,6 @@ package com.yahoo.validatar.parse.yaml;
 
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.parse.Parser;
-
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -27,15 +26,12 @@ import java.io.InputStream;
 public class YAML implements Parser {
     public static final String NAME = "yaml";
 
-    /** {@inheritDoc} */
     @Override
     public TestSuite parse(InputStream data) {
         Yaml yaml = new Yaml(new Constructor(TestSuite.class));
-        TestSuite testSuite = (TestSuite) yaml.load(data);
-        return testSuite;
+        return (TestSuite) yaml.load(data);
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getName() {
         return NAME;

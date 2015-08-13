@@ -22,6 +22,7 @@ import com.yahoo.validatar.common.TypeSystem.Type;
 import static com.yahoo.validatar.common.TypeSystem.*;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.math.BigDecimal;
 import org.apache.commons.lang3.StringEscapeUtils;
 }
@@ -41,10 +42,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
     private TypedObject getColumnValue(String name) {
         // Check for no mapping explicitly
         if (!row.containsKey(name)) {
-            throw new RuntimeException("Unable to find value for column: " + name + " in results");
+            throw new NoSuchElementException("Unable to find value for column: " + name + " in results");
         }
         TypedObject result = row.get(name);
-        lookedUpValues.put(name, (result == null ? "null" : result.data.toString()));
+        lookedUpValues.put(name, (result == null ? "null" : result.toString()));
         return result;
     }
 

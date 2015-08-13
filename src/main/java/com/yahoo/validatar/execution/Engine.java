@@ -16,33 +16,29 @@
 
 package com.yahoo.validatar.execution;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
 
-public interface Engine {
+public interface Engine extends Helpable {
     /**
      * Setups the engine using the input parameters.
      *
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      * @return true iff setup was succesful.
      */
-    public boolean setup(String[] arguments);
-
-    /**
-     * Prints the help for using this engine.
-     */
-    public void printHelp();
+    boolean setup(String[] arguments);
 
     /**
      * Executes the given query on this Engine and places the result into it.
      *
      * @param query The query object representing the query.
      */
-    public void execute(Query query);
+    void execute(Query query);
 
     /**
      * Returns the name of the engine. Ex: 'Hive', 'Pig', etc.
      *
      * @return Name of the engine.
      */
-    public String getName();
+    String getName();
 }

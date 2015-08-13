@@ -16,11 +16,6 @@
 
 package com.yahoo.validatar.common;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,19 +27,19 @@ public class ExecutableTest {
     public void testInitials() {
         Annotated sample = new Annotated();
 
-	Assert.assertFalse(sample.failed());
-	Assert.assertNull(sample.getMessages());
+        Assert.assertFalse(sample.failed());
+        Assert.assertNull(sample.getMessages());
     }
 
     @Test
     public void testRanState() {
         Annotated sample = new Annotated();
 
-	Assert.assertFalse(sample.failed());
-	sample.setFailed();
-	Assert.assertTrue(sample.failed());
-	sample.setSuccess();
-	Assert.assertFalse(sample.failed());
+        Assert.assertFalse(sample.failed());
+        sample.setFailed();
+        Assert.assertTrue(sample.failed());
+        sample.setSuccess();
+        Assert.assertFalse(sample.failed());
     }
 
     @Test
