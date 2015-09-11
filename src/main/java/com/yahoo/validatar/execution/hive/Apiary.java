@@ -156,26 +156,26 @@ public class Apiary implements Engine {
             case (Types.DATE):
             case (Types.CHAR):
             case (Types.VARCHAR):
-                toReturn = new TypedObject(results.getString(index), TypeSystem.Type.STRING);
+                toReturn = TypeSystem.asTypedObject(results.getString(index));
                 break;
             case (Types.FLOAT):
             case (Types.DOUBLE):
-                toReturn = new TypedObject(results.getDouble(index), TypeSystem.Type.DOUBLE);
+                toReturn = TypeSystem.asTypedObject(results.getDouble(index));
                 break;
             case (Types.BOOLEAN):
-                toReturn = new TypedObject(results.getBoolean(index), TypeSystem.Type.BOOLEAN);
+                toReturn = TypeSystem.asTypedObject(results.getBoolean(index));
                 break;
             case (Types.TINYINT):
             case (Types.SMALLINT):
             case (Types.INTEGER):
             case (Types.BIGINT):
-                toReturn = new TypedObject(results.getLong(index), TypeSystem.Type.LONG);
+                toReturn = TypeSystem.asTypedObject(results.getLong(index));
                 break;
             case (Types.DECIMAL):
-                toReturn = new TypedObject(results.getBigDecimal(index), TypeSystem.Type.DECIMAL);
+                toReturn = TypeSystem.asTypedObject(results.getBigDecimal(index));
                 break;
             case (Types.TIMESTAMP):
-                toReturn = new TypedObject(results.getTimestamp(index), TypeSystem.Type.TIMESTAMP);
+                toReturn = TypeSystem.asTypedObject(results.getTimestamp(index));
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown SQL type encountered from Hive: " + type);

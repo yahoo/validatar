@@ -16,19 +16,25 @@
 
 package com.yahoo.validatar.execution.pig;
 
-import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
+import com.yahoo.validatar.common.TypeSystem;
+import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.log4j.Logger;
 import org.apache.pig.PigServer;
+import org.apache.pig.backend.executionengine.ExecException;
 import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
+import org.apache.pig.impl.logicalLayer.schema.Schema;
+import org.apache.tools.ant.taskdefs.Exec;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +60,16 @@ public class Sty implements Engine {
     private String defaultExecType;
     private String defaultOutputAlias;
     private Properties properties;
+
+    private class FieldDetail {
+        public String alias;
+        public byte type;
+
+        public FieldDetail(String alias, byte type) {
+            this.alias = alias;
+            this.type = type;
+        }
+    }
 
     private OptionParser parser = new OptionParser() {
         {
@@ -113,14 +129,84 @@ public class Sty implements Engine {
             PigServer server = new PigServer(execType, properties);
             server.registerScript(new ByteArrayInputStream(queryValue.getBytes()));
             Iterator<Tuple> queryResults = server.openIterator(alias);
+
             Result result = query.createResults();
+            List<FieldDetail> metadata = getFieldDetails(server.dumpSchema(alias));
+            populateColumns(metadata, result);
+            while (queryResults.hasNext()) {
+                populateRow(queryResults.next(), metadata, result);
+            }
             server.shutdown();
-        } catch (IOException e) {
-            log.error("Problem with Pig query: " + queryName + "\n" + queryValue, e);
-            query.setFailure(e.toString());
+        } catch (IOException ioe) {
+            log.error("Problem with Pig query: \n" + queryValue, ioe);
+            query.setFailure(ioe.toString());
         } catch (Exception e) {
-            log.error("Unexpected error occurred while executing Pig query: " + queryName + "\n" + queryValue, e);
+            log.error("Error occurred while processing Pig query: " + queryValue, e);
+            query.setFailure(e.toString());
         }
+    }
+
+    private void populateColumns(List<FieldDetail> metadata, Result result) throws IOException {
+        if (metadata == null || metadata.isEmpty()) {
+            throw new IOException("No metaadata of columns found for Pig query");
+        }
+        metadata.forEach(m -> result.addColumn(m.alias));
+    }
+
+    private void populateRow(Tuple row, List<FieldDetail> metadata, Result result) throws ExecException {
+        if (row == null) {
+            return;
+        }
+        for (int i = 0; i < metadata.size(); ++i) {
+            FieldDetail column = metadata.get(i);
+            TypedObject value = getTypedObject(row.get(i), column);
+            log.info("Column: " + column.alias + "\tType: " + column.type +
+                     "\tValue: " + (value == null ? "null" : value.data));
+            result.addColumnRow(column.alias, value);
+        }
+    }
+
+    private TypedObject getTypedObject(Object data, FieldDetail detail) throws ExecException {
+        byte type = detail.type;
+        switch (type) {
+            case DataType.BOOLEAN:
+                return TypeSystem.asTypedObject(DataType.toBoolean(data, type));
+            case DataType.INTEGER:
+            case DataType.LONG:
+                return TypeSystem.asTypedObject(DataType.toLong(data, type));
+            case DataType.FLOAT:
+            case DataType.DOUBLE:
+            case DataType.DATETIME:
+                return TypeSystem.asTypedObject(new Timestamp(DataType.toDateTime(data, type).getMillis()));
+            case DataType.BYTE:
+            case DataType.BYTEARRAY:
+            case DataType.CHARARRAY:
+                return TypeSystem.asTypedObject(DataType.toString(data, type));
+            case DataType.BIGINTEGER:
+            case DataType.BIGDECIMAL:
+                return TypeSystem.asTypedObject(DataType.toBigDecimal(data, type));
+            case DataType.TUPLE:
+            case DataType.BAG:
+            case DataType.MAP:
+            case DataType.INTERNALMAP:
+            case DataType.GENERIC_WRITABLECOMPARABLE:
+            case DataType.ERROR:
+            case DataType.UNKNOWN:
+            case DataType.NULL:
+            default:
+                return null;
+        }
+    }
+
+    private List<FieldDetail> getFieldDetails(Schema schema) {
+        List<FieldDetail> details = new ArrayList<>();
+        if (schema == null) {
+            return details;
+        }
+        for (Schema.FieldSchema field : schema.getFields()) {
+            details.add(new FieldDetail(field.alias, field.type));
+        }
+        return details;
     }
 
     private Optional<String> getKey(Map<String, String> metadata, String key) {
