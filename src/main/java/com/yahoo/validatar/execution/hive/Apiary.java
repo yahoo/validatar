@@ -99,7 +99,7 @@ public class Apiary implements Engine {
     public void execute(Query query) {
         String queryName = query.name;
         String queryValue = query.value;
-        log.info("Running: " + queryValue);
+        log.info("Running " + queryName + ": " + queryValue);
         try {
             ResultSet result = statement.executeQuery(queryValue);
             ResultSetMetaData metadata = result.getMetaData();
@@ -113,7 +113,7 @@ public class Apiary implements Engine {
             }
             result.close();
         } catch (SQLException e) {
-            log.error("SQL problem with query: " + queryName + "\n" + queryValue, e);
+            log.error("SQL problem with Hive query: " + queryName + "\n" + queryValue, e);
             query.setFailure(e.toString());
         }
     }
