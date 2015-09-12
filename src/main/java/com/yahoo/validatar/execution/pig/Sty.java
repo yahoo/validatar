@@ -211,7 +211,7 @@ public class Sty implements Engine {
 
     private Optional<String> getKey(Map<String, String> metadata, String key) {
         String value = metadata.get(key);
-        return value == null || value.isEmpty() ? Optional.empty(): Optional.of(value);
+        return value == null || value.isEmpty() ? Optional.empty() : Optional.of(value);
     }
 
     private Properties getProperties(OptionSet options) {

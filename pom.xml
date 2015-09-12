@@ -240,6 +240,18 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>2.6.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.pig</groupId>
             <artifactId>pig</artifactId>
             <version>0.14.0</version>
