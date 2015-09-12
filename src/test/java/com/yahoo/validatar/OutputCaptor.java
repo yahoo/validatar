@@ -16,12 +16,16 @@
 
 package com.yahoo.validatar;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.mockito.ArgumentCaptor;
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 import static org.mockito.Mockito.atLeastOnce;
@@ -35,10 +39,14 @@ import static org.mockito.Mockito.verify;
  * the capturing and use isStringInLog to check if desired output in log
  * was seen.
  */
-public class LogCaptor {
+public class OutputCaptor {
     protected Appender mockedAppender;
     protected Level originalLevel;
     protected Appender originalAppender;
+
+    public static final PrintStream NULL = new PrintStream(NullOutputStream.NULL_OUTPUT_STREAM);
+    public static final PrintStream OUT = new PrintStream(new FileOutputStream(FileDescriptor.out));
+    public static final PrintStream ERR = new PrintStream(new FileOutputStream(FileDescriptor.err));
 
     private boolean contains(String source, String target, boolean isCaseSensitive) {
         String superString = source;
@@ -94,6 +102,14 @@ public class LogCaptor {
         Logger.getRootLogger().removeAllAppenders();
         Logger.getRootLogger().setLevel(originalLevel);
         Logger.getRootLogger().addAppender(originalAppender);
+    }
+
+    public static void runWithoutOutput(Runnable function) {
+        System.setOut(NULL);
+        System.setErr(NULL);
+        function.run();
+        System.setOut(OUT);
+        System.setErr(ERR);
     }
 }
 

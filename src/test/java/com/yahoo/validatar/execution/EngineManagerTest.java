@@ -16,7 +16,7 @@
 
 package com.yahoo.validatar.execution;
 
-import com.yahoo.validatar.LogCaptor;
+import com.yahoo.validatar.OutputCaptor;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EngineManagerTest extends LogCaptor {
+public class EngineManagerTest extends OutputCaptor {
 
     private class MockFailingEngine implements Engine {
         public static final String ENGINE_NAME = "FAILER";

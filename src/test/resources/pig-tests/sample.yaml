@@ -1,0 +1,23 @@
+---
+name: Pig test
+description: Testing Validatar
+queries:
+   - name: Query
+     engine: pig
+     value: "a = LOAD 'src/test/resources/pig-tests/data.txt' USING PigStorage(',') AS (name:chararray, count:long);
+             b = GROUP a BY name;
+             c = FOREACH b GENERATE
+                           group AS name,
+                           SUM(a.count) AS total;
+             d = ORDER c BY total DESC;
+             e = LIMIT d 1;"
+     metadata:
+         - key: output-alias
+           value: e
+         - key: exec-type
+           value: local
+tests:
+   - name: Simple Test
+     description: Why I am testing this.
+     asserts:
+...

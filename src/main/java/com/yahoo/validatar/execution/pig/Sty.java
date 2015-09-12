@@ -16,6 +16,7 @@
 
 package com.yahoo.validatar.execution.pig;
 
+import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
@@ -47,6 +48,7 @@ public class Sty implements Engine {
     public static final String PIG_EXEC_TYPE = "pig-exec-type";
     public static final String PIG_OUTPUT_ALIAS = "pig-output-alias";
     public static final String PIG_SETTING = "pig-setting";
+
     protected final Logger log = Logger.getLogger(getClass());
 
     /** Engine name. */
@@ -110,13 +112,7 @@ public class Sty implements Engine {
 
     @Override
     public void printHelp() {
-        System.out.println(ENGINE_NAME + " help:");
-        try {
-            parser.printHelpOn(System.out);
-        } catch (IOException e) {
-            log.error(e);
-        }
-        System.out.println();
+        Helpable.printHelp("Pig engine options", parser);
     }
 
     @Override
@@ -131,8 +127,8 @@ public class Sty implements Engine {
             PigServer server = new PigServer(execType, properties);
             server.registerScript(new ByteArrayInputStream(queryValue.getBytes()));
             Iterator<Tuple> queryResults = server.openIterator(alias);
-
             Result result = query.createResults();
+            // dumpSchema will also, unfortunately, print the schema to stdout.
             List<FieldDetail> metadata = getFieldDetails(server.dumpSchema(alias));
             populateColumns(metadata, result);
             while (queryResults.hasNext()) {
@@ -150,7 +146,7 @@ public class Sty implements Engine {
 
     private void populateColumns(List<FieldDetail> metadata, Result result) throws IOException {
         if (metadata.isEmpty()) {
-            throw new IOException("No metaadata of columns found for Pig query");
+            throw new IOException("No metadata of columns found for Pig query");
         }
         metadata.forEach(m -> result.addColumn(m.alias));
     }
@@ -204,7 +200,7 @@ public class Sty implements Engine {
 
     private List<FieldDetail> getFieldDetails(Schema schema) {
         if (schema == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return schema.getFields().stream().map(f -> new FieldDetail(f.alias, f.type)).collect(Collectors.toList());
     }
