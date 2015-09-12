@@ -29,22 +29,24 @@ import org.apache.pig.backend.executionengine.ExecException;
 import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
-import org.apache.tools.ant.taskdefs.Exec;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 public class Sty implements Engine {
+    public static final String PIG_EXEC_TYPE = "pig-exec-type";
+    public static final String PIG_OUTPUT_ALIAS = "pig-output-alias";
+    public static final String PIG_SETTING = "pig-setting";
     protected final Logger log = Logger.getLogger(getClass());
 
     /** Engine name. */
@@ -73,18 +75,18 @@ public class Sty implements Engine {
 
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList("pig-exec-type"), "The exec-type for Pig to use.  This is the " +
-                                                      "-x argument used when running Pig. Ex: local, mr, tez etc. ")
+            acceptsAll(singletonList(PIG_EXEC_TYPE), "The exec-type for Pig to use.  This is the " +
+                                                       "-x argument used when running Pig. Ex: local, mr, tez etc. ")
                 .withRequiredArg()
-                .describedAs("Hive JDBC connector")
+                .describedAs("Pig execution type")
                 .defaultsTo(DEFAULT_EXEC_TYPE);
-            acceptsAll(singletonList("pig-output-alias"), "The name of the alias where the result of the Pig script is." +
-                                                    "This should contain the data that will be collected")
+            acceptsAll(singletonList(PIG_OUTPUT_ALIAS), "The default name of the alias where the result is." +
+                                                          "This should contain the data that will be collected")
                 .withRequiredArg()
                 .describedAs("Pig default output alias")
                 .defaultsTo(DEFAULT_OUTPUT_ALIAS);
-            acceptsAll(asList("pig-setting"), "Settings and their values. The -D params that would " +
-                                              "have been sent to Pig. Ex: 'mapreduce.job.acl-view-job=*'")
+            acceptsAll(singletonList(PIG_SETTING), "Settings and their values. The -D params that would " +
+                                                   "have been sent to Pig. Ex: 'mapreduce.job.acl-view-job=*'")
                 .withRequiredArg()
                 .describedAs("Pig generic settings to use.");
             allowsUnrecognizedOptions();
@@ -99,8 +101,8 @@ public class Sty implements Engine {
     @Override
     public boolean setup(String[] arguments) {
         OptionSet options = parser.parse(arguments);
-        defaultExecType = (String) options.valueOf("pig-exec-type");
-        defaultOutputAlias = (String) options.valueOf("pig-output-alias");
+        defaultExecType = (String) options.valueOf(PIG_EXEC_TYPE);
+        defaultOutputAlias = (String) options.valueOf(PIG_OUTPUT_ALIAS);
         properties = getProperties(options);
         // We will boot up a PigServer per query, so nothing else to do...
         return true;
@@ -147,7 +149,7 @@ public class Sty implements Engine {
     }
 
     private void populateColumns(List<FieldDetail> metadata, Result result) throws IOException {
-        if (metadata == null || metadata.isEmpty()) {
+        if (metadata.isEmpty()) {
             throw new IOException("No metaadata of columns found for Pig query");
         }
         metadata.forEach(m -> result.addColumn(m.alias));
@@ -155,6 +157,7 @@ public class Sty implements Engine {
 
     private void populateRow(Tuple row, List<FieldDetail> metadata, Result result) throws ExecException {
         if (row == null) {
+            log.info("Skipping null row in results...");
             return;
         }
         for (int i = 0; i < metadata.size(); ++i) {
@@ -176,6 +179,7 @@ public class Sty implements Engine {
                 return TypeSystem.asTypedObject(DataType.toLong(data, type));
             case DataType.FLOAT:
             case DataType.DOUBLE:
+                return TypeSystem.asTypedObject(DataType.toDouble(data, type));
             case DataType.DATETIME:
                 return TypeSystem.asTypedObject(new Timestamp(DataType.toDateTime(data, type).getMillis()));
             case DataType.BYTE:
@@ -199,14 +203,10 @@ public class Sty implements Engine {
     }
 
     private List<FieldDetail> getFieldDetails(Schema schema) {
-        List<FieldDetail> details = new ArrayList<>();
         if (schema == null) {
-            return details;
+            return Collections.EMPTY_LIST;
         }
-        for (Schema.FieldSchema field : schema.getFields()) {
-            details.add(new FieldDetail(field.alias, field.type));
-        }
-        return details;
+        return schema.getFields().stream().map(f -> new FieldDetail(f.alias, f.type)).collect(Collectors.toList());
     }
 
     private Optional<String> getKey(Map<String, String> metadata, String key) {
@@ -215,7 +215,7 @@ public class Sty implements Engine {
     }
 
     private Properties getProperties(OptionSet options) {
-        List<String> settings = (List<String>) options.valuesOf("pig-setting");
+        List<String> settings = (List<String>) options.valuesOf(PIG_SETTING);
         Properties properties = new Properties();
         for (String setting : settings) {
             String[] tokens = setting.split(SETTING_DELIMITER);

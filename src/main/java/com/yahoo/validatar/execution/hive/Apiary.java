@@ -38,11 +38,13 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 
 public class Apiary implements Engine {
+    public static final String HIVE_JDBC = "hive-jdbc";
+    public static final String HIVE_DRIVER = "hive-driver";
+    public static final String HIVE_USERNAME = "hive-username";
+    public static final String HIVE_PASSWORD = "hive-password";
+    public static final String HIVE_SETTING = "hive-setting";
     protected final Logger log = Logger.getLogger(getClass());
 
-    /**
-     * Engine name.
-     */
     public static final String ENGINE_NAME = "hive";
 
     public static String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
@@ -52,25 +54,25 @@ public class Apiary implements Engine {
 
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList("hive-jdbc"), "JDBC string to the HiveServer2 with an optional database. " +
-                                             "If the database is provided, the queries must NOT have one. " +
-                                             "Ex: 'jdbc:hive2://HIVE_SERVER:PORT/[DATABASE_FOR_ALL_QUERIES]' ")
+            acceptsAll(singletonList(HIVE_JDBC), "JDBC string to the HiveServer2 with an optional database. " +
+                                                 "If the database is provided, the queries must NOT have one. " +
+                                                 "Ex: 'jdbc:hive2://HIVE_SERVER:PORT/[DATABASE_FOR_ALL_QUERIES]' ")
                 .withRequiredArg()
                 .required()
                 .describedAs("Hive JDBC connector");
-            acceptsAll(singletonList("hive-driver"), "Fully qualified package name to the hive driver.")
+            acceptsAll(singletonList(HIVE_DRIVER), "Fully qualified package name to the hive driver.")
                 .withRequiredArg()
                 .describedAs("Hive driver")
                 .defaultsTo(DRIVER_NAME);
-            acceptsAll(singletonList("hive-username"), "Hive server username.")
+            acceptsAll(singletonList(HIVE_USERNAME), "Hive server username.")
                 .withRequiredArg()
                 .describedAs("Hive server username")
                 .defaultsTo("anon");
-            acceptsAll(singletonList("hive-password"), "Hive server password.")
+            acceptsAll(singletonList(HIVE_PASSWORD), "Hive server password.")
                 .withRequiredArg()
                 .describedAs("Hive server password")
                 .defaultsTo("anon");
-            acceptsAll(singletonList("hive-setting"), "Settings and their values. Ex: 'hive.execution.engine=mr'")
+            acceptsAll(singletonList(HIVE_SETTING), "Settings and their values. Ex: 'hive.execution.engine=mr'")
                 .withRequiredArg()
                 .describedAs("Hive generic settings to use.");
             allowsUnrecognizedOptions();
@@ -193,16 +195,16 @@ public class Apiary implements Engine {
      */
     Statement setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
         // Load the JDBC driver
-        String driver = (String) options.valueOf("hive-driver");
+        String driver = (String) options.valueOf(HIVE_DRIVER);
         log.info("Loading JDBC driver: " + driver);
         Class.forName(driver);
 
         // Get the JDBC connector
-        String jdbcConnector = (String) options.valueOf("hive-jdbc");
+        String jdbcConnector = (String) options.valueOf(HIVE_JDBC);
 
         log.info("Connecting to: " + jdbcConnector);
-        String username = (String) options.valueOf("hive-username");
-        String password = (String) options.valueOf("hive-password");
+        String username = (String) options.valueOf(HIVE_USERNAME);
+        String password = (String) options.valueOf(HIVE_PASSWORD);
 
         // Start the connection
         Connection connection = DriverManager.getConnection(jdbcConnector, username, password);
@@ -217,7 +219,7 @@ public class Apiary implements Engine {
      * @throws java.sql.SQLException if any.
      */
     void setHiveSettings(OptionSet options, Statement statement) throws SQLException {
-        for (String setting : (List<String>) options.valuesOf("hive-setting")) {
+        for (String setting : (List<String>) options.valuesOf(HIVE_SETTING)) {
             log.info("Applying setting " + setting);
             statement.executeUpdate(SETTING_PREFIX + setting);
         }

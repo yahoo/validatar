@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class JUnitFormatterTest {
     @Test
-    public void testWriteReport() throws FileNotFoundException, IOException, org.dom4j.DocumentException {
+    public void testWriteReport() throws IOException, org.dom4j.DocumentException {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("DATE", "20140807");
 

@@ -37,13 +37,14 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 
 public class JUnitFormatter implements Formatter {
+    public static final String REPORT_FILE = "report-file";
     protected final Logger log = Logger.getLogger(getClass());
 
     public static final String JUNIT = "junit";
 
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList("report-file"), "File to store the test reports.")
+            acceptsAll(singletonList(REPORT_FILE), "File to store the test reports.")
                 .withRequiredArg()
                 .describedAs("Report file")
                 .defaultsTo("report.xml");
@@ -54,7 +55,7 @@ public class JUnitFormatter implements Formatter {
 
     @Override
     public boolean setup(String[] arguments) {
-        outputFile = (String) parser.parse(arguments).valueOf("report-file");
+        outputFile = (String) parser.parse(arguments).valueOf(REPORT_FILE);
         return true;
     }
 

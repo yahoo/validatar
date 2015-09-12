@@ -34,9 +34,8 @@ import static java.util.Collections.singletonList;
  * Manages the writing of test reports.
  */
 public class FormatManager implements Helpable {
-    /**
-     * Used for logging.
-     */
+    public static final String REPORT_FORMAT = "report-format";
+
     protected Logger log = Logger.getLogger(getClass().getName());
 
     private Map<String, Formatter> availableFormatters;
@@ -46,7 +45,7 @@ public class FormatManager implements Helpable {
     // it can be moved to inside the respective formatters.
     private OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList("report-format"), "Which report format to use.")
+            acceptsAll(singletonList(REPORT_FORMAT), "Which report format to use.")
                 .withRequiredArg()
                 .describedAs("Report format")
                 .defaultsTo("junit");
@@ -60,7 +59,7 @@ public class FormatManager implements Helpable {
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      */
     public FormatManager(String[] arguments) {
-        String name = (String) parser.parse(arguments).valueOf("report-format");
+        String name = (String) parser.parse(arguments).valueOf(REPORT_FORMAT);
         formatterToUse = findFormatter(name, arguments);
         if (formatterToUse == null) {
             printHelp();

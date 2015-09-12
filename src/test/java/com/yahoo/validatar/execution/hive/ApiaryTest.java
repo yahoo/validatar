@@ -49,7 +49,7 @@ public class ApiaryTest {
                              "--hive-setting", "mapreduce.job.queuename=default"};
 
     @Test
-    public void testGetJDBCConnector() throws ClassNotFoundException, SQLException, Exception {
+    public void testGetJDBCConnector() throws Exception {
         Apiary apiary = spy(new Apiary());
         doNothing().when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
         Assert.assertTrue(apiary.setup(args));
