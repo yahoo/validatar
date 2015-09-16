@@ -4,7 +4,7 @@ jdk:
 - oraclejdk8
 
 after_success:
-- mvn clean cobertura:cobertura coveralls:report
+- mvn clean clover2:setup test clover2:aggregate clover2:clover coveralls:report
 - test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" != "" && mvn deploy --settings travis/settings.xml
 
 cache:

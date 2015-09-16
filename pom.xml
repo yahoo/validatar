@@ -157,6 +157,9 @@
                 <artifactId>maven-clover2-plugin</artifactId>
                 <version>4.0.5</version>
                 <configuration>
+                    <excludes>
+                        <exclude>com/yahoo/validatar/assertion/Grammar*.java</exclude>
+                    </excludes>
                     <includesTestSourceRoots>false</includesTestSourceRoots>
                 </configuration>
             </plugin>
@@ -182,7 +185,7 @@
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>4.0.0</version>
             </plugin>
         </plugins>
     </build>
