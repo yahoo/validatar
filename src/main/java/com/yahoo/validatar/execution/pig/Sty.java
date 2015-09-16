@@ -124,7 +124,7 @@ public class Sty implements Engine {
         String alias = getKey(queryMetadata, METADATA_ALIAS_KEY).orElse(defaultOutputAlias);
         log.info("Running " + queryName + " for alias " + alias + ": " + queryValue);
         try {
-            PigServer server = new PigServer(execType, properties);
+            PigServer server = getPigServer(execType);
             server.registerScript(new ByteArrayInputStream(queryValue.getBytes()));
             Iterator<Tuple> queryResults = server.openIterator(alias);
             Result result = query.createResults();
@@ -165,7 +165,7 @@ public class Sty implements Engine {
         }
     }
 
-    TypedObject getTypedObject(Object data, FieldDetail detail) throws ExecException {
+    private TypedObject getTypedObject(Object data, FieldDetail detail) throws ExecException {
         byte type = detail.type;
         switch (type) {
             case DataType.BOOLEAN:
@@ -198,19 +198,22 @@ public class Sty implements Engine {
         }
     }
 
-    List<FieldDetail> getFieldDetails(Schema schema) {
+    private List<FieldDetail> getFieldDetails(Schema schema) {
         if (schema == null) {
             return Collections.emptyList();
         }
         return schema.getFields().stream().map(f -> new FieldDetail(f.alias, f.type)).collect(Collectors.toList());
     }
 
-    Optional<String> getKey(Map<String, String> metadata, String key) {
+    private Optional<String> getKey(Map<String, String> metadata, String key) {
+        if (metadata == null) {
+            return Optional.empty();
+        }
         String value = metadata.get(key);
         return value == null || value.isEmpty() ? Optional.empty() : Optional.of(value);
     }
 
-    Properties getProperties(OptionSet options) {
+    private Properties getProperties(OptionSet options) {
         List<String> settings = (List<String>) options.valuesOf(PIG_SETTING);
         Properties properties = new Properties();
         for (String setting : settings) {
@@ -224,4 +227,14 @@ public class Sty implements Engine {
         return properties;
     }
 
+    /**
+     * Only used for testing.
+     *
+     * @param execType The execType for Pig
+     * @return A {@link PigServer} object
+     * @throws IOException
+     */
+    PigServer getPigServer(String execType) throws IOException {
+        return new PigServer(execType, properties);
+    }
 }

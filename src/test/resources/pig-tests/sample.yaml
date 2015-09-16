@@ -16,6 +16,11 @@ queries:
            value: e
          - key: exec-type
            value: local
+   - name: Defaults
+     engine: pig
+     value: "a = LOAD 'src/test/resources/pig-tests/data.txt' USING PigStorage(',') AS (name:chararray, count:long);
+             b = ORDER a BY count;
+             validatar_results = LIMIT b 1;"
 tests:
    - name: Simple Test
      description: Why I am testing this.
