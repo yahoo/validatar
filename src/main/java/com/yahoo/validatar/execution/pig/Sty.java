@@ -165,7 +165,7 @@ public class Sty implements Engine {
         }
     }
 
-    private TypedObject getTypedObject(Object data, FieldDetail detail) throws ExecException {
+    TypedObject getTypedObject(Object data, FieldDetail detail) throws ExecException {
         byte type = detail.type;
         switch (type) {
             case DataType.BOOLEAN:
@@ -198,19 +198,19 @@ public class Sty implements Engine {
         }
     }
 
-    private List<FieldDetail> getFieldDetails(Schema schema) {
+    List<FieldDetail> getFieldDetails(Schema schema) {
         if (schema == null) {
             return Collections.emptyList();
         }
         return schema.getFields().stream().map(f -> new FieldDetail(f.alias, f.type)).collect(Collectors.toList());
     }
 
-    private Optional<String> getKey(Map<String, String> metadata, String key) {
+    Optional<String> getKey(Map<String, String> metadata, String key) {
         String value = metadata.get(key);
         return value == null || value.isEmpty() ? Optional.empty() : Optional.of(value);
     }
 
-    private Properties getProperties(OptionSet options) {
+    Properties getProperties(OptionSet options) {
         List<String> settings = (List<String>) options.valuesOf(PIG_SETTING);
         Properties properties = new Properties();
         for (String setting : settings) {
