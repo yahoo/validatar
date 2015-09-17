@@ -70,9 +70,8 @@ public class Query extends Executable {
             return null;
         }
         Map<String, String> map = new HashMap<>();
-        for (Metadata entry : metadata) {
-            map.put(entry.key, entry.value);
-        }
+        // default Collectors.toMap doesn't handle null values
+        metadata.stream().forEach(m -> map.put(m.key, m.value));
         return map;
     }
 }

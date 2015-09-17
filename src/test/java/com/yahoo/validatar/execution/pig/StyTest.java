@@ -7,9 +7,11 @@ import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.parse.yaml.YAML;
 import org.apache.pig.PigServer;
 import org.apache.pig.backend.executionengine.ExecException;
+import org.apache.pig.data.DataByteArray;
 import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
+import org.joda.time.DateTime;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -19,6 +21,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +32,8 @@ import java.util.Properties;
 import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
 
 public class StyTest {
+    public static final double EPSILON = 0.00001;
+
     private String[] defaults = {"--pig-exec-type", "local"};
 
     private Sty sty;
@@ -101,6 +108,7 @@ public class StyTest {
     public void testDefaults() {
         Assert.assertTrue(sty.setup(new String[0]));
         Assert.assertEquals(sty.getName(), Sty.ENGINE_NAME);
+        runWithoutOutput(() -> sty.printHelp());
     }
 
     @Test
@@ -164,6 +172,127 @@ public class StyTest {
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 1);
         Assert.assertNull(result.get(0));
+    }
+
+    @Test
+    public void testBooleanTypeInTuple() throws IOException {
+        Query query = new Query();
+        query.value = "";
+        Schema fakeSchema = getSchema(makeFieldSchema("a", DataType.BOOLEAN));
+        Tuple fakeTuple = makeTuple(Boolean.valueOf(false));
+
+        sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
+        runWithoutOutput(() -> sty.execute(query));
+        Assert.assertFalse(query.failed());
+        List<TypedObject> result = query.getResult().getColumn("a");
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.size(), 1);
+        Assert.assertEquals(result.get(0).data, Boolean.valueOf(false));
+    }
+
+    @Test
+    public void testIntegerTypeInTuple() throws IOException {
+        Query query = new Query();
+        query.value = "";
+        Schema fakeSchema = getSchema(makeFieldSchema("a", DataType.INTEGER),
+                                      makeFieldSchema("b", DataType.LONG));
+        Tuple fakeTuple = makeTuple(Integer.valueOf(42), Long.valueOf(84));
+
+        sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
+        runWithoutOutput(() -> sty.execute(query));
+        Assert.assertFalse(query.failed());
+        List<TypedObject> columnOne = query.getResult().getColumn("a");
+        List<TypedObject> columnTwo = query.getResult().getColumn("b");
+        Assert.assertNotNull(columnOne);
+        Assert.assertEquals(columnOne.size(), 1);
+        Assert.assertEquals(columnOne.get(0).data, Long.valueOf(42));
+        Assert.assertNotNull(columnTwo);
+        Assert.assertEquals(columnTwo.size(), 1);
+        Assert.assertEquals(columnTwo.get(0).data, Long.valueOf(84));
+    }
+
+    @Test
+    public void testFloatTypeInTuple() throws IOException {
+        Query query = new Query();
+        query.value = "";
+        Schema fakeSchema = getSchema(makeFieldSchema("a", DataType.FLOAT),
+                                      makeFieldSchema("b", DataType.DOUBLE));
+        Tuple fakeTuple = makeTuple(Float.valueOf(2.1f), Double.valueOf(4.2));
+
+        sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
+        runWithoutOutput(() -> sty.execute(query));
+        Assert.assertFalse(query.failed());
+        List<TypedObject> columnOne = query.getResult().getColumn("a");
+        List<TypedObject> columnTwo = query.getResult().getColumn("b");
+        Assert.assertNotNull(columnOne);
+        Assert.assertEquals(columnOne.size(), 1);
+        Assert.assertTrue(Math.abs((Double) columnOne.get(0).data - Double.valueOf(2.1)) < EPSILON);
+        Assert.assertNotNull(columnTwo);
+        Assert.assertEquals(columnTwo.size(), 1);
+        Assert.assertTrue(Math.abs((Double) columnTwo.get(0).data - Double.valueOf(4.2)) < EPSILON);
+    }
+
+    @Test
+    public void testBigNumericTypeInTuple() throws IOException {
+        Query query = new Query();
+        query.value = "";
+        Schema fakeSchema = getSchema(makeFieldSchema("a", DataType.BIGINTEGER),
+                                      makeFieldSchema("b", DataType.BIGDECIMAL));
+        Tuple fakeTuple = makeTuple(new BigInteger("42"), new BigDecimal("42.1"));
+
+        sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
+        runWithoutOutput(() -> sty.execute(query));
+        Assert.assertFalse(query.failed());
+        List<TypedObject> columnOne = query.getResult().getColumn("a");
+        List<TypedObject> columnTwo = query.getResult().getColumn("b");
+        Assert.assertNotNull(columnOne);
+        Assert.assertEquals(columnOne.size(), 1);
+        Assert.assertEquals(columnOne.get(0).data, new BigDecimal("42"));
+        Assert.assertNotNull(columnTwo);
+        Assert.assertEquals(columnTwo.size(), 1);
+        Assert.assertEquals(columnTwo.get(0).data, new BigDecimal("42.1"));
+    }
+
+    @Test
+    public void testStringTypeInTuple() throws IOException {
+        Query query = new Query();
+        query.value = "";
+        Schema fakeSchema = getSchema(makeFieldSchema("a", DataType.BYTE),
+                                      makeFieldSchema("b", DataType.BYTEARRAY),
+                                      makeFieldSchema("c", DataType.CHARARRAY));
+        Tuple fakeTuple = makeTuple(Byte.valueOf("1"), new DataByteArray("foo".getBytes()), "bar");
+
+        sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
+        runWithoutOutput(() -> sty.execute(query));
+        Assert.assertFalse(query.failed());
+        List<TypedObject> columnOne = query.getResult().getColumn("a");
+        List<TypedObject> columnTwo = query.getResult().getColumn("b");
+        List<TypedObject> columnThree = query.getResult().getColumn("c");
+        Assert.assertNotNull(columnOne);
+        Assert.assertEquals(columnOne.size(), 1);
+        Assert.assertEquals(columnOne.get(0).data, "1");
+        Assert.assertNotNull(columnTwo);
+        Assert.assertEquals(columnTwo.size(), 1);
+        Assert.assertEquals(columnTwo.get(0).data, "foo");
+        Assert.assertNotNull(columnThree);
+        Assert.assertEquals(columnThree.size(), 1);
+        Assert.assertEquals(columnThree.get(0).data, "bar");
+    }
+
+    @Test
+    public void testDateTypeInTuple() throws IOException {
+        Query query = new Query();
+        query.value = "";
+        Schema fakeSchema = getSchema(makeFieldSchema("a", DataType.DATETIME));
+        Tuple fakeTuple = makeTuple(new DateTime(142151414341L));
+
+        sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
+        runWithoutOutput(() -> sty.execute(query));
+        Assert.assertFalse(query.failed());
+        List<TypedObject> result = query.getResult().getColumn("a");
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.size(), 1);
+        Assert.assertEquals(result.get(0).data, new Timestamp(142151414341L));
     }
 
     @Test
