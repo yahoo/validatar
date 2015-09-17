@@ -166,6 +166,9 @@ public class Sty implements Engine {
     }
 
     private TypedObject getTypedObject(Object data, FieldDetail detail) throws ExecException {
+        if (data == null) {
+            return null;
+        }
         byte type = detail.type;
         switch (type) {
             case DataType.BOOLEAN:
@@ -185,15 +188,8 @@ public class Sty implements Engine {
             case DataType.BIGINTEGER:
             case DataType.BIGDECIMAL:
                 return TypeSystem.asTypedObject(DataType.toBigDecimal(data, type));
-            case DataType.TUPLE:
-            case DataType.BAG:
-            case DataType.MAP:
-            case DataType.INTERNALMAP:
-            case DataType.GENERIC_WRITABLECOMPARABLE:
-            case DataType.ERROR:
-            case DataType.UNKNOWN:
-            case DataType.NULL:
             default:
+                //TUPLE, BAG, MAP, INTERNALMAP, GENERIC_WRITABLECOMPARABLE, ERROR, UNKNOWN, NULL and anything else
                 return null;
         }
     }
@@ -227,13 +223,6 @@ public class Sty implements Engine {
         return properties;
     }
 
-    /**
-     * Only used for testing.
-     *
-     * @param execType The execType for Pig
-     * @return A {@link PigServer} object
-     * @throws IOException
-     */
     PigServer getPigServer(String execType) throws IOException {
         return new PigServer(execType, properties);
     }
