@@ -91,7 +91,6 @@ public class ParseManager implements FileLoadable {
      */
     public static void expandParameters(List<TestSuite> suites, Map<String, String> parameterMap) {
         Objects.requireNonNull(suites);
-        Objects.requireNonNull(parameterMap);
 
         suites.stream().filter(Objects::nonNull).map(s -> s.queries)
         .flatMap(Collection::stream).filter(Objects::nonNull)
@@ -107,6 +106,7 @@ public class ParseManager implements FileLoadable {
      */
     public static void expandParameters(Query query, Map<String, String> parameterMap) {
         Objects.requireNonNull(query);
+        Objects.requireNonNull(parameterMap);
         Matcher matcher = REGEX.matcher(query.value);
         StringBuffer newQuery = new StringBuffer();
         while (matcher.find()) {
@@ -138,7 +138,7 @@ public class ParseManager implements FileLoadable {
         }
         try {
             return parser.parse(new FileInputStream(path));
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             log.error(e);
             return null;
         }
