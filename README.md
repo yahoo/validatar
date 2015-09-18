@@ -51,7 +51,7 @@ Queries are named, this name is used as a namespace for all the values returned 
 
 ### Assertions
 
-Assertions are quite flexibile, allowing for the following operations:
+Assertions are quite flexible, allowing for the following operations:
 
 ```
                    >  : greater than

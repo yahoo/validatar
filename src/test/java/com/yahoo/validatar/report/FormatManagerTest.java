@@ -78,7 +78,7 @@ public class FormatManagerTest {
     }
     // Used for tests
     public static class IllegalAccessFormatter implements Formatter {
-        public IllegalAccessFormatter() throws IllegalAccessException{
+        public IllegalAccessFormatter() throws IllegalAccessException {
             throw new IllegalAccessException();
         }
 

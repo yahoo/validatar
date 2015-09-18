@@ -62,45 +62,112 @@ public class TypeSystem {
      * Timestamp to and from Long will do a millis since epoch
      */
     public interface Operations {
+        /**
+         * Adds two TypedObjects.
+         *
+         * @param first The first object.
+         * @param second The second object.
+         * @return The result object.
+         */
         default TypedObject add(TypedObject first, TypedObject second) {
             return null;
         }
 
+        /**
+         * Subtracts two TypedObjects.
+         *
+         * @param first The first object.
+         * @param second The second object.
+         * @return The result object.
+         */
         default TypedObject subtract(TypedObject first, TypedObject second) {
             return null;
         }
 
+        /**
+         * Multiplies two TypedObjects.
+         *
+         * @param first The first object.
+         * @param second The second object.
+         * @return The result object.
+         */
         default TypedObject multiply(TypedObject first, TypedObject second) {
             return null;
         }
 
+        /**
+         * Divides two TypedObjects.
+         *
+         * @param first The first object.
+         * @param second The second object.
+         * @return The result object.
+         */
         default TypedObject divide(TypedObject first, TypedObject second) {
             return null;
         }
 
+        /**
+         * Finds the integer remainder after division two TypedObjects.
+         *
+         * @param first The first object.
+         * @param second The second object.
+         * @return The result object.
+         */
         default TypedObject modulus(TypedObject first, TypedObject second) {
             return null;
         }
 
+        /**
+         * Logical ors two TypedObjects.
+         *
+         * @param first The first object.
+         * @param second The second object.
+         * @return The result object.
+         */
         default TypedObject or(TypedObject first, TypedObject second) {
             return null;
         }
 
+        /**
+         * Logical ands two TypedObjects.
+         *
+         * @param first The first object.
+         * @param second The second object.
+         * @return The result object.
+         */
         default TypedObject and(TypedObject first, TypedObject second) {
             return null;
         }
 
+        /**
+         * Logical negates a TypedObject.
+         *
+         * @param object The object.
+         * @return The result object.
+         */
         default TypedObject negate(TypedObject object) {
             return null;
         }
 
+        /**
+         * Casts a TypedObject into its given type.
+         *
+         * @param object The object.
+         * @return The result object.
+         */
         default TypedObject cast(TypedObject object) {
             return null;
         }
 
-        default BinaryOperator<TypedObject> dispatch(BinaryOperation operator) {
-            Objects.requireNonNull(operator);
-            switch (operator) {
+        /**
+         * Given a BinaryOperation, finds the operator for it. Null if it cannot.
+         *
+         * @param operation The operation
+         * @return The result binary operator that can be applied.
+         */
+        default BinaryOperator<TypedObject> dispatch(BinaryOperation operation) {
+            Objects.requireNonNull(operation);
+            switch (operation) {
                 case ADD:
                     return this::add;
                 case SUBTRACT:
@@ -120,9 +187,15 @@ public class TypeSystem {
             }
         }
 
-        default UnaryOperator<TypedObject> dispatch(UnaryOperation operator) {
-            Objects.requireNonNull(operator);
-            switch (operator) {
+        /**
+         * Given a UnaryOperation, finds the operator for it. Null if it cannot.
+         *
+         * @param operation The operation.
+         * @return The result unary operator that can be applied.
+         */
+        default UnaryOperator<TypedObject> dispatch(UnaryOperation operation) {
+            Objects.requireNonNull(operation);
+            switch (operation) {
                 case NEGATE:
                     return this::negate;
                 case CAST:

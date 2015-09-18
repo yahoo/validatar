@@ -7,7 +7,7 @@ clean:
 	mvn clean
 
 test:
-	mvn clean checkstyle:check test
+	mvn clean verify
 
 jar:
 	mvn clean package
