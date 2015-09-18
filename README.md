@@ -36,14 +36,14 @@ name: Test family name : String
 description: Test family description : String
 queries:
    - name: Query name : String : Ex "Analytics"
-     engine: Execution engine : String ("Hive")
+     engine: Execution engine : String Ex "hive" or "pig"
      value: Query : String : Ex "SELECT COUNT(*) AS pv_count FROM page_data"
    ...
 tests:
    - name: Test name : String
      description: Test description : String
      asserts:
-        - Assertion on some query. Query name is prefixed to the value. : Ex: Analytics.pv_count > 10000
+        - Assertion on some query. Query name is prefixed to the value. : Ex Analytics.pv_count > 10000
    ...
 ```
 
