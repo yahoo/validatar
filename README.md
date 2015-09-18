@@ -1,8 +1,12 @@
 # Validatar
 
-[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
+[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
+<!--
+Commenting out coveralls temporarily
+[![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) 
+-->
 
-Functional testing framework for Big Data pipelines. Current support is only for Hive, but we are planning support for Pig as well as others.
+Functional testing framework for Big Data pipelines. Currently support querying pipeline results through Hive (HiveServer2) and Pig (PigServer).
 
 ## How to build Validatar
 
@@ -82,6 +86,7 @@ Version | Notes
 0.1.8 | Null types in Hive results fix
 0.1.9 | Empty results handling bug fix
 0.2.0 | Internal switch to Java 8. hive-queue is no longer a setting. Use hive-setting.
+0.3.0 | Pig support added.
 
 ## Members
 

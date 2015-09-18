@@ -4,7 +4,7 @@
     <groupId>com.yahoo.validatar</groupId>
     <artifactId>validatar</artifactId>
     <packaging>jar</packaging>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <name>validatar</name>
 
     <properties>
@@ -160,7 +160,6 @@
                     <excludes>
                         <exclude>com/yahoo/validatar/assertion/Grammar*.java</exclude>
                     </excludes>
-                    <includesTestSourceRoots>false</includesTestSourceRoots>
                 </configuration>
             </plugin>
 
@@ -180,13 +179,14 @@
                     </instrumentation>
                     <check/>
                 </configuration>
-            </plugin-->
+            </plugin>
 
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.0.0</version>
-            </plugin>
+            </plugin-->
+
         </plugins>
     </build>
 
