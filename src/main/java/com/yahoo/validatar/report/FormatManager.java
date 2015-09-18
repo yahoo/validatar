@@ -59,12 +59,15 @@ public class FormatManager implements Helpable {
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      */
     public FormatManager(String[] arguments) {
+        loadFormatters();
         String name = (String) parser.parse(arguments).valueOf(REPORT_FORMAT);
-        formatterToUse = findFormatter(name, arguments);
+        formatterToUse = availableFormatters.get(name);
+
         if (formatterToUse == null) {
             printHelp();
             throw new RuntimeException("Could not find a formatter to use");
         }
+
         if (!formatterToUse.setup(arguments)) {
             formatterToUse.printHelp();
             throw new RuntimeException("Could not initialize the requested formatter");
@@ -80,17 +83,13 @@ public class FormatManager implements Helpable {
         formatterToUse = formatter;
     }
 
-    private Formatter findFormatter(String name, String[] arguments) {
+    private void loadFormatters() {
         Reflections reflections = new Reflections("com.yahoo.validatar.report");
         Set<Class<? extends Formatter>> subTypes = reflections.getSubTypesOf(Formatter.class);
         availableFormatters = new HashMap<>();
-        Formatter searchingFor = null;
         for (Class<? extends Formatter> formatterClass : subTypes) {
             try {
                 Formatter formatter = formatterClass.newInstance();
-                if (name.equals(formatter.getName())) {
-                    searchingFor = formatter;
-                }
                 availableFormatters.put(formatter.getName(), formatter);
                 log.info("Setup formatter " + formatter.getName());
             } catch (InstantiationException e) {
@@ -99,7 +98,6 @@ public class FormatManager implements Helpable {
                 log.info("Illegal access of " + formatterClass + " " + e);
             }
         }
-        return searchingFor;
     }
 
     /**

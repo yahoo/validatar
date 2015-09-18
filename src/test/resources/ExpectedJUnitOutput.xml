@@ -5,9 +5,12 @@
     <testcase name="ALPHA"/>
     <testcase name="Checking alpha"/>
   </testsuite>
-  <testsuite tests="4" name="Simple examples">
+  <testsuite tests="5" name="Simple examples">
     <testcase name="ALPHA"/>
     <testcase name="BETA"/>
+    <testcase name="FAIL">
+      <failed>Query had a typo</failed>
+    </testcase>
     <testcase name="Checking alpha"/>
     <testcase name="Checking beta">
       <failed>Description: Long description of the second query; Failed asserts: Sample fail message</failed>

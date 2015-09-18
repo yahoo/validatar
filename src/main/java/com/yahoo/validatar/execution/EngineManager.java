@@ -110,7 +110,7 @@ public class EngineManager implements Helpable {
      *
      * @param engines A list of engines to use as the engines to work with.
      */
-    protected void setEngines(List<Engine> engines) {
+    void setEngines(List<Engine> engines) {
         List<Engine> all = engines == null ? Collections.emptyList() : engines;
         this.engines = all.stream().collect(Collectors.toMap(Engine::getName, WorkingEngine::new));
     }

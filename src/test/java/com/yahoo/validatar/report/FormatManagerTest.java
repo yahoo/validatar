@@ -48,7 +48,31 @@ public class FormatManagerTest {
 
         @Override
         public String getName() {
-            return "MockFormatter";
+            return "MockFormat";
+        }
+    }
+
+    // Used for tests
+    public static class FailingFormatter implements Formatter {
+        public FailingFormatter() {
+        }
+
+        @Override
+        public boolean setup(String[] arguments) {
+            return false;
+        }
+
+        @Override
+        public void printHelp() {
+        }
+
+        @Override
+        public void writeReport(List<TestSuite> testSuites) throws IOException {
+        }
+
+        @Override
+        public String getName() {
+            return "FailingFormat";
         }
     }
 
@@ -64,6 +88,12 @@ public class FormatManagerTest {
         }
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
         System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testFailFormatterSetup() throws IOException {
+        String[] args = {"--report-format", "FailingFormat"};
+        FormatManager manager = new FormatManager(args);
     }
 
     @Test
