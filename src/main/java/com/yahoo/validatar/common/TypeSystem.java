@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
@@ -60,7 +61,7 @@ public class TypeSystem {
      * Exceptions:
      * Timestamp to and from Long will do a millis since epoch
      */
-    private interface Operations {
+    public interface Operations {
         default TypedObject add(TypedObject first, TypedObject second) {
             return null;
         }
@@ -98,6 +99,7 @@ public class TypeSystem {
         }
 
         default BinaryOperator<TypedObject> dispatch(BinaryOperation operator) {
+            Objects.requireNonNull(operator);
             switch (operator) {
                 case ADD:
                     return this::add;
@@ -119,6 +121,7 @@ public class TypeSystem {
         }
 
         default UnaryOperator<TypedObject> dispatch(UnaryOperation operator) {
+            Objects.requireNonNull(operator);
             switch (operator) {
                 case NEGATE:
                     return this::negate;
@@ -166,7 +169,6 @@ public class TypeSystem {
                     case DOUBLE:
                     case DECIMAL:
                     case BOOLEAN:
-                    default:
                         return null;
                 }
                 object.type = Type.LONG;
@@ -204,7 +206,6 @@ public class TypeSystem {
                     case DECIMAL:
                     case BOOLEAN:
                     case TIMESTAMP:
-                    default:
                         return null;
                 }
                 object.type = Type.DOUBLE;
@@ -250,7 +251,6 @@ public class TypeSystem {
                         object.data = BigDecimal.valueOf(((Timestamp) object.data).getTime());
                         break;
                     case BOOLEAN:
-                    default:
                         return null;
                 }
                 object.type = Type.DECIMAL;
@@ -282,7 +282,6 @@ public class TypeSystem {
                     case DOUBLE:
                     case DECIMAL:
                     case TIMESTAMP:
-                    default:
                         return null;
                 }
                 object.type = Type.BOOLEAN;
@@ -312,7 +311,6 @@ public class TypeSystem {
                         object.data = ((Boolean) object.data).toString();
                         break;
                     case TIMESTAMP:
-                    default:
                         return null;
                 }
                 object.type = Type.STRING;
@@ -352,7 +350,6 @@ public class TypeSystem {
                     case DOUBLE:
                     case DECIMAL:
                     case BOOLEAN:
-                    default:
                         return null;
                 }
                 object.type = Type.TIMESTAMP;
