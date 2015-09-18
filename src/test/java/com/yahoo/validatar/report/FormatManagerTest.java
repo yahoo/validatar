@@ -16,6 +16,7 @@
 
 package com.yahoo.validatar.report;
 
+import com.yahoo.validatar.OutputCaptor;
 import com.yahoo.validatar.common.TestSuite;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -75,6 +76,30 @@ public class FormatManagerTest {
             return "FailingFormat";
         }
     }
+    // Used for tests
+    public static class IllegalAccessFormatter implements Formatter {
+        public IllegalAccessFormatter() throws IllegalAccessException{
+            throw new IllegalAccessException();
+        }
+
+        @Override
+        public boolean setup(String[] arguments) {
+            return false;
+        }
+
+        @Override
+        public void printHelp() {
+        }
+
+        @Override
+        public void writeReport(List<TestSuite> testSuites) throws IOException {
+        }
+
+        @Override
+        public String getName() {
+            return "IllegalAccessFormat";
+        }
+    }
 
     @Test
     public void testConstructorAndFindFormatterExceptionNoFormatterFound() throws FileNotFoundException {
@@ -94,6 +119,12 @@ public class FormatManagerTest {
     public void testFailFormatterSetup() throws IOException {
         String[] args = {"--report-format", "FailingFormat"};
         FormatManager manager = new FormatManager(args);
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testFailInstantiation() throws IOException {
+        String[] args = {"--report-format", "IllegalAccessFormat"};
+        OutputCaptor.runWithoutOutput(() -> new FormatManager(args));
     }
 
     @Test

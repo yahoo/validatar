@@ -7,10 +7,40 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
 public class ParseManagerTest {
+    // Reflection will load these classes and test the behavior of the code when handling them.
+    private class UninstantiableParser implements Parser {
+        @Override
+        public TestSuite parse(InputStream data) {
+            return null;
+        }
+        @Override
+        public String getName() {
+            return "Uninstantiable";
+        }
+    }
+
+    public static class IllegalAccessParser implements Parser {
+        public IllegalAccessParser() throws IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+
+        @Override
+        public TestSuite parse(InputStream data) {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return "IllegalAccess";
+        }
+    }
+
+
     @Test
     public void testFailLoadOfNonFile() {
         ParseManager manager = new ParseManager();
