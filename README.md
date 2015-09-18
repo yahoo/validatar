@@ -26,9 +26,9 @@ To run Pig tests in Validatar:
 
 You will also need the settings specified for the engine you are planning to run.
 
-Hive needs the JDBC uri of HiveServer2:
+Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not add it if your queries use ... FROM DB.TABLE WHERE ...
    ```
-   --hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL>>
+   --hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL> etc>
    ```
 
 
