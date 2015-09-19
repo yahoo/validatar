@@ -1,10 +1,6 @@
 # Validatar
 
-[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
-<!--
-Commenting out coveralls temporarily
-[![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) 
--->
+[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
 
 Functional testing framework for Big Data pipelines. Currently support querying pipeline results through Hive (HiveServer2) and Pig (PigServer).
 
@@ -18,12 +14,23 @@ Run:
 
 ## How to run
 
-To run Validatar:
+To run Hive tests Validatar:
 
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/hive/jdbc/lib/jars/*"
     hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml
 
+To run Pig tests in Validatar:
+
+    Coming soon!
+
+
 You will also need the settings specified for the engine you are planning to run.
+
+Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not add it if your queries use ... FROM DB.TABLE WHERE ...
+   ```
+   --hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL> etc>
+   ```
+
 
 ## Writing Tests
 
@@ -90,7 +97,7 @@ Version | Notes
 
 ## Members
 
-Akshai Sarma, akshaisarma@gmail.com  
+Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
 
 ## Contributors
