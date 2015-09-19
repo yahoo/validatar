@@ -166,6 +166,7 @@ public class TypeSystem {
          * @return The result binary operator that can be applied.
          */
         default BinaryOperator<TypedObject> dispatch(BinaryOperation operation) {
+            // Can assign to a return value and return it, getting rid of the unreachable default...
             Objects.requireNonNull(operation);
             switch (operation) {
                 case ADD:

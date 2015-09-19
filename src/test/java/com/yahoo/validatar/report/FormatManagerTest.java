@@ -16,17 +16,15 @@
 
 package com.yahoo.validatar.report;
 
-import com.yahoo.validatar.OutputCaptor;
 import com.yahoo.validatar.common.TestSuite;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.List;
+
+import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
 
 public class FormatManagerTest {
     // Used for tests
@@ -101,30 +99,22 @@ public class FormatManagerTest {
         }
     }
 
-    @Test
+    @Test(expectedExceptions = {RuntimeException.class})
     public void testConstructorAndFindFormatterExceptionNoFormatterFound() throws FileNotFoundException {
-        System.setOut(new PrintStream(new FileOutputStream("target/out")));
-        System.setErr(new PrintStream(new FileOutputStream("target/err")));
         String[] args = {"--report-format", "INVALID"};
-        try {
-            new FormatManager(args);
-            Assert.fail("Should have thrown an Exception");
-        } catch (RuntimeException re) {
-        }
-        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
-        System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
+        runWithoutOutput(() -> new FormatManager(args));
     }
 
     @Test(expectedExceptions = {RuntimeException.class})
     public void testFailFormatterSetup() throws IOException {
         String[] args = {"--report-format", "FailingFormat"};
-        FormatManager manager = new FormatManager(args);
+        new FormatManager(args);
     }
 
     @Test(expectedExceptions = {RuntimeException.class})
     public void testFailInstantiation() throws IOException {
         String[] args = {"--report-format", "IllegalAccessFormat"};
-        OutputCaptor.runWithoutOutput(() -> new FormatManager(args));
+        runWithoutOutput(() -> new FormatManager(args));
     }
 
     @Test

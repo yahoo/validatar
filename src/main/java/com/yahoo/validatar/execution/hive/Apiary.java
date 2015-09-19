@@ -179,6 +179,9 @@ public class Apiary implements Engine {
             case (Types.TIMESTAMP):
                 toReturn = TypeSystem.asTypedObject(results.getTimestamp(index));
                 break;
+            case (Types.NULL):
+                toReturn = null;
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown SQL type encountered from Hive: " + type);
         }

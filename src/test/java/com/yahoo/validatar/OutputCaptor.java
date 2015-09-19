@@ -104,12 +104,20 @@ public class OutputCaptor {
         Logger.getRootLogger().addAppender(originalAppender);
     }
 
-    public static void runWithoutOutput(Runnable function) {
+    public static void redirectToDevNull() {
         System.setOut(NULL);
         System.setErr(NULL);
-        function.run();
+    }
+
+    public static void redirectToStandard() {
         System.setOut(OUT);
         System.setErr(ERR);
+    }
+
+    public static void runWithoutOutput(Runnable function) {
+        redirectToDevNull();
+        function.run();
+        redirectToStandard();
     }
 }
 
