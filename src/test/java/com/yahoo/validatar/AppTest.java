@@ -110,7 +110,7 @@ public class AppTest {
     @Test
     public void testParameterParsingFailure() throws IOException {
         String[] args = {"--parameter", "DATE:20140807"};
-        Assert.assertNull(App.parse(args));
+        Assert.assertNull(new App().parse(args));
     }
 
     @Test

@@ -14,7 +14,7 @@ Run:
 
 ## How to run
 
-To run Hive tests Validatar:
+To run Hive tests in Validatar:
 
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/hive/jdbc/lib/jars/*"
     hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml
@@ -22,7 +22,6 @@ To run Hive tests Validatar:
 To run Pig tests in Validatar:
 
     Coming soon!
-
 
 You will also need the settings specified for the engine you are planning to run.
 
@@ -36,7 +35,7 @@ Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not a
 
 ### Test file format
 
-Test files are written in the YAML format. The schema is as follows:
+Test files are written in the YAML format. See example in src/test/resources/. The schema is as follows:
 
 ```
 name: Test family name : String
