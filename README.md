@@ -4,6 +4,8 @@
 
 Functional testing framework for Big Data pipelines. Currently support querying pipeline results through Hive (HiveServer2) and Pig (PigServer).
 
+Validatar is currently compiled against *Hive-0.13* and *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code.
+
 ## How to build Validatar
 
 You need maven/JDK to build Validatar.
@@ -14,22 +16,24 @@ Run:
 
 ## How to run
 
-To run Hive tests in Validatar:
+Use hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App --help (or -h) for Help
+
+### To run Hive tests in Validatar:
 
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/hive/jdbc/lib/jars/*"
-    hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml
+    hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --hive-jdbc ...
 
-To run Pig tests in Validatar:
+    Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not add it if your queries use ... FROM DB.TABLE WHERE ...
+       ```
+       --hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL> etc>
+       ```
 
-    Coming soon!
+### To run Pig tests in Validatar:
 
-You will also need the settings specified for the engine you are planning to run.
+    export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/pig/lib/*" (Add other jars here depending on your pig exec type or if hive/hcat is used in Pig)
+    hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --pig-exec-type mr --pig-setting 'mapreduce.job.acl-view-job=*' ...
 
-Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not add it if your queries use ... FROM DB.TABLE WHERE ...
-   ```
-   --hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL> etc>
-   ```
-
+    Pig parameters are not supported in the pig query. Instead, use our parameter substitution (see below).
 
 ## Writing Tests
 
@@ -54,6 +58,8 @@ tests:
 ```
 
 Queries are named, this name is used as a namespace for all the values returned from the query. In the above example, we created a query named "Analytics". It stores the return value "pv_count". We are then able to use this in our later asserts.
+
+Validatar can run a single test file or a folder of test files. Use the --help option to see more details.
 
 ### Assertions
 
