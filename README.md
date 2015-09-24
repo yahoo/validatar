@@ -23,8 +23,12 @@ Use hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App --hel
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/hive/jdbc/lib/jars/*"
     hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --hive-jdbc ...
 
-Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not add it if your queries use ... FROM DB.TABLE WHERE ...
-    --hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL> etc>
+Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not add it if your queries use
+```
+... FROM DB.TABLE WHERE ...
+
+--hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL> etc>
+```
 
 ### To run Pig tests in Validatar:
 
