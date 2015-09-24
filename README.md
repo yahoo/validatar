@@ -4,7 +4,7 @@
 
 Functional testing framework for Big Data pipelines. Currently support querying pipeline results through Hive (HiveServer2) and Pig (PigServer).
 
-Validatar is currently compiled against *Hive-0.13* and *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code.
+Validatar is currently compiled against *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code.
 
 ## How to build Validatar
 
@@ -23,17 +23,15 @@ Use hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App --hel
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/hive/jdbc/lib/jars/*"
     hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --hive-jdbc ...
 
-    Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not add it if your queries use ... FROM DB.TABLE WHERE ...
-       ```
-       --hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL> etc>
-       ```
+Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not add it if your queries use ... FROM DB.TABLE WHERE ...
+    --hive-jdbc "jdbc:hive2://<URI>/<DB>;<Optional params: E.g. sasl.qop=auth;principal=hive/<PRINCIPAL_URL> etc>
 
 ### To run Pig tests in Validatar:
 
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/pig/lib/*" (Add other jars here depending on your pig exec type or if hive/hcat is used in Pig)
     hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --pig-exec-type mr --pig-setting 'mapreduce.job.acl-view-job=*' ...
 
-    Pig parameters are not supported in the pig query. Instead, use our parameter substitution (see below).
+Pig parameters are not supported in the pig query. Instead, use our parameter substitution (see below).
 
 ## Writing Tests
 
