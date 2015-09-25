@@ -20,12 +20,11 @@ import com.yahoo.validatar.common.TestSuite;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.List;
+
+import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
 
 public class FormatManagerTest {
     // Used for tests
@@ -48,22 +47,74 @@ public class FormatManagerTest {
 
         @Override
         public String getName() {
-            return "MockFormatter";
+            return "MockFormat";
         }
     }
 
-    @Test
-    public void testConstructorAndFindFormatterExceptionNoFormatterFound() throws FileNotFoundException {
-        System.setOut(new PrintStream(new FileOutputStream("target/out")));
-        System.setErr(new PrintStream(new FileOutputStream("target/err")));
-        String[] args = {"--report-format", "INVALID"};
-        try {
-            new FormatManager(args);
-            Assert.fail("Should have thrown an Exception");
-        } catch (RuntimeException re) {
+    // Used for tests
+    public static class FailingFormatter implements Formatter {
+        public FailingFormatter() {
         }
-        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
-        System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
+
+        @Override
+        public boolean setup(String[] arguments) {
+            return false;
+        }
+
+        @Override
+        public void printHelp() {
+        }
+
+        @Override
+        public void writeReport(List<TestSuite> testSuites) throws IOException {
+        }
+
+        @Override
+        public String getName() {
+            return "FailingFormat";
+        }
+    }
+    // Used for tests
+    public static class IllegalAccessFormatter implements Formatter {
+        public IllegalAccessFormatter() throws IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+
+        @Override
+        public boolean setup(String[] arguments) {
+            return false;
+        }
+
+        @Override
+        public void printHelp() {
+        }
+
+        @Override
+        public void writeReport(List<TestSuite> testSuites) throws IOException {
+        }
+
+        @Override
+        public String getName() {
+            return "IllegalAccessFormat";
+        }
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testConstructorAndFindFormatterExceptionNoFormatterFound() throws FileNotFoundException {
+        String[] args = {"--report-format", "INVALID"};
+        runWithoutOutput(() -> new FormatManager(args));
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testFailFormatterSetup() throws IOException {
+        String[] args = {"--report-format", "FailingFormat"};
+        new FormatManager(args);
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testFailInstantiation() throws IOException {
+        String[] args = {"--report-format", "IllegalAccessFormat"};
+        runWithoutOutput(() -> new FormatManager(args));
     }
 
     @Test

@@ -31,6 +31,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 
+import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
 import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -49,56 +50,46 @@ public class ApiaryTest {
                              "--hive-setting", "mapreduce.job.queuename=default"};
 
     @Test
-    public void testGetJDBCConnector() throws ClassNotFoundException, SQLException, Exception {
+    public void testGetJDBCConnector() throws Exception {
         Apiary apiary = spy(new Apiary());
         doNothing().when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
         Assert.assertTrue(apiary.setup(args));
         Query query = new Query();
         query.name = "Test";
-        query.value = "SELECT 1 as ONE";
+        query.value = "SELECT 1 as ONE, null as TWO";
         apiary.execute(query);
         Assert.assertFalse(query.failed());
         Assert.assertEquals((Long) query.getResult().getColumns().get("Test.ONE").get(0).data,
                             (Long) new TypedObject(1L, TypeSystem.Type.LONG).data);
+        Assert.assertNull(query.getResult().getColumns().get("Test.TWO").get(0));
     }
 
     @Test
-    public void testFailSetup() {
+    public void testFailSetup() throws SQLException, ClassNotFoundException {
         Apiary apiary = spy(new Apiary());
-        try {
-            doThrow(new SQLException()).when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
-        } catch (SQLException se) {
-            Assert.fail("Should not have thrown an exception");
-        }
+        doThrow(new SQLException()).when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
         Assert.assertFalse(apiary.setup(args));
-        try {
-            doThrow(new ClassNotFoundException()).when(apiary).setupConnection(any(OptionSet.class));
-        } catch (ClassNotFoundException | SQLException e) {
-            Assert.fail("Should not have thrown an exception");
-        }
+        doThrow(new ClassNotFoundException()).when(apiary).setupConnection(any(OptionSet.class));
         Assert.assertFalse(apiary.setup(args));
     }
 
     @Test
-    public void testFailExecution() {
+    public void testFailExecution() throws Exception {
         Apiary apiary = spy(new Apiary());
-        try {
-            Statement mocked = mock(Statement.class);
-            doThrow(new SQLException()).when(mocked).executeQuery(anyString());
-            doNothing().when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
-            doReturn(mocked).when(apiary).setupConnection(any(OptionSet.class));
-            apiary.setup(args);
-        } catch (ClassNotFoundException | SQLException e) {
-            Assert.fail("Should not have thrown an exception");
-        }
+        Statement mocked = mock(Statement.class);
+        doThrow(new SQLException()).when(mocked).executeQuery(anyString());
+        doNothing().when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
+        doReturn(mocked).when(apiary).setupConnection(any(OptionSet.class));
+        apiary.setup(args);
         Query query = new Query();
         apiary.execute(query);
         Assert.assertTrue(query.failed());
     }
 
     @Test
-    public void testHiveSettings() {
+    public void testHiveSettings() throws SQLException {
         Apiary apiary = new Apiary();
+        runWithoutOutput(() -> apiary.printHelp());
         Statement mocked = mock(Statement.class);
         OptionParser parser = new OptionParser() {
             {
@@ -109,14 +100,10 @@ public class ApiaryTest {
         String[] args = {"--hive-setting", "mapreduce.job.queuename=default",
                          "--hive-setting", "hive.execution.engine=tez",
                          "--hive-setting", "hive.execution.engine=mr"};
-        try {
-            apiary.setHiveSettings(parser.parse(args), mocked);
-            verify(mocked).executeUpdate("set mapreduce.job.queuename=default");
-            verify(mocked).executeUpdate("set hive.execution.engine=tez");
-            verify(mocked).executeUpdate("set hive.execution.engine=mr");
-        } catch (SQLException se) {
-            Assert.fail("Should not have thrown an exception");
-        }
+        apiary.setHiveSettings(parser.parse(args), mocked);
+        verify(mocked).executeUpdate("set mapreduce.job.queuename=default");
+        verify(mocked).executeUpdate("set hive.execution.engine=tez");
+        verify(mocked).executeUpdate("set hive.execution.engine=mr");
     }
 
     @Test

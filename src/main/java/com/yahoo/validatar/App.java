@@ -42,25 +42,28 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 public class App {
-    /**
-     * Logging class.
-     */
     protected static final Logger LOG = Logger.getLogger(com.yahoo.validatar.App.class.getName());
+
+    public static final String PARAMETER = "parameter";
+    public static final String PARAMETER_DELIMITER = "=";
+    public static final String TEST_SUITE = "test-suite";
+    public static final String HELP = "help";
+    public static final String HELP_ABBREVIATED = "h";
 
     /**
      * The CLI parser.
      */
     public static final OptionParser PARSER = new OptionParser() {
         {
-            acceptsAll(singletonList("parameter"), "Parameter to replace all '${VAR}' in the query string. Ex: --parameter DATE=2014-07-24")
+            acceptsAll(singletonList(PARAMETER), "Parameter to replace all '${VAR}' in the query string. Ex: --parameter DATE=2014-07-24")
                 .withRequiredArg()
                 .describedAs("Parameter");
-            acceptsAll(singletonList("test-suite"), "File or folder that contains the test suite file(s).")
+            acceptsAll(singletonList(TEST_SUITE), "File or folder that contains the test suite file(s).")
                 .withRequiredArg()
                 .required()
                 .ofType(File.class)
                 .describedAs("Test suite file/folder");
-            acceptsAll(asList("h", "help"), "Shows help message.");
+            acceptsAll(asList(HELP_ABBREVIATED, HELP), "Shows help message.");
             allowsUnrecognizedOptions();
         }
     };
@@ -75,7 +78,7 @@ public class App {
     public static Map<String, String> splitParameters(OptionSet options, String parameterName) {
         Map<String, String> parameterMap = new HashMap<>();
         for (String parameter : (List<String>) options.valuesOf(parameterName)) {
-            String[] tokens = parameter.split("=");
+            String[] tokens = parameter.split(PARAMETER_DELIMITER);
             if (tokens.length != 2) {
                 throw new RuntimeException("Invalid parameter. It should be KEY=VALUE. Found " + parameter);
             }
@@ -161,13 +164,13 @@ public class App {
         FormatManager formatManager = new FormatManager(args);
 
         // Check if user needs help
-        if (options == null || options.has("h") || options.has("help")) {
+        if (options == null || options.has(HELP_ABBREVIATED) || options.has(HELP)) {
             Helpable.printHelp("Application options", PARSER);
             engineManager.printHelp();
             formatManager.printHelp();
             return;
         }
-        Map<String, String> parameterMap = splitParameters(options, "parameter");
-        run((File) options.valueOf("test-suite"), parameterMap, parseManager, engineManager, formatManager);
+        Map<String, String> parameterMap = splitParameters(options, PARAMETER);
+        run((File) options.valueOf(TEST_SUITE), parameterMap, parseManager, engineManager, formatManager);
     }
 }

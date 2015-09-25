@@ -26,15 +26,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.yahoo.validatar.OutputCaptor.redirectToDevNull;
+import static com.yahoo.validatar.OutputCaptor.redirectToStandard;
 import static java.util.Collections.singletonList;
 
 public class AppTest {
@@ -87,6 +86,54 @@ public class AppTest {
     }
 
     @Test
+    public void testFailRunTests() throws Exception {
+        String[] args = {"--report-file", "target/AppTest-testFailRunTests.xml",
+                         "--hive-driver", "org.h2.Driver",
+                         "--hive-jdbc", "jdbc:h2:mem:"};
+        Map<String, String> parameterMap = new HashMap<>();
+        File emptyTest = new File("src/test/resources/pig-tests/sample.yaml");
+        ParseManager parseManager = new ParseManager();
+        EngineManager engineManager = new CustomEngineManager(args);
+        FormatManager formatManager = new FormatManager(args);
+
+        App.run(emptyTest, parameterMap, parseManager, engineManager, formatManager);
+        Assert.assertFalse(new File("target/AppTest-testFailRunTests.xml").exists());
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testParameterMissingToken() throws IOException {
+        String[] args = {"--test-suite", "tests.yaml", "--parameter", "DATE:20140807"};
+        OptionSet options = App.parse(args);
+        App.splitParameters(options, "parameter");
+    }
+
+    @Test
+    public void testParameterParsingFailure() throws IOException {
+        String[] args = {"--parameter", "DATE:20140807"};
+        Assert.assertNull(new App().parse(args));
+    }
+
+    @Test
+    public void testSimpleParameterParse() throws IOException {
+        // Fake CLI args
+        String[] args = {"--test-suite", "tests.yaml",
+                         "--parameter", "DATE=2014071800",
+                         "--parameter", "NAME=ALPHA"};
+
+        // Parse CLI args
+        Map<String, String> paramMap;
+        OptionSet options = App.parse(args);
+        paramMap = App.splitParameters(options, "parameter");
+
+        // Check parse
+        File testFile = (File) options.valueOf("test-suite");
+        Assert.assertEquals(testFile.getName(), "tests.yaml");
+
+        Assert.assertEquals(paramMap.get("DATE"), "2014071800");
+        Assert.assertEquals(paramMap.get("NAME"), "ALPHA");
+    }
+
+    @Test
     public void testRunTests() throws Exception {
         String[] args = {"--report-file", "target/AppTest-testRunTests.xml",
                          "--hive-driver", "org.h2.Driver",
@@ -98,37 +145,30 @@ public class AppTest {
         FormatManager formatManager = new FormatManager(args);
 
         App.run(emptyTest, parameterMap, parseManager, engineManager, formatManager);
+        Assert.assertTrue(new File("target/AppTest-testRunTests.xml").exists());
     }
 
     @Test
-    public void testParameterParsingFailure() throws IOException {
-        System.setOut(new PrintStream(new FileOutputStream("target/out")));
-        System.setErr(new PrintStream(new FileOutputStream("target/err")));
+    public void testMain() throws IOException {
+        redirectToDevNull();
 
-        String[] args = {"--parameter", "DATE:20140807"};
-        Assert.assertNull(App.parse(args));
+        App.main(new String[0]);
 
-        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
-        System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
-    }
+        String[] abbreviated = {"--h", "--test-suite", "src/test/resources/sample-tests"};
+        App.main(abbreviated);
+        Assert.assertFalse(new File("target/AppTest-testMainHelpPrinting.xml").exists());
 
-    @Test
-    public void testSimpleParameterParse() throws IOException {
-        // Fake CLI args
-        String[] args = {"--test-suite", "tests.yaml",
-                         "--parameter", "DATE=2014071800",
-                         "--parameter", "NAME=ALPHA"};
+        String[] nonAbbreviated = {"--help", "--test-suite", "src/test/resources/sample-tests"};
+        App.main(nonAbbreviated);
+        Assert.assertFalse(new File("target/AppTest-testMainHelpPrinting.xml").exists());
 
-        // Parse CLI args
-        Map<String, String> paramMap = null;
-        OptionSet options = App.parse(args);
-        paramMap = App.splitParameters(options, "parameter");
+        String[] args = {"--report-file", "target/AppTest-testMainHelpPrinting.xml",
+                         "--test-suite", "src/test/resources/sample-tests",
+                         "--hive-driver", "org.h2.Driver",
+                         "--hive-jdbc", "jdbc:h2:mem:"};
+        App.main(args);
+        Assert.assertFalse(new File("target/AppTest-testMainHelpPrinting.xml").exists());
 
-        // Check parse
-        File testFile = (File) options.valueOf("test-suite");
-        Assert.assertEquals(testFile.getName(), "tests.yaml");
-
-        Assert.assertEquals(paramMap.get("DATE"), "2014071800");
-        Assert.assertEquals(paramMap.get("NAME"), "ALPHA");
+        redirectToStandard();
     }
 }

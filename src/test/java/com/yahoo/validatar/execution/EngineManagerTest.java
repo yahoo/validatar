@@ -16,7 +16,7 @@
 
 package com.yahoo.validatar.execution;
 
-import com.yahoo.validatar.LogCaptor;
+import com.yahoo.validatar.OutputCaptor;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EngineManagerTest extends LogCaptor {
+public class EngineManagerTest extends OutputCaptor {
 
     private class MockFailingEngine implements Engine {
         public static final String ENGINE_NAME = "FAILER";
@@ -59,9 +59,11 @@ public class EngineManagerTest extends LogCaptor {
     private class MockPassingEngine implements Engine {
         public static final String ENGINE_NAME = "PASSER";
         public boolean helpPrinted = false;
+        public int timesStarted = 0;
 
         @Override
         public boolean setup(String[] arguments) {
+            timesStarted++;
             return true;
         }
 
@@ -108,6 +110,30 @@ public class EngineManagerTest extends LogCaptor {
         }
     }
 
+    public static class IllegalAccessEngine implements Engine {
+        public IllegalAccessEngine() throws IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+
+        @Override
+        public boolean setup(String[] arguments) {
+            return true;
+        }
+
+        @Override
+        public void execute(Query query) {
+        }
+
+        @Override
+        public String getName() {
+            return "IllegalAccess";
+        }
+
+        @Override
+        public void printHelp() {
+        }
+    }
+
     List<Query> queries;
     List<Engine> engines;
     EngineManager manager;
@@ -115,6 +141,7 @@ public class EngineManagerTest extends LogCaptor {
 
     @BeforeMethod
     public void setup() {
+        setupMockedAppender();
         query = new Query();
         query.engine = MockPassingEngine.ENGINE_NAME;
         queries = new ArrayList<>();
@@ -125,7 +152,6 @@ public class EngineManagerTest extends LogCaptor {
         engines.add(new MockRunningEngine());
         String[] args = {};
         manager = new EngineManager(args);
-        setupMockedAppender();
     }
 
     @AfterMethod
@@ -150,6 +176,12 @@ public class EngineManagerTest extends LogCaptor {
     }
 
     @Test
+    public void testEngineIllegalAccess() {
+        Assert.assertTrue(isStringInLog("Illegal access while loading class com.yahoo.validatar" +
+                                        ".execution.EngineManagerTest$IllegalAccessEngine engine."));
+    }
+
+    @Test
     public void testEngineNullQueriesNotNull() {
         query.engine = null;
         manager.setEngines(engines);
@@ -169,6 +201,25 @@ public class EngineManagerTest extends LogCaptor {
         manager.printHelp();
         MockPassingEngine engine = (MockPassingEngine) engines.get(1);
         Assert.assertTrue(engine.helpPrinted);
+    }
+
+    @Test
+    public void testNotStartingEngineIfStarted() {
+        query.engine = MockPassingEngine.ENGINE_NAME;
+        manager.setEngines(engines);
+        manager.startEngines(queries);
+        manager.startEngines(queries);
+        MockPassingEngine startedEngine = (MockPassingEngine) engines.stream()
+                                          .filter(e -> MockPassingEngine.ENGINE_NAME.equals(e.getName()))
+                                          .findFirst().get();
+        Assert.assertEquals(startedEngine.timesStarted, 1);
+    }
+
+    @Test
+    public void testFailRun() {
+        query.engine = MockFailingEngine.ENGINE_NAME;
+        manager.setEngines(engines);
+        Assert.assertFalse(manager.run(queries));
     }
 
     @Test

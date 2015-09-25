@@ -16,6 +16,7 @@
 
 package com.yahoo.validatar.report.junit;
 
+import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.parse.ParseManager;
 import org.dom4j.Document;
@@ -25,7 +26,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class JUnitFormatterTest {
     @Test
-    public void testWriteReport() throws FileNotFoundException, IOException, org.dom4j.DocumentException {
+    public void testWriteReport() throws IOException, org.dom4j.DocumentException {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("DATE", "20140807");
 
@@ -46,13 +46,10 @@ public class JUnitFormatterTest {
 
         Assert.assertEquals(testSuites.size(), 3);
 
-        // Ensure that we are modifying the 'Simple examples' test suite
-        com.yahoo.validatar.common.Test test;
-        if (testSuites.get(0).name.equals("Simple examples")) {
-            test = testSuites.get(0).tests.get(1);
-        } else {
-            test = testSuites.get(1).tests.get(1);
-        }
+        TestSuite simpleExamples = testSuites.stream().filter(s -> "Simple examples".equals(s.name)).findFirst().get();
+        Query failingQuery = simpleExamples.queries.get(2);
+        failingQuery.setFailure("Query had a typo");
+        com.yahoo.validatar.common.Test test = simpleExamples.tests.get(1);
 
         test.setFailed();
         test.addMessage("Sample fail message");

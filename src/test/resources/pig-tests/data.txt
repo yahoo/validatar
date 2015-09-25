@@ -1,0 +1,9 @@
+foo,12
+bar,1
+foo,1
+foo,-4
+bar,0
+baz,-26
+foo,-8
+baz,19
+foo,2

@@ -41,6 +41,10 @@ import static com.yahoo.validatar.common.TypeSystem.subtract;
 
 public class TypeSystemTest {
     private TypeSystem system = new TypeSystem();
+
+    private class CustomOperations implements TypeSystem.Operations {
+    }
+
     public static final double EPSILON = 0.00001;
 
     private boolean boolify(TypedObject type) {
@@ -662,4 +666,20 @@ public class TypeSystemTest {
     public void testFailLogicalAndString() {
         logicalAnd(asTypedObject("false"), asTypedObject("true"));
     }
+
+    /************************************/
+
+    @Test
+    public void testDispatchedCasting() {
+        TypedObject first = asTypedObject("42");
+        TypedObject result = TypeSystem.perform(TypeSystem.UnaryOperation.CAST, first);
+        Assert.assertTrue(boolify(isEqualTo(first, result)));
+    }
+
+    @Test
+    public void testDefaultCasting() {
+        TypeSystem.Operations operations = new CustomOperations();
+        Assert.assertNull(operations.cast(asTypedObject(42L)));
+    }
 }
+

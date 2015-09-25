@@ -1,13 +1,13 @@
 all: full
 
 full:
-	mvn clean checkstyle:check cobertura:cobertura javadoc:jar package
+	mvn clean javadoc:jar package
 
 clean:
 	mvn clean
 
 test:
-	mvn clean checkstyle:check test
+	mvn clean verify
 
 jar:
 	mvn clean package
@@ -16,13 +16,13 @@ release:
 	mvn -B release:prepare release:clean
 
 coverage:
-	mvn clean cobertura:cobertura
+	mvn clean clover2:setup test clover2:aggregate clover2:clover
 
 doc:
 	mvn clean javadoc:javadoc
 
 see-coverage: coverage
-	cd target/site/cobertura; python -m SimpleHTTPServer
+	cd target/site/clover; python -m SimpleHTTPServer
 
 see-doc: doc
 	cd target/site/apidocs; python -m SimpleHTTPServer

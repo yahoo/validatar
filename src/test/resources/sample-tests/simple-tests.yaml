@@ -12,6 +12,10 @@ queries:
      value: "SELECT SUM(CASE WHEN y = true THEN 1 ELSE 0 END) as y_count
              FROM sample_data TABLESAMPLE(0.1 percent)
              WHERE dt=${DATE}"
+   - name: FAIL
+     engine: pig
+     value: "LOAD '${FILE}' USING PigStorage(',');
+             BAD_TYPO_HERE"
 tests:
    - name: Checking alpha
      description: Looks at count output.
