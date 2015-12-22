@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Collections.singletonList;
 
@@ -86,14 +87,22 @@ public class JSON implements Engine {
     @Override
     public void printHelp() {
         Helpable.printHelp("REST Engine options", parser);
+        System.out.println("This REST Engine works with JSON input (if any) and JSON output.");
+        System.out.println("The query part of the engine is a JavaScript function that takes your JSON response from");
+        System.out.println("your request and makes it look columnar. Use loops etc to iterate over your JSON and pull");
+        System.out.println("out your columns and store it as a JSON object. For example, suppose you want to extract");
+        System.out.println("columns called 'a' and 'b', you would create and return the following  JSON object :");
+        System.out.println("{\"a\": [a1, a2, ... an], \"b\": [b1, b2, ... bn]}");
+        System.out.println("This engine will inspect the elements and convert them to the proper typed objects.");
+        System.out.println("The metadata part of the query contains the required key/value pairs for making the REST");
+        System.out.println("call. You c");
+        System.out.println("The metadata part of the query contains the required key/value pairs for making the REST");
     }
 
     @Override
     public void execute(Query query) {
         Map<String, String> metadata = query.getMetadata();
-        if (metadata == null) {
-            throw new NullPointerException("This query does not have at least a url to make the request to");
-        }
+        validate(metadata);
 
         HttpClient client = createClient(metadata);
         HttpUriRequest request = createRequest(metadata);
@@ -101,6 +110,14 @@ public class JSON implements Engine {
             HttpResponse response = client.execute(request);
         } catch (IOException ioe) {
             log.error("Could not execute request with params {}", metadata.toString());
+        }
+    }
+
+    private void validate(Map<String, String> metadata) {
+        Objects.requireNonNull(metadata);
+        String url = metadata.get(URL_KEY);
+        if (url == null || url.isEmpty()) {
+            throw new IllegalArgumentException("The " + URL_KEY + " must be provided and contain a valid url.");
         }
     }
 
