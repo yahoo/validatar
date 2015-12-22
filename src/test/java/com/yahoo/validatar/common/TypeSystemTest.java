@@ -62,27 +62,27 @@ public class TypeSystemTest {
     @Test
     public void testTypedObjectConversions() {
         Boolean booleanValue = true;
-        Assert.assertEquals((Boolean) asTypedObject(booleanValue).data, Boolean.valueOf(true));
+        Assert.assertEquals(asTypedObject(booleanValue).data, Boolean.valueOf(true));
         Assert.assertEquals(asTypedObject(booleanValue).type, Type.BOOLEAN);
         String stringValue = "foo";
         Assert.assertEquals((String) asTypedObject(stringValue).data, "foo");
         Assert.assertEquals(asTypedObject(stringValue).type, Type.STRING);
 
         Long longValue = 131412300000000000L;
-        Assert.assertEquals((Long) asTypedObject(longValue).data, Long.valueOf(131412300000000000L));
+        Assert.assertEquals(asTypedObject(longValue).data, Long.valueOf(131412300000000000L));
         Assert.assertEquals(asTypedObject(longValue).type, Type.LONG);
 
         Double doubleValue = 235242523.04;
-        Assert.assertEquals((Double) asTypedObject(doubleValue).data, Double.valueOf(235242523.04));
+        Assert.assertEquals(asTypedObject(doubleValue).data, Double.valueOf(235242523.04));
         Assert.assertEquals(asTypedObject(doubleValue).type, Type.DOUBLE);
 
         BigDecimal decimalValue = new BigDecimal("234235234234223425151231231151231.123141231231411231231");
-        Assert.assertEquals((BigDecimal) asTypedObject(decimalValue).data, new BigDecimal("234235234234223425151231231151231.123141231231411231231"));
+        Assert.assertEquals(asTypedObject(decimalValue).data, new BigDecimal("234235234234223425151231231151231.123141231231411231231"));
         Assert.assertEquals(asTypedObject(decimalValue).type, Type.DECIMAL);
 
         long timeNow = System.currentTimeMillis();
         Timestamp timestampValue = new Timestamp(timeNow);
-        Assert.assertEquals((Timestamp) asTypedObject(timestampValue).data, new Timestamp(timeNow));
+        Assert.assertEquals(asTypedObject(timestampValue).data, new Timestamp(timeNow));
         Assert.assertEquals(asTypedObject(timestampValue).type, Type.TIMESTAMP);
     }
 
@@ -251,11 +251,11 @@ public class TypeSystemTest {
 
     @Test
     public void testLongArithmetic() {
-        Assert.assertEquals((Long) add(asTypedObject(14L), asTypedObject(4L)).data, Long.valueOf(18L));
-        Assert.assertEquals((Long) subtract(asTypedObject(4L), asTypedObject(14L)).data, Long.valueOf(-10L));
-        Assert.assertEquals((Long) multiply(asTypedObject(14L), asTypedObject(3L)).data, Long.valueOf(42L));
-        Assert.assertEquals((Long) divide(asTypedObject(14L), asTypedObject(4L)).data, Long.valueOf(3L));
-        Assert.assertEquals((Long) modulus(asTypedObject(14L), asTypedObject(4L)).data, Long.valueOf(2L));
+        Assert.assertEquals(add(asTypedObject(14L), asTypedObject(4L)).data, Long.valueOf(18L));
+        Assert.assertEquals(subtract(asTypedObject(4L), asTypedObject(14L)).data, Long.valueOf(-10L));
+        Assert.assertEquals(multiply(asTypedObject(14L), asTypedObject(3L)).data, Long.valueOf(42L));
+        Assert.assertEquals(divide(asTypedObject(14L), asTypedObject(4L)).data, Long.valueOf(3L));
+        Assert.assertEquals(modulus(asTypedObject(14L), asTypedObject(4L)).data, Long.valueOf(2L));
     }
 
     /***
@@ -266,11 +266,11 @@ public class TypeSystemTest {
     public void testCastingToDouble() {
         TypedObject doubledObject = new TypedObject(0.0, Type.DOUBLE);
 
-        doubledObject.data = (Double) 123.0;
+        doubledObject.data = 123.0;
         TypedObject longSample = asTypedObject(123L);
         Assert.assertTrue(boolify(isEqualTo(doubledObject, longSample)));
 
-        doubledObject.data = (Double) 3.14159265;
+        doubledObject.data = 3.14159265;
         TypedObject stringSample = asTypedObject("3.14159265");
         Assert.assertTrue(boolify(isEqualTo(doubledObject, stringSample)));
     }
@@ -381,20 +381,15 @@ public class TypeSystemTest {
 
     @Test
     public void testDecimalArithmetic() {
-        Assert.assertEquals((BigDecimal) add(asTypedObject(new BigDecimal("0.01")),
-                                             asTypedObject(new BigDecimal("10.0"))).data,
+        Assert.assertEquals(add(asTypedObject(new BigDecimal("0.01")), asTypedObject(new BigDecimal("10.0"))).data,
                             new BigDecimal("10.01"));
-        Assert.assertEquals((BigDecimal) subtract(asTypedObject(new BigDecimal("0.01")),
-                                                  asTypedObject(new BigDecimal("10.0"))).data,
+        Assert.assertEquals(subtract(asTypedObject(new BigDecimal("0.01")), asTypedObject(new BigDecimal("10.0"))).data,
                             new BigDecimal("-9.99"));
-        Assert.assertEquals((BigDecimal) multiply(asTypedObject(new BigDecimal("0.01")),
-                                                  asTypedObject(new BigDecimal("10.0"))).data,
+        Assert.assertEquals(multiply(asTypedObject(new BigDecimal("0.01")), asTypedObject(new BigDecimal("10.0"))).data,
                             new BigDecimal("0.100"));
-        Assert.assertEquals((BigDecimal) divide(asTypedObject(new BigDecimal("0.01")),
-                                                asTypedObject(new BigDecimal("10.0"))).data,
+        Assert.assertEquals(divide(asTypedObject(new BigDecimal("0.01")), asTypedObject(new BigDecimal("10.0"))).data,
                             new BigDecimal("0.001"));
-        Assert.assertEquals((BigDecimal) modulus(asTypedObject(new BigDecimal("101.2")),
-                                                 asTypedObject(new BigDecimal("10.0"))).data,
+        Assert.assertEquals(modulus(asTypedObject(new BigDecimal("101.2")), asTypedObject(new BigDecimal("10.0"))).data,
                             new BigDecimal("1.2"));
     }
 

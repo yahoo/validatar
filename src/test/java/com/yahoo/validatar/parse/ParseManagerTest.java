@@ -108,8 +108,7 @@ public class ParseManagerTest {
     public void testFailExpansion() {
         Query query = new Query();
         query.value = "${var}";
-        ParseManager manager = new ParseManager();
-        manager.expandParameters(query, Collections.emptyMap());
+        ParseManager.expandParameters(query, Collections.emptyMap());
         Assert.assertEquals(query.value, "${var}");
     }
 
@@ -117,8 +116,7 @@ public class ParseManagerTest {
     public void testExpansion() {
         Query query = new Query();
         query.value = "${var}";
-        ParseManager manager = new ParseManager();
-        manager.expandParameters(query, Collections.singletonMap("var", "foo"));
+        ParseManager.expandParameters(query, Collections.singletonMap("var", "foo"));
         Assert.assertEquals(query.value, "foo");
     }
 }

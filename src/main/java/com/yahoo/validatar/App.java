@@ -91,9 +91,8 @@ public class App {
      *
      * @param args CLI args
      * @return Option set containing all settings
-     * @throws java.io.IOException if any.
      */
-    public static OptionSet parse(String[] args) throws IOException {
+    public static OptionSet parse(String[] args) {
         try {
             return PARSER.parse(args);
         } catch (Exception e) {

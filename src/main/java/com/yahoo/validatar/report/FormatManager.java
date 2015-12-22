@@ -42,7 +42,7 @@ public class FormatManager implements Helpable {
 
     // Leaving it here for now. If new formatters that require more complex options are needed,
     // it can be moved to inside the respective formatters.
-    private OptionParser parser = new OptionParser() {
+    private final OptionParser parser = new OptionParser() {
         {
             acceptsAll(singletonList(REPORT_FORMAT), "Which report format to use.")
                 .withRequiredArg()
@@ -90,11 +90,11 @@ public class FormatManager implements Helpable {
             try {
                 Formatter formatter = formatterClass.newInstance();
                 availableFormatters.put(formatter.getName(), formatter);
-                log.info("Setup formatter " + formatter.getName());
+                log.info("Setup formatter {}", formatter.getName());
             } catch (InstantiationException e) {
-                log.info("Error instantiating " + formatterClass + " " + e);
+                log.info("Error instantiating {}\n{}", formatterClass, e);
             } catch (IllegalAccessException e) {
-                log.info("Illegal access of " + formatterClass + " " + e);
+                log.info("Illegal access of {}\n{}", formatterClass, e);
             }
         }
     }

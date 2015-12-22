@@ -42,7 +42,7 @@ public class JUnitFormatter implements Formatter {
 
     public static final String JUNIT = "junit";
 
-    private OptionParser parser = new OptionParser() {
+    private final OptionParser parser = new OptionParser() {
         {
             acceptsAll(singletonList(REPORT_FILE), "File to store the test reports.")
                 .withRequiredArg()

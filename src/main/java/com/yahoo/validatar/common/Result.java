@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Result {
-    private Map<String, List<TypedObject>> data = new HashMap<>();
+    private final Map<String, List<TypedObject>> data = new HashMap<>();
     private String prefix = "";
 
     /**
@@ -38,6 +38,17 @@ public class Result {
      * Default constructor with no prefix.
      */
     public Result() {
+    }
+
+    /**
+     * Adds an entire set of data to the results.
+     *
+     * @param data The data to add to the result.
+     */
+    public void addColumns(Map<String, List<TypedObject>> data) {
+        if (data != null) {
+            data.entrySet().stream().forEach(e -> addColumn(e.getKey(), e.getValue()));
+        }
     }
 
     /**

@@ -92,11 +92,11 @@ public class EngineManager implements Helpable {
             try {
                 engine = engineClass.newInstance();
                 engines.put(engine.getName(), new WorkingEngine(engine));
-                log.info("Added engine " + engine.getName() + " to list of engines.");
+                log.info("Added engine {} to list of engines.", engine.getName());
             } catch (InstantiationException e) {
-                log.error("Error instantiating " + engineClass + " engine.", e);
+                log.error("Error instantiating {} engine.\n{}", engineClass, e);
             } catch (IllegalAccessException e) {
-                log.error("Illegal access while loading " + engineClass + " engine.", e);
+                log.error("Illegal access while loading {} engine.\n{}", engineClass, e);
             }
         }
     }
@@ -128,7 +128,7 @@ public class EngineManager implements Helpable {
     private boolean startEngine(String engine) {
         WorkingEngine working = engines.get(engine);
         if (working == null) {
-            log.error("Engine " + engine + " not loaded but required by query.");
+            log.error("Engine {} not loaded but required by query.", engine);
             return false;
         }
         // Already started?
@@ -137,7 +137,7 @@ public class EngineManager implements Helpable {
         }
         working.isStarted = working.getEngine().setup(arguments);
         if (!working.isStarted) {
-            log.error("Required engine " + engine + " could not be setup.");
+            log.error("Required engine {} could not be setup.", engine);
             working.getEngine().printHelp();
             return false;
         }

@@ -34,7 +34,7 @@ import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
 public class StyTest {
     public static final double EPSILON = 0.00001;
 
-    private String[] defaults = {"--pig-exec-type", "local"};
+    private final String[] defaults = {"--pig-exec-type", "local"};
 
     private Sty sty;
 
@@ -60,8 +60,7 @@ public class StyTest {
 
     private PigServer getServer(String execType, Properties properties) throws IOException {
         PigServer server = new PigServer(execType, properties);
-        PigServer spiedServer = Mockito.spy(server);
-        return spiedServer;
+        return Mockito.spy(server);
     }
 
     private Schema getSchema(Schema.FieldSchema... schema) {
@@ -108,7 +107,7 @@ public class StyTest {
     public void testDefaults() {
         Assert.assertTrue(sty.setup(new String[0]));
         Assert.assertEquals(sty.getName(), Sty.ENGINE_NAME);
-        runWithoutOutput(() -> sty.printHelp());
+        runWithoutOutput(sty::printHelp);
     }
 
     @Test

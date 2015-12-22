@@ -55,7 +55,7 @@ public class Assertor {
     }
 
     private static void assertOneAssertion(String assertion, Map<String, TypedObject> row, Test test) {
-        log.info("Running assertion: " + assertion);
+        log.info("Running assertion: {}", assertion);
         try {
             ANTLRInputStream in = new ANTLRInputStream(assertion);
             GrammarLexer lexer = new GrammarLexer(in);

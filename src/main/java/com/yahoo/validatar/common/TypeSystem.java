@@ -207,7 +207,7 @@ public class TypeSystem {
         }
     }
 
-    private static Map<Type, Operations> operations = new HashMap<>();
+    private static final Map<Type, Operations> operations = new HashMap<>();
     static {
         operations.put(Type.LONG, new Operations() {
             public TypedObject add(TypedObject first, TypedObject second) {
