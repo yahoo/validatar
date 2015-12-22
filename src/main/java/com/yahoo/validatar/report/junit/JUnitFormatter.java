@@ -22,8 +22,8 @@ import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.report.Formatter;
 import joptsimple.OptionParser;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -36,9 +36,9 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 
+@Slf4j
 public class JUnitFormatter implements Formatter {
     public static final String REPORT_FILE = "report-file";
-    protected final Logger log = Logger.getLogger(getClass());
 
     public static final String JUNIT = "junit";
 

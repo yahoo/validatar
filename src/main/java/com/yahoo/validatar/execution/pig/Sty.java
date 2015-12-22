@@ -24,7 +24,7 @@ import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pig.PigServer;
 import org.apache.pig.backend.executionengine.ExecException;
 import org.apache.pig.data.DataType;
@@ -44,12 +44,11 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 
+@Slf4j
 public class Sty implements Engine {
     public static final String PIG_EXEC_TYPE = "pig-exec-type";
     public static final String PIG_OUTPUT_ALIAS = "pig-output-alias";
     public static final String PIG_SETTING = "pig-setting";
-
-    protected final Logger log = Logger.getLogger(getClass());
 
     /** Engine name. */
     public static final String ENGINE_NAME = "pig";

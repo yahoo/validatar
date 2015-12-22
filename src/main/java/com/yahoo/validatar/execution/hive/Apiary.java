@@ -24,7 +24,7 @@ import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,13 +37,13 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 
+@Slf4j
 public class Apiary implements Engine {
     public static final String HIVE_JDBC = "hive-jdbc";
     public static final String HIVE_DRIVER = "hive-driver";
     public static final String HIVE_USERNAME = "hive-username";
     public static final String HIVE_PASSWORD = "hive-password";
     public static final String HIVE_SETTING = "hive-setting";
-    protected final Logger log = Logger.getLogger(getClass());
 
     public static final String ENGINE_NAME = "hive";
 
@@ -86,7 +86,7 @@ public class Apiary implements Engine {
             statement = setupConnection(options);
             setHiveSettings(options, statement);
         } catch (ClassNotFoundException | SQLException e) {
-            log.error(e);
+            log.error("Could not set up the Hive engine", e);
             return false;
         }
         return true;

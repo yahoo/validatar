@@ -18,7 +18,7 @@ package com.yahoo.validatar.parse;
 
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 
 import java.io.File;
@@ -34,11 +34,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class ParseManager implements FileLoadable {
 
     public static final Pattern REGEX = Pattern.compile("\\$\\{(.*?)\\}");
-
-    protected Logger log = Logger.getLogger(getClass().getName());
 
     private HashMap<String, Parser> availableParsers;
 
@@ -138,7 +137,7 @@ public class ParseManager implements FileLoadable {
         try {
             return parser.parse(new FileInputStream(path));
         } catch (Exception e) {
-            log.error(e);
+            log.error("Could not parse the TestSuite", e);
             return null;
         }
     }

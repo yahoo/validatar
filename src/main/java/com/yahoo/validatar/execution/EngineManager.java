@@ -18,7 +18,7 @@ package com.yahoo.validatar.execution;
 
 import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 
 import java.util.Collections;
@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 /**
  * Manages the creation and execution of execution engines.
  */
+@Slf4j
 public class EngineManager implements Helpable {
     /**
      * A simple wrapper to mark an engine as started.
@@ -57,11 +58,6 @@ public class EngineManager implements Helpable {
             return this.engine;
         }
     }
-
-    /**
-     * Manages logging.
-     */
-    protected final Logger log = Logger.getLogger(getClass());
 
     /**
      * Stores the CLI arguments.

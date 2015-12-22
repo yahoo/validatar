@@ -19,17 +19,16 @@ package com.yahoo.validatar.assertion;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.TypedObject;
+import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class Assertor {
-    private static final Logger LOG = Logger.getLogger(Assertor.class);
-
     /**
      * Takes a Results object and a List of Test, performs the assertions
      * and updates the Tests with the results.
@@ -56,7 +55,7 @@ public class Assertor {
     }
 
     private static void assertOneAssertion(String assertion, Map<String, TypedObject> row, Test test) {
-        LOG.info("Running assertion: " + assertion);
+        log.info("Running assertion: " + assertion);
         try {
             ANTLRInputStream in = new ANTLRInputStream(assertion);
             GrammarLexer lexer = new GrammarLexer(in);
@@ -70,7 +69,7 @@ public class Assertor {
         } catch (Exception e) {
             test.setFailed();
             test.addMessage(assertion + " : " + e.toString());
-            LOG.error("Assertion failed with exception", e);
+            log.error("Assertion failed with exception", e);
         }
     }
 

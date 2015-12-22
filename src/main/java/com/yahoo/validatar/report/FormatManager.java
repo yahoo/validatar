@@ -19,7 +19,7 @@ package com.yahoo.validatar.report;
 import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.TestSuite;
 import joptsimple.OptionParser;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 
 import java.io.IOException;
@@ -33,10 +33,9 @@ import static java.util.Collections.singletonList;
 /**
  * Manages the writing of test reports.
  */
+@Slf4j
 public class FormatManager implements Helpable {
     public static final String REPORT_FORMAT = "report-format";
-
-    protected Logger log = Logger.getLogger(getClass().getName());
 
     private Map<String, Formatter> availableFormatters;
     private Formatter formatterToUse = null;
