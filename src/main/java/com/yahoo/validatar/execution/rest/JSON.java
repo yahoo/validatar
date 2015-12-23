@@ -68,7 +68,7 @@ public class JSON implements Engine {
 
     private ScriptEngine evaluator;
 
-    private final String JSON_TO_MAP_FORMAT = "Java.asJSONCompatible(%s)";
+    private static final String JSON_TO_MAP_FORMAT = "Java.asJSONCompatible(%s)";
 
     private final OptionParser parser = new OptionParser() {
         {
@@ -78,14 +78,14 @@ public class JSON implements Engine {
                 .ofType(Integer.class)
                 .defaultsTo(DEFAULT_TIMEOUT_MS);
             acceptsAll(singletonList(RETRY_KEY), "The default number of times to retry each HTTP request")
-             .withRequiredArg()
-             .describedAs("REST Query retry limit")
-             .ofType(Integer.class)
-             .defaultsTo(DEFAULT_RETRIES);
+                .withRequiredArg()
+                .describedAs("REST Query retry limit")
+                .ofType(Integer.class)
+                .defaultsTo(DEFAULT_RETRIES);
             acceptsAll(singletonList(FUNCTION_NAME_KEY), "The name of the Javascript function used in all queries")
-             .withRequiredArg()
-             .describedAs("REST Javascript method name")
-             .defaultsTo(DEFAULT_FUNCTION_NAME);
+                .withRequiredArg()
+                .describedAs("REST Javascript method name")
+                .defaultsTo(DEFAULT_FUNCTION_NAME);
             allowsUnrecognizedOptions();
         }
     };
