@@ -2,6 +2,7 @@ package com.yahoo.validatar.execution.rest;
 
 import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
@@ -24,6 +25,8 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +68,8 @@ public class JSON implements Engine {
 
     private ScriptEngine evaluator;
 
+    private final String JSON_TO_MAP_FORMAT = "Java.asJSONCompatible(%s)";
+
     private final OptionParser parser = new OptionParser() {
         {
             acceptsAll(singletonList(TIMEOUT_KEY), "The default time to wait for each HTTP request")
@@ -105,8 +110,9 @@ public class JSON implements Engine {
         Helpable.printHelp("REST Engine options", parser);
         System.out.println("This REST Engine works with JSON input (if any) and JSON output.");
         System.out.println("The query part of the engine is a JavaScript function that takes your response from your");
-        System.out.println("request and transforms it columnnar. Use Javascript to iterate over your output and pull");
-        System.out.println("out your columns and store it as a JSON object. For example, suppose you want to extract");
+        System.out.println("request and transforms it to a columnar JSON object with the columns as keys and values");
+        System.out.println("as arrays of values. Use Javascript to iterate over your output and pull out your columns");
+        System.out.println("and return it as a JSON string using JSON stringify. Example: Suppose you extracted");
         System.out.println("columns called 'a' and 'b', you would create and return the following JSON string :");
         System.out.println("{\"a\": [a1, a2, ... an], \"b\": [b1, b2, ... bn]}");
         System.out.println("This engine will inspect these elements and convert them to the proper typed objects.");
@@ -123,26 +129,54 @@ public class JSON implements Engine {
     @Override
     public void execute(Query query) {
         Map<String, String> metadata = query.getMetadata();
-        validate(metadata);
+        Objects.requireNonNull(metadata);
         String data = makeRequest(createClient(metadata), createRequest(metadata), query);
-        log.info("Received response as string {}", data);
         String function = metadata.getOrDefault(FUNCTION_NAME_KEY, String.valueOf(defaultFunction));
         String columnarData = convertToColumnarJSON(data, function, query);
-        log.info("Processed response using query into JSON: {}", columnarData);
-        Map<String, List<TypedObject>> typedData = convertToTypedObject(columnarData);
-        log.info("Processed JSON into {}", typedData);
+        Map<String, List<Object>> mapData = convertToMap(columnarData, query);
+        Map<String, List<TypedObject>> typedData = type(mapData);
+        query.createResults().addColumns(typedData);
     }
 
-    Map<String, List<TypedObject>> convertToTypedObject(String columnarData) {
+    /**
+     * Converts the String columnar JSON data into a Map of column names to List of column values.
+     *
+     * @param columnarData The String columnar JSON data.
+     * @param query The Query object being run.
+     * @return The Map version of the JSON data, null if exception (query is failed).
+     */
+    Map<String, List<Object>> convertToMap(String columnarData, Query query) {
+        try {
+            log.info("Converting processed JSON into a map...");
+            Map<String, List<Object>> result = (Map<String, List<Object>>) evaluator.eval(String.format(JSON_TO_MAP_FORMAT, columnarData));
+            log.info("Conversion complete!");
+            return result;
+        } catch (ScriptException se) {
+            log.error("Could not convert the processed JSON to the required format", se);
+            query.setFailure(se.toString());
+        } catch (ClassCastException cce) {
+            log.error("The returned JSON is not in the map of columns format", cce);
+            query.setFailure(cce.toString());
+        }
         return null;
     }
 
+    /**
+     * Uses the user provided query to process and return a JSON columnar format of the data.
+     *
+     * @param data The data from the REST call.
+     * @param function The function name to invoke.
+     * @param query The Query object being run.
+     * @return The String JSON response of the call, null if exception (query is failed).
+     */
     String convertToColumnarJSON(String data, String function, Query query) {
         try {
-            log.info("Evaluating query as Javascript {}", query.value);
+            log.info("Evaluating query using Javascript {}\n{}", function, query.value);
             evaluator.eval(query.value);
             Invocable invocable = (Invocable) evaluator;
-            String json = (String) invocable.invokeFunction(function, data);
+            String columnarJSON = (String) invocable.invokeFunction(function, data);
+            log.info("Processed response using query into JSON: {}", columnarJSON);
+            return columnarJSON;
         } catch (ScriptException se) {
             log.error("Exception while processing input Javascript", se);
             query.setFailure(se.toString());
@@ -153,13 +187,23 @@ public class JSON implements Engine {
         return null;
     }
 
+    /**
+     * Makes the request and returns the String response using the given client, request and query.
+     *
+     * @param client The HttpClient to use.
+     * @param request The HttpUriRequest to make.
+     * @param query The Query object being run.
+     * @return The String response of the call, null if exception (query is failed).
+     */
     String makeRequest(HttpClient client, HttpUriRequest request, Query query) {
         try {
-            log.info("{}ing {} with headers \n{}", request.getMethod(), request.getURI(), request.getAllHeaders());
+            log.info("{}ing {} with headers {}", request.getMethod(), request.getURI(), request.getAllHeaders());
             HttpResponse response = client.execute(request);
             StatusLine line = response.getStatusLine();
-            log.info("Received {}: {} \n{}", line.getStatusCode(), line.getReasonPhrase(), response.getAllHeaders());
-            return EntityUtils.toString(response.getEntity());
+            log.info("Received {}: {} with headers {}", line.getStatusCode(), line.getReasonPhrase(), response.getAllHeaders());
+            String data = EntityUtils.toString(response.getEntity());
+            log.info("Received response as string {}", data);
+            return data;
         } catch (IOException ioe) {
             log.error("Could not execute request", ioe);
             query.setFailure(ioe.toString());
@@ -168,6 +212,47 @@ public class JSON implements Engine {
             query.setFailure(npe.toString());
         }
         return null;
+    }
+
+    private Map<String, List<TypedObject>> type(Map<String, List<Object>> untyped) {
+        Map<String, List<TypedObject>> typedData = new HashMap<>();
+        for (Map.Entry<String, List<Object>> e : untyped.entrySet()) {
+            String column = e.getKey();
+            log.info("Column: {}", column);
+            List<TypedObject> typedValues = new ArrayList<>();
+            typedData.put(column, typedValues);
+            List<Object> values = e.getValue();
+            if (values != null) {
+                values.stream().map(this::type).forEach(typedValues::add);
+            }
+        }
+        log.info("Typed map into {}", typedData);
+        return typedData;
+    }
+
+    private TypedObject type(Object object) {
+        if (object == null) {
+            log.info("Value: null");
+            return null;
+        }
+        TypedObject typed;
+        if (object instanceof String) {
+            typed =  new TypedObject((String) object, TypeSystem.Type.STRING);
+        } else if (object instanceof Integer) {
+            typed =  new TypedObject((Integer) object, TypeSystem.Type.LONG);
+        } else if (object instanceof Double) {
+            typed =  new TypedObject((Boolean) object, TypeSystem.Type.DOUBLE);
+        } else if (object instanceof Long) {
+            typed =  new TypedObject((Long) object, TypeSystem.Type.LONG);
+        } else if (object instanceof Boolean) {
+            typed =  new TypedObject((Boolean) object, TypeSystem.Type.BOOLEAN);
+        } else {
+            // We can support custom formats for BigDecimals, Timestamps etc as JS objects if need be.
+            log.info("Object {} has an unsupported type {}. Nulling...", object, object.getClass().getCanonicalName());
+            return null;
+        }
+        log.info("Value: {}\tType: {}", typed.data, typed.type);
+        return typed;
     }
 
     /**
@@ -196,6 +281,9 @@ public class JSON implements Engine {
     private HttpUriRequest createRequest(Map<String, String> metadata) {
         String verb = metadata.getOrDefault(VERB_KEY, DEFAULT_VERB);
         String url = metadata.get(URL_KEY);
+        if (url == null || url.isEmpty()) {
+            throw new IllegalArgumentException("The " + URL_KEY + " must be provided and contain a valid url.");
+        }
         RequestBuilder builder;
         if (GET.equals(verb)) {
             builder = RequestBuilder.get(url);
@@ -207,16 +295,8 @@ public class JSON implements Engine {
             throw new UnsupportedOperationException("This HTTP method is not currently supported: " + verb);
         }
         // Everything else is assumed to be a header
-        metadata.entrySet().stream().filter(entry -> KNOWN_KEYS.contains(entry.getKey()))
+        metadata.entrySet().stream().filter(entry -> !KNOWN_KEYS.contains(entry.getKey()))
                                     .forEach(entry -> builder.addHeader(entry.getKey(), entry.getValue()));
         return builder.build();
-    }
-
-    private void validate(Map<String, String> metadata) {
-        Objects.requireNonNull(metadata);
-        String url = metadata.get(URL_KEY);
-        if (url == null || url.isEmpty()) {
-            throw new IllegalArgumentException("The " + URL_KEY + " must be provided and contain a valid url.");
-        }
     }
 }
