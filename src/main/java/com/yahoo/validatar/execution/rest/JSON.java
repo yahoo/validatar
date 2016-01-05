@@ -108,22 +108,24 @@ public class JSON implements Engine {
     @Override
     public void printHelp() {
         Helpable.printHelp("REST Engine options", parser);
-        System.out.println("This REST Engine works with JSON input (if any) and JSON output.");
+        System.out.println("This REST Engine works by making a HTTP GET or POST, parsing the response (JSON is best)");
+        System.out.println("using your provided native JavaScript into a common format.");
         System.out.println("The query part of the engine is a JavaScript function that takes your response from your");
         System.out.println("request and transforms it to a columnar JSON object with the columns as keys and values");
-        System.out.println("as arrays of values. Use Javascript to iterate over your output and pull out your columns");
+        System.out.println("as arrays of values. You may need to iterate over your output and pull out your columns");
         System.out.println("and return it as a JSON string using JSON stringify. Example: Suppose you extracted");
         System.out.println("columns called 'a' and 'b', you would create and return the following JSON string :");
         System.out.println("{\"a\": [a1, a2, ... an], \"b\": [b1, b2, ... bn]}");
         System.out.println("This engine will inspect these elements and convert them to the proper typed objects.");
         System.out.println("The metadata part of the query contains the required key/value pairs for making the REST");
-        System.out.println("call. The url to make the request to can be set using the " + URL_KEY + ". You can add a");
-        System.out.println("timeout in ms for the REST call using " + TIMEOUT_KEY + ". The HTTP method to use can be");
-        System.out.println("set using the " + VERB_KEY + " - currently supports " + GET + " and " + POST + " methods");
-        System.out.println("The String body for the " + POST + " can be set using the " + BODY_KEY + ". The number of");
+        System.out.println("call. The url to make the request to can be set using the " + URL_KEY + ". You can use a");
+        System.out.println("custom timeout in ms for the call using " + TIMEOUT_KEY + ". The HTTP method can be set");
+        System.out.println("using the " + VERB_KEY + " - currently support " + GET + " and " + POST);
+        System.out.println("The string body for the " + POST + " can be set using the " + BODY_KEY + ". The number of");
         System.out.println("times to retry can be set using " + RETRY_KEY + ". If you wish to change the name of the");
         System.out.println("Javascript function you are using, use the " + FUNCTION_NAME_KEY + ". Default name is");
-        System.out.println(DEFAULT_FUNCTION_NAME + ". Any other key/value pair is added as headers to the REST call.");
+        System.out.println(DEFAULT_FUNCTION_NAME + ". Any other key/value pair is added as headers to the REST call,");
+        System.out.println("with the key being the header name and the value, its value.");
     }
 
     @Override
