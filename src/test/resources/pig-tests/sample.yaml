@@ -25,4 +25,8 @@ tests:
    - name: Simple Test
      description: Why I am testing this.
      asserts:
+         - Query.name == "foo"
+         - Query.count == 3
+         - Defaults.name == "baz"
+         - Defaults.count == -26
 ...
