@@ -22,6 +22,8 @@ queries:
            value: "{\"key\": \"value\"}"
          - key: rest-function
            value: read
+         - key: some-header
+           value: header value
    - name: Query2
      engine: rest
      value: "function process(input) {
