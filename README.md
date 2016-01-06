@@ -2,9 +2,7 @@
 
 [![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
 
-Functional testing framework for Big Data pipelines. Currently support querying pipeline results through Hive (HiveServer2) and Pig (PigServer). Since a lot of other datasources (e.g. Storm DRPC) support a REST interface, a REST datasource is also supported - you can GET or POST to your endpoint and parse the result into a standard format using some custom Javascript. See examples in src/test/resources/rest-tests/sample.yaml.
-
-Validatar is currently compiled against *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code if absolutely needed.
+... is a Functional Testing Framework for Big Data pipelines. We currently support querying data through Hive (HiveServer2) and Pig (PigServer). Since a lot of other datasources (e.g. Storm DRPC) expose a REST interface, a REST datasource is also supported. You can GET or POST to your endpoint and parse the result into a standard format using some custom Javascript. Validatar is currently compiled against *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code if absolutely needed.
 
 ## How to build Validatar
 
