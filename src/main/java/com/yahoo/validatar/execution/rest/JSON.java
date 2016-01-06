@@ -181,7 +181,7 @@ public class JSON implements Engine {
      */
     String convertToColumnarJSON(String data, String function, Query query) {
         try {
-            log.info("Evaluating query using Javascript {}\n{}", function, query.value);
+            log.info("Evaluating query using Javascript function: {}\n{}", function, query.value);
             evaluator.eval(query.value);
             Invocable invocable = (Invocable) evaluator;
             String columnarJSON = (String) invocable.invokeFunction(function, data);
@@ -242,7 +242,6 @@ public class JSON implements Engine {
                 values.stream().map(this::type).forEach(typedValues::add);
             }
         }
-        log.info("Typed map into {}", typedData);
         return typedData;
     }
 
