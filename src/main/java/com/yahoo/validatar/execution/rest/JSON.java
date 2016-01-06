@@ -42,12 +42,15 @@ public class JSON implements Engine {
     public static final String JAVASCRIPT_ENGINE = "nashorn";
 
     public static final String FUNCTION_NAME_KEY = "rest-function";
+    public static final String METADATA_FUNCTION_NAME_KEY = "function";
     public static final String DEFAULT_FUNCTION_NAME = "process";
 
     public static final String RETRY_KEY = "rest-retry";
+    public static final String METADATA_RETRY_KEY = "retry";
     public static final Integer DEFAULT_RETRIES = 3;
 
     public static final String TIMEOUT_KEY = "rest-timeout";
+    public static final String METADATA_TIMEOUT_KEY = "timeout";
     public static final Integer DEFAULT_TIMEOUT_MS = 60000;
 
     public static final String VERB_KEY = "method";
@@ -59,8 +62,9 @@ public class JSON implements Engine {
     public static final String BODY_KEY = "body";
     public static final String EMPTY_BODY = "";
 
-    public static final HashSet<String> KNOWN_KEYS = new HashSet<>(asList(RETRY_KEY, VERB_KEY, URL_KEY,
-                                                                          BODY_KEY, FUNCTION_NAME_KEY));
+    public static final HashSet<String> KNOWN_KEYS = new HashSet<>(asList(VERB_KEY, URL_KEY, BODY_KEY,
+                                                                          METADATA_RETRY_KEY, METADATA_FUNCTION_NAME_KEY,
+                                                                          METADATA_TIMEOUT_KEY));
 
     private int defaultTimeout = DEFAULT_TIMEOUT_MS;
     private int defaultRetries = DEFAULT_RETRIES;
@@ -133,7 +137,7 @@ public class JSON implements Engine {
         Map<String, String> metadata = query.getMetadata();
         Objects.requireNonNull(metadata);
         String data = makeRequest(createClient(metadata), createRequest(metadata), query);
-        String function = metadata.getOrDefault(FUNCTION_NAME_KEY, String.valueOf(defaultFunction));
+        String function = metadata.getOrDefault(METADATA_FUNCTION_NAME_KEY, String.valueOf(defaultFunction));
         String columnarData = convertToColumnarJSON(data, function, query);
         Map<String, List<TypedObject>> typedData = convertToMap(columnarData, query);
         query.createResults().addColumns(typedData);
@@ -274,8 +278,8 @@ public class JSON implements Engine {
      * @return The created HttpClient object.
      */
     private HttpClient createClient(Map<String, String> metadata) {
-        int timeout = Integer.valueOf(metadata.getOrDefault(TIMEOUT_KEY, String.valueOf(defaultTimeout)));
-        int retries = Integer.valueOf(metadata.getOrDefault(RETRY_KEY, String.valueOf(defaultRetries)));
+        int timeout = Integer.valueOf(metadata.getOrDefault(METADATA_TIMEOUT_KEY, String.valueOf(defaultTimeout)));
+        int retries = Integer.valueOf(metadata.getOrDefault(METADATA_RETRY_KEY, String.valueOf(defaultRetries)));
         RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout)
                                                      .setConnectionRequestTimeout(timeout)
                                                      .setSocketTimeout(timeout).build();

@@ -20,7 +20,7 @@ queries:
            value: POST
          - key: body
            value: "{\"key\": \"value\"}"
-         - key: rest-function
+         - key: function
            value: read
          - key: some-header
            value: header value
@@ -32,9 +32,9 @@ queries:
      metadata:
          - key: url
            value: "http://localhost:13412/api/visits/max"
-         - key: rest-timeout
+         - key: timeout
            value: 5000
-         - key: rest-retry
+         - key: retry
            value: 3
    - name: Failer
      engine: rest
