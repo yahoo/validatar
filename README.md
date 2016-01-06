@@ -2,13 +2,13 @@
 
 [![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
 
-Functional testing framework for Big Data pipelines. Currently support querying pipeline results through Hive (HiveServer2) and Pig (PigServer).
+Functional testing framework for Big Data pipelines. Currently support querying pipeline results through Hive (HiveServer2) and Pig (PigServer). Since a lot of other datasources (e.g. Storm DRPC) support a REST interface, a REST datasource is also supported - you can GET or POST to your endpoint and parse the result into a standard format using some custom Javascript. See examples in src/test/resources/rest-tests/sample.yaml.
 
-Validatar is currently compiled against *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code.
+Validatar is currently compiled against *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code if absolutely needed.
 
 ## How to build Validatar
 
-You need maven/JDK to build Validatar.
+You need maven/JDK (1.8.60+ for Nashorn) to build Validatar.
 
 Run:
 
@@ -37,18 +37,20 @@ Hive needs the JDBC uri of HiveServer2. Note that the DB is in the URI. Do not a
 
 Pig parameters are not supported in the pig query. Instead, use our parameter substitution (see below).
 
+Running REST tests require no other dependencies and can be launched with Java instead of hadoop jar.
+
 ## Writing Tests
 
 ### Test file format
 
-Test files are written in the YAML format. See example in src/test/resources/. The schema is as follows:
+Test files are written in the YAML format. See examples of all different datasources in src/test/resources/. The schema is as follows:
 
 ```
 name: Test family name : String
 description: Test family description : String
 queries:
    - name: Query name : String : Ex "Analytics"
-     engine: Execution engine : String Ex "hive" or "pig"
+     engine: Execution engine : String Ex "hive" or "pig" or "rest"
      value: Query : String : Ex "SELECT COUNT(*) AS pv_count FROM page_data"
    ...
 tests:
@@ -101,6 +103,7 @@ Version | Notes
 0.1.9 | Empty results handling bug fix
 0.2.0 | Internal switch to Java 8. hive-queue is no longer a setting. Use hive-setting.
 0.3.0 | Pig support added.
+0.4.0 | Rest API datasource added.
 
 ## Members
 
@@ -108,5 +111,4 @@ Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
 
 ## Contributors
-
 
