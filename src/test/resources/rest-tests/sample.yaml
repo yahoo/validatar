@@ -1,0 +1,55 @@
+---
+name: Rest test
+description: Testing Validatar
+queries:
+   - name: Query1
+     engine: rest
+     value: "function read(input) {
+                 var parsed = JSON.parse(input);
+                 var result = {'users': [], 'counts': []};
+                 for (var i = 0; i < parsed.length; i++) {
+                     result['users'].push(parsed[i]['name']);
+                     result['counts'].push(parsed[i]['count']);
+                 }
+                 return JSON.stringify(result);
+             }"
+     metadata:
+         - key: url
+           value: "http://localhost:13412/api/users"
+         - key: method
+           value: POST
+         - key: body
+           value: "{\"key\": \"value\"}"
+         - key: rest-function
+           value: read
+   - name: Query2
+     engine: rest
+     value: "function process(input) {
+                 return JSON.stringify({'max': [14]});
+             }"
+     metadata:
+         - key: url
+           value: "http://localhost:13412/api/visits/max"
+         - key: rest-timeout
+           value: 5000
+         - key: rest-retry
+           value: 3
+   - name: Failer
+     engine: rest
+     value: ""
+     metadata:
+         - key: url
+           value: "http://localhost:13412/api/users"
+         - key: method
+           value: PUT
+tests:
+   - name: Test1
+     description: Why I am testing this.
+     asserts:
+         - Query1.users == "admin"
+         - Query1.count > 10
+   - name: Test2
+     description: Why I am testing this.
+     asserts:
+         - Query2.count + Query1.count < 50
+...

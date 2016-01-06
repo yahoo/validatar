@@ -2,9 +2,7 @@ package com.yahoo.validatar.execution.pig;
 
 import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.Query;
-import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.common.TypedObject;
-import com.yahoo.validatar.parse.yaml.YAML;
 import org.apache.pig.PigServer;
 import org.apache.pig.backend.executionengine.ExecException;
 import org.apache.pig.data.DataByteArray;
@@ -17,8 +15,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,6 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
+import static com.yahoo.validatar.TestHelpers.getQueryFrom;
 
 public class StyTest {
     public static final double EPSILON = 0.00001;
@@ -89,12 +86,6 @@ public class StyTest {
 
     private Sty getSty() {
         return new Sty();
-    }
-
-    private Query getQueryFrom(String file, String name) throws FileNotFoundException {
-        File testFile = new File(getClass().getClassLoader().getResource(file).getFile());
-        TestSuite testSuite = new YAML().parse(new FileInputStream(testFile));
-        return testSuite.queries.stream().filter(q -> name.equals(q.name)).findAny().get();
     }
 
     @BeforeMethod

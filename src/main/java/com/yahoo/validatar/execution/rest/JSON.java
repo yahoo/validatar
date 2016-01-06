@@ -135,30 +135,34 @@ public class JSON implements Engine {
         String data = makeRequest(createClient(metadata), createRequest(metadata), query);
         String function = metadata.getOrDefault(FUNCTION_NAME_KEY, String.valueOf(defaultFunction));
         String columnarData = convertToColumnarJSON(data, function, query);
-        Map<String, List<Object>> mapData = convertToMap(columnarData, query);
-        Map<String, List<TypedObject>> typedData = type(mapData);
+        Map<String, List<TypedObject>> typedData = convertToMap(columnarData, query);
         query.createResults().addColumns(typedData);
     }
 
     /**
-     * Converts the String columnar JSON data into a Map of column names to List of column values.
+     * Converts the String columnar JSON data into a Map of column names to List of column values. Internal use only.
      *
      * @param columnarData The String columnar JSON data.
      * @param query The Query object being run.
      * @return The Map version of the JSON data, null if exception (query is failed).
      */
-    Map<String, List<Object>> convertToMap(String columnarData, Query query) {
+    Map<String, List<TypedObject>> convertToMap(String columnarData, Query query) {
         try {
             log.info("Converting processed JSON into a map...");
+            // Type erasure will make this not enough if the JSON parses into a map but with the wrong keys, values.
             Map<String, List<Object>> result = (Map<String, List<Object>>) evaluator.eval(String.format(JSON_TO_MAP_FORMAT, columnarData));
+            // But this will catch it.
+            Map<String, List<TypedObject>> typed = type(result);
             log.info("Conversion complete!");
-            return result;
+            return typed;
         } catch (ScriptException se) {
             log.error("Could not convert the processed JSON to the required format", se);
-            query.setFailure(se.toString());
+            query.setFailure("Invalid JSON (try a linter): " + columnarData);
+            query.addMessage(se.toString());
         } catch (ClassCastException cce) {
             log.error("The returned JSON is not in the map of columns format", cce);
-            query.setFailure(cce.toString());
+            query.setFailure("Your extracted JSON is not in a map of columns format: " + columnarData);
+            query.addMessage(cce.toString());
         }
         return null;
     }
@@ -182,6 +186,7 @@ public class JSON implements Engine {
         } catch (ScriptException se) {
             log.error("Exception while processing input Javascript", se);
             query.setFailure(se.toString());
+            query.addMessage(se.toString());
         } catch (NoSuchMethodException nsme) {
             log.error("Method {} not found in {}\n{}", function, query.value, nsme);
             query.setFailure(nsme.toString());
@@ -199,7 +204,7 @@ public class JSON implements Engine {
      */
     String makeRequest(HttpClient client, HttpUriRequest request, Query query) {
         try {
-            log.info("{}ing {} with headers {}", request.getMethod(), request.getURI(), request.getAllHeaders());
+            log.info("{}ing to {} with headers {}", request.getMethod(), request.getURI(), request.getAllHeaders());
             HttpResponse response = client.execute(request);
             StatusLine line = response.getStatusLine();
             log.info("Received {}: {} with headers {}", line.getStatusCode(), line.getReasonPhrase(), response.getAllHeaders());
@@ -208,16 +213,21 @@ public class JSON implements Engine {
             return data;
         } catch (IOException ioe) {
             log.error("Could not execute request", ioe);
-            query.setFailure(ioe.toString());
+            query.setFailure("Could not execute request");
+            query.addMessage(ioe.toString());
         } catch (NullPointerException npe) {
             log.error("Received no response", npe);
-            query.setFailure(npe.toString());
+            query.setFailure("Received no response");
+            query.addMessage(npe.toString());
         }
         return null;
     }
 
     private Map<String, List<TypedObject>> type(Map<String, List<Object>> untyped) {
         Map<String, List<TypedObject>> typedData = new HashMap<>();
+        if (untyped == null) {
+            return typedData;
+        }
         for (Map.Entry<String, List<Object>> e : untyped.entrySet()) {
             String column = e.getKey();
             log.info("Column: {}", column);
@@ -241,9 +251,9 @@ public class JSON implements Engine {
         if (object instanceof String) {
             typed =  new TypedObject((String) object, TypeSystem.Type.STRING);
         } else if (object instanceof Integer) {
-            typed =  new TypedObject((Integer) object, TypeSystem.Type.LONG);
+            typed =  new TypedObject(((Integer) object).longValue(), TypeSystem.Type.LONG);
         } else if (object instanceof Double) {
-            typed =  new TypedObject((Boolean) object, TypeSystem.Type.DOUBLE);
+            typed =  new TypedObject((Double) object, TypeSystem.Type.DOUBLE);
         } else if (object instanceof Long) {
             typed =  new TypedObject((Long) object, TypeSystem.Type.LONG);
         } else if (object instanceof Boolean) {
