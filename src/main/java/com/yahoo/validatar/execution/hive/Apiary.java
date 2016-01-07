@@ -24,7 +24,7 @@ import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,22 +37,22 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 
+@Slf4j
 public class Apiary implements Engine {
     public static final String HIVE_JDBC = "hive-jdbc";
     public static final String HIVE_DRIVER = "hive-driver";
     public static final String HIVE_USERNAME = "hive-username";
     public static final String HIVE_PASSWORD = "hive-password";
     public static final String HIVE_SETTING = "hive-setting";
-    protected final Logger log = Logger.getLogger(getClass());
 
     public static final String ENGINE_NAME = "hive";
 
-    public static String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
-    public static String SETTING_PREFIX = "set ";
+    public static final String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
+    public static final String SETTING_PREFIX = "set ";
 
     protected Statement statement;
 
-    private OptionParser parser = new OptionParser() {
+    private final OptionParser parser = new OptionParser() {
         {
             acceptsAll(singletonList(HIVE_JDBC), "JDBC string to the HiveServer2 with an optional database. " +
                                                  "If the database is provided, the queries must NOT have one. " +
@@ -86,7 +86,7 @@ public class Apiary implements Engine {
             statement = setupConnection(options);
             setHiveSettings(options, statement);
         } catch (ClassNotFoundException | SQLException e) {
-            log.error(e);
+            log.error("Could not set up the Hive engine", e);
             return false;
         }
         return true;
@@ -101,7 +101,7 @@ public class Apiary implements Engine {
     public void execute(Query query) {
         String queryName = query.name;
         String queryValue = query.value;
-        log.info("Running " + queryName + ": " + queryValue);
+        log.info("Running {}: {}", queryName, queryValue);
         try {
             ResultSet result = statement.executeQuery(queryValue);
             ResultSetMetaData metadata = result.getMetaData();
@@ -115,7 +115,7 @@ public class Apiary implements Engine {
             }
             result.close();
         } catch (SQLException e) {
-            log.error("SQL problem with Hive query: " + queryName + "\n" + queryValue, e);
+            log.error("SQL problem with Hive query: {}\n{}\n{}", queryName, queryValue, e);
             query.setFailure(e.toString());
         }
     }
@@ -134,7 +134,7 @@ public class Apiary implements Engine {
             int type = metadata.getColumnType(i);
             TypedObject value = getAsTypedObject(result, i, type);
             storage.addColumnRow(name, value);
-            log.info("Column: " + name + "\tType: " + type + "\tValue: " + (value == null ? "null" : value.data));
+            log.info("Column: {}\tType: {}\tValue: {}", name, type, (value == null ? "null" : value.data));
         }
     }
 
@@ -199,13 +199,13 @@ public class Apiary implements Engine {
     Statement setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
         // Load the JDBC driver
         String driver = (String) options.valueOf(HIVE_DRIVER);
-        log.info("Loading JDBC driver: " + driver);
+        log.info("Loading JDBC driver: {}", driver);
         Class.forName(driver);
 
         // Get the JDBC connector
         String jdbcConnector = (String) options.valueOf(HIVE_JDBC);
 
-        log.info("Connecting to: " + jdbcConnector);
+        log.info("Connecting to: {}", jdbcConnector);
         String username = (String) options.valueOf(HIVE_USERNAME);
         String password = (String) options.valueOf(HIVE_PASSWORD);
 
@@ -223,7 +223,7 @@ public class Apiary implements Engine {
      */
     void setHiveSettings(OptionSet options, Statement statement) throws SQLException {
         for (String setting : (List<String>) options.valuesOf(HIVE_SETTING)) {
-            log.info("Applying setting " + setting);
+            log.info("Applying setting {}", setting);
             statement.executeUpdate(SETTING_PREFIX + setting);
         }
     }

@@ -27,7 +27,7 @@ import java.io.FileNotFoundException;
 import java.util.Map;
 
 public class YAMLTest {
-    private YAML yaml = new YAML();
+    private final YAML yaml = new YAML();
 
     @Test
     public void testLoadOfValidTestFile() throws FileNotFoundException {

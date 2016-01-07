@@ -18,7 +18,7 @@ package com.yahoo.validatar.parse;
 
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 
 import java.io.File;
@@ -34,13 +34,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class ParseManager implements FileLoadable {
 
     public static final Pattern REGEX = Pattern.compile("\\$\\{(.*?)\\}");
 
-    protected Logger log = Logger.getLogger(getClass().getName());
-
-    private HashMap<String, Parser> availableParsers;
+    private final HashMap<String, Parser> availableParsers;
 
     /**
      * Constructor. Default.
@@ -54,11 +53,11 @@ public class ParseManager implements FileLoadable {
             try {
                 Parser parser = parserClass.newInstance();
                 availableParsers.put(parser.getName(), parser);
-                log.info("Setup parser " + parser.getName());
+                log.info("Setup parser {}", parser.getName());
             } catch (InstantiationException e) {
-                log.info("Error instantiating " + parserClass + " " + e);
+                log.info("Error instantiating {}\n{}", parserClass, e);
             } catch (IllegalAccessException e) {
-                log.info("Illegal access of " + parserClass + " " + e);
+                log.info("Illegal access of {}\n{}", parserClass, e);
             }
         }
     }
@@ -127,18 +126,18 @@ public class ParseManager implements FileLoadable {
     protected TestSuite getTestSuite(File path) {
         Objects.requireNonNull(path);
         if (!path.isFile()) {
-            log.error("Path " + path + " is not a file.");
+            log.error("Path {} is not a file.", path);
             return null;
         }
         Parser parser = availableParsers.get(getFileExtension(path.getName()));
         if (parser == null) {
-            log.error("Unable to parse " + path + ". File extension does not match any known parsers. Skipping...");
+            log.error("Unable to parse {}. File extension does not match any known parsers. Skipping...", path);
             return null;
         }
         try {
             return parser.parse(new FileInputStream(path));
         } catch (Exception e) {
-            log.error(e);
+            log.error("Could not parse the TestSuite", e);
             return null;
         }
     }

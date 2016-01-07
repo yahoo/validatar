@@ -38,7 +38,7 @@ import static java.util.Collections.singletonList;
 
 public class AppTest {
     private class MemoryDB extends Apiary {
-        private OptionParser parser = new OptionParser() {
+        private final OptionParser parser = new OptionParser() {
             {
                 acceptsAll(singletonList("hive-driver"), "Fully qualified package name to the hive driver.")
                     .withRequiredArg()

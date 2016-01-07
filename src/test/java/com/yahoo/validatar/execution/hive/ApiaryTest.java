@@ -45,9 +45,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ApiaryTest {
-    private String[] args = {"--hive-driver", "org.h2.Driver",
-                             "--hive-jdbc", "jdbc:h2:mem:",
-                             "--hive-setting", "mapreduce.job.queuename=default"};
+    private final String[] args = {"--hive-driver", "org.h2.Driver",
+                                   "--hive-jdbc", "jdbc:h2:mem:",
+                                   "--hive-setting", "mapreduce.job.queuename=default"};
 
     @Test
     public void testGetJDBCConnector() throws Exception {
@@ -59,8 +59,8 @@ public class ApiaryTest {
         query.value = "SELECT 1 as ONE, null as TWO";
         apiary.execute(query);
         Assert.assertFalse(query.failed());
-        Assert.assertEquals((Long) query.getResult().getColumns().get("Test.ONE").get(0).data,
-                            (Long) new TypedObject(1L, TypeSystem.Type.LONG).data);
+        Assert.assertEquals(query.getResult().getColumns().get("Test.ONE").get(0).data,
+                            new TypedObject(1L, TypeSystem.Type.LONG).data);
         Assert.assertNull(query.getResult().getColumns().get("Test.TWO").get(0));
     }
 
@@ -89,7 +89,7 @@ public class ApiaryTest {
     @Test
     public void testHiveSettings() throws SQLException {
         Apiary apiary = new Apiary();
-        runWithoutOutput(() -> apiary.printHelp());
+        runWithoutOutput(apiary::printHelp);
         Statement mocked = mock(Statement.class);
         OptionParser parser = new OptionParser() {
             {
@@ -152,11 +152,11 @@ public class ApiaryTest {
         // FLOAT, DOUBLE
         doReturn(Double.valueOf(3.14)).when(mocked).getDouble(anyInt());
         object = apiary.getAsTypedObject(mocked, 0, Types.FLOAT);
-        Assert.assertEquals((Double) object.data, Double.valueOf(3.14));
+        Assert.assertEquals(object.data, Double.valueOf(3.14));
         Assert.assertEquals(object.type, TypeSystem.Type.DOUBLE);
 
         object = apiary.getAsTypedObject(mocked, 0, Types.DOUBLE);
-        Assert.assertEquals((Double) object.data, Double.valueOf(3.14));
+        Assert.assertEquals(object.data, Double.valueOf(3.14));
         Assert.assertEquals(object.type, TypeSystem.Type.DOUBLE);
     }
 
@@ -168,7 +168,7 @@ public class ApiaryTest {
 
         doReturn(Boolean.valueOf(false)).when(mocked).getBoolean(anyInt());
         object = apiary.getAsTypedObject(mocked, 0, Types.BOOLEAN);
-        Assert.assertEquals((Boolean) object.data, Boolean.valueOf(false));
+        Assert.assertEquals(object.data, Boolean.valueOf(false));
         Assert.assertEquals(object.type, TypeSystem.Type.BOOLEAN);
     }
 
@@ -181,19 +181,19 @@ public class ApiaryTest {
         doReturn(Long.valueOf(42)).when(mocked).getLong(anyInt());
 
         object = apiary.getAsTypedObject(mocked, 0, Types.TINYINT);
-        Assert.assertEquals((Long) object.data, Long.valueOf(42));
+        Assert.assertEquals(object.data, Long.valueOf(42));
         Assert.assertEquals(object.type, TypeSystem.Type.LONG);
 
         object = apiary.getAsTypedObject(mocked, 0, Types.SMALLINT);
-        Assert.assertEquals((Long) object.data, Long.valueOf(42));
+        Assert.assertEquals(object.data, Long.valueOf(42));
         Assert.assertEquals(object.type, TypeSystem.Type.LONG);
 
         object = apiary.getAsTypedObject(mocked, 0, Types.INTEGER);
-        Assert.assertEquals((Long) object.data, Long.valueOf(42));
+        Assert.assertEquals(object.data, Long.valueOf(42));
         Assert.assertEquals(object.type, TypeSystem.Type.LONG);
 
         object = apiary.getAsTypedObject(mocked, 0, Types.BIGINT);
-        Assert.assertEquals((Long) object.data, Long.valueOf(42));
+        Assert.assertEquals(object.data, Long.valueOf(42));
         Assert.assertEquals(object.type, TypeSystem.Type.LONG);
     }
 
@@ -206,7 +206,7 @@ public class ApiaryTest {
         doReturn(new BigDecimal("3.14")).when(mocked).getBigDecimal(anyInt());
 
         object = apiary.getAsTypedObject(mocked, 0, Types.DECIMAL);
-        Assert.assertEquals((BigDecimal) object.data, new BigDecimal("3.14"));
+        Assert.assertEquals(object.data, new BigDecimal("3.14"));
         Assert.assertEquals(object.type, TypeSystem.Type.DECIMAL);
     }
 
@@ -219,7 +219,7 @@ public class ApiaryTest {
         doReturn(new Timestamp(42L)).when(mocked).getTimestamp(anyInt());
 
         object = apiary.getAsTypedObject(mocked, 0, Types.TIMESTAMP);
-        Assert.assertEquals((Timestamp) object.data, new Timestamp(42L));
+        Assert.assertEquals(object.data, new Timestamp(42L));
         Assert.assertEquals(object.type, TypeSystem.Type.TIMESTAMP);
     }
 

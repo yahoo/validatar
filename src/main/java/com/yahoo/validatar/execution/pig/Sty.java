@@ -24,7 +24,7 @@ import com.yahoo.validatar.common.TypedObject;
 import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pig.PigServer;
 import org.apache.pig.backend.executionengine.ExecException;
 import org.apache.pig.data.DataType;
@@ -44,12 +44,11 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 
+@Slf4j
 public class Sty implements Engine {
     public static final String PIG_EXEC_TYPE = "pig-exec-type";
     public static final String PIG_OUTPUT_ALIAS = "pig-output-alias";
     public static final String PIG_SETTING = "pig-setting";
-
-    protected final Logger log = Logger.getLogger(getClass());
 
     /** Engine name. */
     public static final String ENGINE_NAME = "pig";
@@ -66,8 +65,8 @@ public class Sty implements Engine {
     private Properties properties;
 
     private class FieldDetail {
-        public String alias;
-        public byte type;
+        public final String alias;
+        public final byte type;
 
         public FieldDetail(String alias, byte type) {
             this.alias = alias;
@@ -75,7 +74,7 @@ public class Sty implements Engine {
         }
     }
 
-    private OptionParser parser = new OptionParser() {
+    private final OptionParser parser = new OptionParser() {
         {
             acceptsAll(singletonList(PIG_EXEC_TYPE), "The exec-type for Pig to use.  This is the " +
                                                        "-x argument used when running Pig. Ex: local, mr, tez etc. ")
@@ -122,7 +121,7 @@ public class Sty implements Engine {
         Map<String, String> queryMetadata = query.getMetadata();
         String execType = getKey(queryMetadata, METADATA_EXEC_TYPE_KEY).orElse(defaultExecType);
         String alias = getKey(queryMetadata, METADATA_ALIAS_KEY).orElse(defaultOutputAlias);
-        log.info("Running " + queryName + " for alias " + alias + ": " + queryValue);
+        log.info("Running {} for alias {}: {}", queryName, alias, queryValue);
         try {
             PigServer server = getPigServer(execType);
             server.registerScript(new ByteArrayInputStream(queryValue.getBytes()));
@@ -136,10 +135,10 @@ public class Sty implements Engine {
             }
             server.shutdown();
         } catch (IOException ioe) {
-            log.error("Problem with Pig query: \n" + queryValue, ioe);
+            log.error("Problem with Pig query: {}\n{}", queryValue, ioe);
             query.setFailure(ioe.toString());
         } catch (Exception e) {
-            log.error("Error occurred while processing Pig query: " + queryValue, e);
+            log.error("Error occurred while processing Pig query: {}\n{}", queryValue, e);
             query.setFailure(e.toString());
         }
     }
@@ -159,8 +158,7 @@ public class Sty implements Engine {
         for (int i = 0; i < metadata.size(); ++i) {
             FieldDetail column = metadata.get(i);
             TypedObject value = getTypedObject(row.get(i), column);
-            log.info("Column: " + column.alias + "\tType: " + column.type +
-                     "\tValue: " + (value == null ? "null" : value.data));
+            log.info("Column: {}\tType: {}\tValue: {}", column.alias, column.type, (value == null ? "null" : value.data));
             result.addColumnRow(column.alias, value);
         }
     }
@@ -215,7 +213,7 @@ public class Sty implements Engine {
         for (String setting : settings) {
             String[] tokens = setting.split(SETTING_DELIMITER);
             if (tokens.length != 2) {
-                log.error("Ignoring unknown Pig setting provided: " + setting);
+                log.error("Ignoring unknown Pig setting provided: {}", setting);
                 continue;
             }
             properties.put(tokens[0], tokens[1]);

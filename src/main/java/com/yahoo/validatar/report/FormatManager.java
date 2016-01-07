@@ -19,7 +19,7 @@ package com.yahoo.validatar.report;
 import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.TestSuite;
 import joptsimple.OptionParser;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 
 import java.io.IOException;
@@ -33,17 +33,16 @@ import static java.util.Collections.singletonList;
 /**
  * Manages the writing of test reports.
  */
+@Slf4j
 public class FormatManager implements Helpable {
     public static final String REPORT_FORMAT = "report-format";
-
-    protected Logger log = Logger.getLogger(getClass().getName());
 
     private Map<String, Formatter> availableFormatters;
     private Formatter formatterToUse = null;
 
     // Leaving it here for now. If new formatters that require more complex options are needed,
     // it can be moved to inside the respective formatters.
-    private OptionParser parser = new OptionParser() {
+    private final OptionParser parser = new OptionParser() {
         {
             acceptsAll(singletonList(REPORT_FORMAT), "Which report format to use.")
                 .withRequiredArg()
@@ -91,11 +90,11 @@ public class FormatManager implements Helpable {
             try {
                 Formatter formatter = formatterClass.newInstance();
                 availableFormatters.put(formatter.getName(), formatter);
-                log.info("Setup formatter " + formatter.getName());
+                log.info("Setup formatter {}", formatter.getName());
             } catch (InstantiationException e) {
-                log.info("Error instantiating " + formatterClass + " " + e);
+                log.info("Error instantiating {}\n{}", formatterClass, e);
             } catch (IllegalAccessException e) {
-                log.info("Illegal access of " + formatterClass + " " + e);
+                log.info("Illegal access of {}\n{}", formatterClass, e);
             }
         }
     }

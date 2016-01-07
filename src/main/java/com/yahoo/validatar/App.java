@@ -27,7 +27,7 @@ import com.yahoo.validatar.parse.ParseManager;
 import com.yahoo.validatar.report.FormatManager;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +41,8 @@ import java.util.stream.Collectors;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+@Slf4j
 public class App {
-    protected static final Logger LOG = Logger.getLogger(com.yahoo.validatar.App.class.getName());
-
     public static final String PARAMETER = "parameter";
     public static final String PARAMETER_DELIMITER = "=";
     public static final String TEST_SUITE = "test-suite";
@@ -92,9 +91,8 @@ public class App {
      *
      * @param args CLI args
      * @return Option set containing all settings
-     * @throws java.io.IOException if any.
      */
-    public static OptionSet parse(String[] args) throws IOException {
+    public static OptionSet parse(String[] args) {
         try {
             return PARSER.parse(args);
         } catch (Exception e) {
@@ -115,9 +113,9 @@ public class App {
     public static void run(File testSuite, Map<String, String> parameters, ParseManager parseManager,
                            EngineManager engineManager, FormatManager formatManager) throws IOException {
         // Load the test suite file(s)
-        LOG.info("Parsing test files...");
+        log.info("Parsing test files...");
         List<TestSuite> suites = parseManager.load(testSuite);
-        LOG.info("Expanding parameters...");
+        log.info("Expanding parameters...");
         ParseManager.expandParameters(suites, parameters);
 
         // Get the non-null queries
@@ -125,9 +123,9 @@ public class App {
                               .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
 
         // Run the queries
-        LOG.info("Running queries...");
+        log.info("Running queries...");
         if (!engineManager.run(queries)) {
-            LOG.error("Error running queries. Failing...");
+            log.error("Error running queries. Failing...");
             return;
         }
 
@@ -139,14 +137,14 @@ public class App {
                            .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
 
         // Run the tests
-        LOG.info("Running tests...");
+        log.info("Running tests...");
         Assertor.assertAll(data, tests);
 
         // Write reports
-        LOG.info("Writing reports...");
+        log.info("Writing reports...");
         formatManager.writeReport(suites);
 
-        LOG.info("Done!");
+        log.info("Done!");
     }
 
     /**

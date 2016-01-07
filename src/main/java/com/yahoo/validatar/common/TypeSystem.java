@@ -207,9 +207,9 @@ public class TypeSystem {
         }
     }
 
-    private static Map<Type, Operations> operations = new HashMap<>();
+    private static final Map<Type, Operations> OPERATIONS = new HashMap<>();
     static {
-        operations.put(Type.LONG, new Operations() {
+        OPERATIONS.put(Type.LONG, new Operations() {
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject((Long) first.data + (Long) second.data);
             }
@@ -250,7 +250,7 @@ public class TypeSystem {
             }
         });
 
-        operations.put(Type.DOUBLE, new Operations() {
+        OPERATIONS.put(Type.DOUBLE, new Operations() {
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject((Double) first.data + (Double) second.data);
             }
@@ -287,7 +287,7 @@ public class TypeSystem {
             }
         });
 
-        operations.put(Type.DECIMAL, new Operations() {
+        OPERATIONS.put(Type.DECIMAL, new Operations() {
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject(((BigDecimal) first.data).add((BigDecimal) second.data));
             }
@@ -332,7 +332,7 @@ public class TypeSystem {
             }
         });
 
-        operations.put(Type.BOOLEAN, new Operations() {
+        OPERATIONS.put(Type.BOOLEAN, new Operations() {
             public TypedObject or(TypedObject first, TypedObject second) {
                 return asTypedObject((Boolean) first.data || (Boolean) second.data);
             }
@@ -363,7 +363,7 @@ public class TypeSystem {
             }
         });
 
-        operations.put(Type.STRING, new Operations() {
+        OPERATIONS.put(Type.STRING, new Operations() {
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject((String) first.data + (String) second.data);
             }
@@ -392,7 +392,7 @@ public class TypeSystem {
             }
         });
 
-        operations.put(Type.TIMESTAMP, new Operations() {
+        OPERATIONS.put(Type.TIMESTAMP, new Operations() {
             public TypedObject add(TypedObject first, TypedObject second) {
                 return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() + ((Timestamp) second.data).getTime()));
             }
@@ -446,9 +446,9 @@ public class TypeSystem {
             throw new NullPointerException("Cannot operate on null arguments. Argument 1: " + first + " Argument 2: " + second);
         }
         // Relying on the type system to return null if invalid conversions were tried and non null if not.
-        TypedObject unified = operations.get(first.type).cast(second);
+        TypedObject unified = OPERATIONS.get(first.type).cast(second);
         if (unified == null) {
-            unified = operations.get(second.type).cast(first);
+            unified = OPERATIONS.get(second.type).cast(first);
         }
 
         if (unified == null) {
@@ -468,7 +468,7 @@ public class TypeSystem {
         unifyType(first, second);
 
         // Both are now the same type, do the operation
-        TypedObject result = operations.get(first.type).dispatch(operation).apply(first, second);
+        TypedObject result = OPERATIONS.get(first.type).dispatch(operation).apply(first, second);
 
         if (result == null) {
             throw new ClassCastException("Unable to perform: " + operation + " on " + first + " and " + second);
@@ -484,7 +484,7 @@ public class TypeSystem {
      * @return The resulting {@link com.yahoo.validatar.common.TypedObject}.
      */
     public static TypedObject perform(UnaryOperation operation, TypedObject object) {
-        TypedObject result = operations.get(object.type).dispatch(operation).apply(object);
+        TypedObject result = OPERATIONS.get(object.type).dispatch(operation).apply(object);
 
         if (result == null) {
             throw new ClassCastException("Unable to perform: " + operation + " on " + object);

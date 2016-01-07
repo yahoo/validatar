@@ -18,7 +18,7 @@ package com.yahoo.validatar.execution;
 
 import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Query;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 
 import java.util.Collections;
@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 /**
  * Manages the creation and execution of execution engines.
  */
+@Slf4j
 public class EngineManager implements Helpable {
     /**
      * A simple wrapper to mark an engine as started.
@@ -57,11 +58,6 @@ public class EngineManager implements Helpable {
             return this.engine;
         }
     }
-
-    /**
-     * Manages logging.
-     */
-    protected final Logger log = Logger.getLogger(getClass());
 
     /**
      * Stores the CLI arguments.
@@ -96,11 +92,11 @@ public class EngineManager implements Helpable {
             try {
                 engine = engineClass.newInstance();
                 engines.put(engine.getName(), new WorkingEngine(engine));
-                log.info("Added engine " + engine.getName() + " to list of engines.");
+                log.info("Added engine {} to list of engines.", engine.getName());
             } catch (InstantiationException e) {
-                log.error("Error instantiating " + engineClass + " engine.", e);
+                log.error("Error instantiating {} engine.\n{}", engineClass, e);
             } catch (IllegalAccessException e) {
-                log.error("Illegal access while loading " + engineClass + " engine.", e);
+                log.error("Illegal access while loading {} engine.\n{}", engineClass, e);
             }
         }
     }
@@ -132,7 +128,7 @@ public class EngineManager implements Helpable {
     private boolean startEngine(String engine) {
         WorkingEngine working = engines.get(engine);
         if (working == null) {
-            log.error("Engine " + engine + " not loaded but required by query.");
+            log.error("Engine {} not loaded but required by query.", engine);
             return false;
         }
         // Already started?
@@ -141,7 +137,7 @@ public class EngineManager implements Helpable {
         }
         working.isStarted = working.getEngine().setup(arguments);
         if (!working.isStarted) {
-            log.error("Required engine " + engine + " could not be setup.");
+            log.error("Required engine {} could not be setup.", engine);
             working.getEngine().printHelp();
             return false;
         }
