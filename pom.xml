@@ -131,6 +131,10 @@
                                     <pattern>org.dom4j</pattern>
                                     <shadedPattern>org.shaded.dom4j</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.apache.http</pattern>
+                                    <shadedPattern>org.shaded.apache.http</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
