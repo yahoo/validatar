@@ -140,6 +140,7 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
     @Override
     public void printHelp() {
         engines.values().stream().map(WorkingEngine::getEngine).forEach(Engine::printHelp);
+        Helpable.printHelp("Advanced Options", getParser());
     }
 
     /**
