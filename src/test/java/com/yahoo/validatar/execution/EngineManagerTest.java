@@ -26,11 +26,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EngineManagerTest extends OutputCaptor {
 
@@ -110,30 +106,6 @@ public class EngineManagerTest extends OutputCaptor {
         }
     }
 
-    public static class IllegalAccessEngine implements Engine {
-        public IllegalAccessEngine() throws IllegalAccessException {
-            throw new IllegalAccessException();
-        }
-
-        @Override
-        public boolean setup(String[] arguments) {
-            return true;
-        }
-
-        @Override
-        public void execute(Query query) {
-        }
-
-        @Override
-        public String getName() {
-            return "IllegalAccess";
-        }
-
-        @Override
-        public void printHelp() {
-        }
-    }
-
     List<Query> queries;
     List<Engine> engines;
     EngineManager manager;
@@ -173,12 +145,6 @@ public class EngineManagerTest extends OutputCaptor {
         manager.setEngines(engines);
         Assert.assertFalse(manager.startEngines(queries));
         Assert.assertTrue(isStringInLog("Engine FAKE_ENGINE not loaded but required by query"));
-    }
-
-    @Test
-    public void testEngineIllegalAccess() {
-        Assert.assertTrue(isStringInLog("Illegal access while loading class com.yahoo.validatar" +
-                                        ".execution.EngineManagerTest$IllegalAccessEngine engine."));
     }
 
     @Test

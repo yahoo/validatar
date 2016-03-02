@@ -42,7 +42,7 @@ public class FormatManager implements Helpable {
 
     // Leaving it here for now. If new formatters that require more complex options are needed,
     // it can be moved to inside the respective formatters.
-    private final OptionParser parser = new OptionParser() {
+    private final OptionParser PARSER = new OptionParser() {
         {
             acceptsAll(singletonList(REPORT_FORMAT), "Which report format to use.")
                 .withRequiredArg()
@@ -59,7 +59,7 @@ public class FormatManager implements Helpable {
      */
     public FormatManager(String[] arguments) {
         loadFormatters();
-        String name = (String) parser.parse(arguments).valueOf(REPORT_FORMAT);
+        String name = (String) PARSER.parse(arguments).valueOf(REPORT_FORMAT);
         formatterToUse = availableFormatters.get(name);
 
         if (formatterToUse == null) {
@@ -111,7 +111,7 @@ public class FormatManager implements Helpable {
 
     @Override
     public void printHelp() {
-        Helpable.printHelp("Reporting options", parser);
+        Helpable.printHelp("Reporting options", PARSER);
         availableFormatters.values().stream().forEach(Formatter::printHelp);
     }
 }
