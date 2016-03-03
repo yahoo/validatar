@@ -123,6 +123,12 @@ Pig parameters are not supported in the pig query. Instead, use our parameter su
 
 Running REST tests require no other dependencies and can be launched with Java instead of hadoop jar.
 
+## Pluggability
+Engines, report generators and test suite parsers are all pluggable. You can implement your own extending the appropriate
+interfaces and pass them in to validatar to load at run time. If you wished to have a report generated and posted to a
+web service, you could do that! Or vice versa to read test suites off of a webservice or a queue somewhere. Refer to
+the options below to see how to pass in the custom implementations.
+
 ## Help
 
 Feel free to reach out to us if you run into issues. You are welcome to open any issues. Pull requests welcome!
@@ -138,6 +144,13 @@ Option (* = required)             Description
                                     DATE=2014-07-24
 * --test-suite <File: Test suite  File or folder that contains the test
   file/folder>                      suite file(s).
+
+
+Advanced Parsing Options:
+Option                                 Description
+------                                 -----------
+--custom-parser <Additional custom     Additional custom parser to load.
+  fully qualified classes to plug in>
 
 
 Hive engine options:
@@ -156,6 +169,7 @@ Option (* = required)                   Description
 --hive-setting <Hive generic settings   Settings and their values. Ex: 'hive.
   to use.>                                execution.engine=mr'
 --hive-username <Hive server username>  Hive server username. (default: anon)
+
 
 REST Engine options:
 Option                               Description
@@ -204,6 +218,13 @@ Option                                  Description
                                           job=*'
 
 
+Advanced Engine Options:
+Option                                 Description
+------                                 -----------
+--custom-engine <Additional custom     Additional custom engine to load.
+  fully qualified classes to plug in>
+
+
 Reporting options:
 Option                           Description
 ------                           -----------
@@ -216,6 +237,14 @@ Option                       Description
 ------                       -----------
 --report-file <Report file>  File to store the test reports.
                                (default: report.xml)
+
+
+Advanced Reporting Options:
+Option                                 Description
+------                                 -----------
+--custom-formatter <Additional custom  Additional custom formatter to load.
+  fully qualified classes to plug in>
+
 ```
 
 ## Changelog
@@ -231,6 +260,7 @@ Version | Notes
 0.2.0 | Internal switch to Java 8. hive-queue is no longer a setting. Use hive-setting.
 0.3.0 | Pig support added.
 0.4.0 | Rest API datasource added.
+0.4.1 | Classloader and reflections library removal [#19](/yahoo/validatar/issues/19)
 
 ## Members
 

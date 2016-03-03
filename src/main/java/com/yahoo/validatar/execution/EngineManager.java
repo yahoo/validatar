@@ -21,6 +21,7 @@ import com.yahoo.validatar.common.Pluggable;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.execution.hive.Apiary;
 import com.yahoo.validatar.execution.pig.Sty;
+import com.yahoo.validatar.execution.rest.JSON;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -36,13 +37,13 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class EngineManager extends Pluggable<Engine> implements Helpable {
-    public static final String CUSTOM_ENGINES = "custom-engines";
-    public static final String CUSTOM_ENGINE_DESCRIPTION = "Additional custom engines to use.";
+    public static final String CUSTOM_ENGINE = "custom-engine";
+    public static final String CUSTOM_ENGINE_DESCRIPTION = "Additional custom engine to load.";
 
     /**
      * The Engine classes to manage.
      */
-    public static final List<Class<? extends Engine>> MANAGED_ENGINES = Arrays.asList(Apiary.class, Sty.class);
+    public static final List<Class<? extends Engine>> MANAGED_ENGINES = Arrays.asList(Apiary.class, Sty.class, JSON.class);
 
     /**
      * Stores the CLI arguments.
@@ -86,7 +87,7 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
      * @param arguments CLI arguments.
      */
     public EngineManager(String[] arguments) {
-        super(MANAGED_ENGINES, CUSTOM_ENGINES, CUSTOM_ENGINE_DESCRIPTION);
+        super(MANAGED_ENGINES, CUSTOM_ENGINE, CUSTOM_ENGINE_DESCRIPTION);
 
         this.arguments = arguments;
 
@@ -144,7 +145,7 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
     @Override
     public void printHelp() {
         engines.values().stream().map(WorkingEngine::getEngine).forEach(Engine::printHelp);
-        Helpable.printHelp("Advanced Options", getPluginOptionsParser());
+        Helpable.printHelp("Advanced Engine Options", getPluginOptionsParser());
     }
 
     /**

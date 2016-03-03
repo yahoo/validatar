@@ -38,8 +38,8 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class ParseManager extends Pluggable<Parser> implements FileLoadable, Helpable {
-    public static final String CUSTOM_PARSERS = "custom-parsers";
-    public static final String CUSTOM_PARSER_DESCRIPTION = "Additional custom parsers to use.";
+    public static final String CUSTOM_PARSER = "custom-parser";
+    public static final String CUSTOM_PARSER_DESCRIPTION = "Additional custom parser to load.";
 
     /**
      * The Parser classes to manage.
@@ -54,7 +54,7 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
      * Constructor. Default.
      */
     public ParseManager(String[] arguments) {
-        super(MANAGED_PARSERS, CUSTOM_PARSERS, CUSTOM_PARSER_DESCRIPTION);
+        super(MANAGED_PARSERS, CUSTOM_PARSER, CUSTOM_PARSER_DESCRIPTION);
         availableParsers = new HashMap<>();
         for (Parser parser : getPlugins(arguments)) {
             availableParsers.put(parser.getName(), parser);
@@ -149,6 +149,6 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
 
     @Override
     public void printHelp() {
-        Helpable.printHelp("Advanced Options", getPluginOptionsParser());
+        Helpable.printHelp("Advanced Parsing Options", getPluginOptionsParser());
     }
 }

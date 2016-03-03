@@ -36,8 +36,8 @@ import static java.util.Collections.singletonList;
  */
 @Slf4j
 public class FormatManager extends Pluggable<Formatter> implements Helpable {
-    public static final String CUSTOM_FORMATTERS = "custom-formatters";
-    public static final String CUSTOM_FORMATTER_DESCRIPTION = "Additional custom formatters to use.";
+    public static final String CUSTOM_FORMATTER = "custom-formatter";
+    public static final String CUSTOM_FORMATTER_DESCRIPTION = "Additional custom formatter to load.";
 
     /**
      * The Parser classes to manage.
@@ -66,7 +66,7 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      */
     public FormatManager(String[] arguments) {
-        super(MANAGED_FORMATTERS, CUSTOM_FORMATTERS, CUSTOM_FORMATTER_DESCRIPTION);
+        super(MANAGED_FORMATTERS, CUSTOM_FORMATTER, CUSTOM_FORMATTER_DESCRIPTION);
 
         availableFormatters = new HashMap<>();
         for (Formatter formatter : getPlugins(arguments)) {
@@ -120,6 +120,6 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
     public void printHelp() {
         Helpable.printHelp("Reporting options", PARSER);
         availableFormatters.values().stream().forEach(Formatter::printHelp);
-        Helpable.printHelp("Advanced Options", getPluginOptionsParser());
+        Helpable.printHelp("Advanced Reporting Options", getPluginOptionsParser());
     }
 }
