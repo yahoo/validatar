@@ -260,7 +260,7 @@ Version | Notes
 0.2.0 | Internal switch to Java 8. hive-queue is no longer a setting. Use hive-setting.
 0.3.0 | Pig support added.
 0.4.0 | Rest API datasource added.
-0.4.1 | Classloader and reflections library removal [#19](../../issues/19)
+0.4.1 | Classloader and reflections library removal [#19](https://github.com/yahoo/validatar/issues/19)
 
 ## Members
 
