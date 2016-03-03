@@ -90,6 +90,14 @@ public class PluggableTest {
     }
 
     @Test
+    public void testUnknownClass() {
+        Pluggable<Object> pluggable = new Pluggable<>(Collections.emptyList(), "key", "");
+        String[] arguments = { "--custom", "foo.bar.FakeClass" };
+        Set<Object> plugins = pluggable.getPlugins(arguments);
+        Assert.assertEquals(plugins.size(), 0);
+    }
+
+    @Test
     public void testArgumentClassLoading() {
         Pluggable<Helpable> pluggable = new Pluggable<>(Collections.emptyList(), "custom", "");
         String[] arguments = { "--custom", "com.yahoo.validatar.FakeTestClass",
