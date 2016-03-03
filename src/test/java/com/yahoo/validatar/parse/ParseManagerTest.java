@@ -7,71 +7,41 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
 public class ParseManagerTest {
-    // Reflection will load these classes and test the behavior of the code when handling them.
-    private class UninstantiableParser implements Parser {
-        @Override
-        public TestSuite parse(InputStream data) {
-            return null;
-        }
-        @Override
-        public String getName() {
-            return "Uninstantiable";
-        }
-    }
-
-    public static class IllegalAccessParser implements Parser {
-        public IllegalAccessParser() throws IllegalAccessException {
-            throw new IllegalAccessException();
-        }
-
-        @Override
-        public TestSuite parse(InputStream data) {
-            return null;
-        }
-
-        @Override
-        public String getName() {
-            return "IllegalAccess";
-        }
-    }
-
-
     @Test
     public void testFailLoadOfNonFile() {
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
         TestSuite testSuite = manager.getTestSuite(new File("src/test/resources"));
         Assert.assertNull(testSuite);
     }
 
     @Test
     public void testFailLoadOfUnknownFile() {
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
         TestSuite testSuite = manager.getTestSuite(new File("src/test/resources/log4j.properties"));
         Assert.assertNull(testSuite);
     }
 
     @Test
     public void testFailLoadOfBadExtensionFile() {
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
         TestSuite testSuite = manager.getTestSuite(new File("src/test/resources/log4j.properties"));
         Assert.assertNull(testSuite);
     }
 
     @Test
     public void testFailLoadOfNoExtensionFile() {
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
         TestSuite testSuite = manager.getTestSuite(new File("LICENSE"));
         Assert.assertNull(testSuite);
     }
 
     @Test
     public void testFailLoadOfDisappearingFile() {
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
         File mocked = Mockito.mock(File.class);
         Mockito.when(mocked.isFile()).thenReturn(true);
         Mockito.when(mocked.getName()).thenReturn("foo.yaml");
@@ -82,14 +52,14 @@ public class ParseManagerTest {
 
     @Test
     public void testFailLoadOfNullPath() {
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
         List<TestSuite> loaded = manager.load(null);
         Assert.assertTrue(loaded.isEmpty());
     }
 
     @Test
     public void testFailLoadOfEmptyDirectory() {
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
         File mocked = Mockito.mock(File.class);
         Mockito.when(mocked.isFile()).thenReturn(false);
         Mockito.when(mocked.listFiles()).thenReturn(null);
@@ -99,7 +69,7 @@ public class ParseManagerTest {
 
     @Test
     public void testLoadOfDirectory() {
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
         List<TestSuite> loaded = manager.load(new File("src/test/resources/sample-tests"));
         Assert.assertEquals(loaded.size(), 3);
     }

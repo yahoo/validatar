@@ -49,7 +49,7 @@ public class PluggableTest {
         Pluggable<NormalClassTest> pluggable = new Pluggable<>(Arrays.asList(NormalSubClassTest.class,
                                                                              AnotherNormalSubClassTest.class),
                                                                "key", "");
-        Assert.assertNotNull(pluggable.getParser());
+        Assert.assertNotNull(pluggable.getPluginOptionsParser());
         Set<NormalClassTest> plugins = pluggable.getPlugins(new String[0]);
         Assert.assertEquals(plugins.size(), 2);
         int sum = 0;

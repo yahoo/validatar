@@ -22,7 +22,7 @@ import static java.util.Collections.singletonList;
 @Slf4j
 public class Pluggable<T> {
     @Getter
-    private OptionParser parser;
+    private OptionParser pluginOptionsParser;
     private List<Class<? extends T>> defaults;
     private String optionsKey;
 
@@ -35,7 +35,7 @@ public class Pluggable<T> {
      */
     public Pluggable(List<Class<? extends T>> defaults, String key, String description) {
         Objects.requireNonNull(defaults);
-        parser = new OptionParser() {
+        pluginOptionsParser = new OptionParser() {
             {
                 acceptsAll(singletonList(key), description)
                         .withRequiredArg()
@@ -53,7 +53,7 @@ public class Pluggable<T> {
      * @return A Set of all the instantiated plugin classes.
      */
     public Set<T> getPlugins(String[] arguments) {
-        OptionSet options = parser.parse(arguments);
+        OptionSet options = pluginOptionsParser.parse(arguments);
         Set<Class<? extends T>> pluginClasses = new HashSet<>(defaults);
         for (String pluggable : (List<String>) options.valuesOf(optionsKey)) {
             try {

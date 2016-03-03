@@ -17,16 +17,14 @@
 package com.yahoo.validatar.report;
 
 import com.yahoo.validatar.common.Helpable;
+import com.yahoo.validatar.common.Pluggable;
 import com.yahoo.validatar.common.TestSuite;
+import com.yahoo.validatar.report.junit.JUnitFormatter;
 import joptsimple.OptionParser;
 import lombok.extern.slf4j.Slf4j;
-import org.reflections.Reflections;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Collections.singletonList;
 
@@ -34,7 +32,14 @@ import static java.util.Collections.singletonList;
  * Manages the writing of test reports.
  */
 @Slf4j
-public class FormatManager implements Helpable {
+public class FormatManager extends Pluggable<Formatter> implements Helpable {
+    public static final String CUSTOM_FORMATTERS = "custom-formatters";
+    public static final String CUSTOM_FORMATTER_DESCRIPTION = "Additional custom formatters to use.";
+
+    /**
+     * The Parser classes to manage.
+     */
+    public static final List<Class<? extends Formatter>> MANAGED_FORMATTERS = Arrays.asList(JUnitFormatter.class);
     public static final String REPORT_FORMAT = "report-format";
 
     private Map<String, Formatter> availableFormatters;
@@ -58,7 +63,14 @@ public class FormatManager implements Helpable {
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      */
     public FormatManager(String[] arguments) {
-        loadFormatters();
+        super(MANAGED_FORMATTERS, CUSTOM_FORMATTERS, CUSTOM_FORMATTER_DESCRIPTION);
+
+        availableFormatters = new HashMap<>();
+        for (Formatter formatter : getPlugins(arguments)) {
+            availableFormatters.put(formatter.getName(), formatter);
+            log.info("Setup formatter {}", formatter.getName());
+        }
+
         String name = (String) PARSER.parse(arguments).valueOf(REPORT_FORMAT);
         formatterToUse = availableFormatters.get(name);
 
@@ -82,23 +94,6 @@ public class FormatManager implements Helpable {
         formatterToUse = formatter;
     }
 
-    private void loadFormatters() {
-        Reflections reflections = new Reflections("com.yahoo.validatar.report");
-        Set<Class<? extends Formatter>> subTypes = reflections.getSubTypesOf(Formatter.class);
-        availableFormatters = new HashMap<>();
-        for (Class<? extends Formatter> formatterClass : subTypes) {
-            try {
-                Formatter formatter = formatterClass.newInstance();
-                availableFormatters.put(formatter.getName(), formatter);
-                log.info("Setup formatter {}", formatter.getName());
-            } catch (InstantiationException e) {
-                log.info("Error instantiating {}\n{}", formatterClass, e);
-            } catch (IllegalAccessException e) {
-                log.info("Illegal access of {}\n{}", formatterClass, e);
-            }
-        }
-    }
-
     /**
      * Write out a list of TestSuites.
      *
@@ -113,5 +108,6 @@ public class FormatManager implements Helpable {
     public void printHelp() {
         Helpable.printHelp("Reporting options", PARSER);
         availableFormatters.values().stream().forEach(Formatter::printHelp);
+        Helpable.printHelp("Advanced Options", getPluginOptionsParser());
     }
 }
