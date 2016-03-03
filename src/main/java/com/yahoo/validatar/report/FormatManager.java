@@ -24,7 +24,10 @@ import joptsimple.OptionParser;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.singletonList;
 
@@ -47,7 +50,7 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
 
     // Leaving it here for now. If new formatters that require more complex options are needed,
     // it can be moved to inside the respective formatters.
-    private final OptionParser PARSER = new OptionParser() {
+    private static final OptionParser PARSER = new OptionParser() {
         {
             acceptsAll(singletonList(REPORT_FORMAT), "Which report format to use.")
                 .withRequiredArg()

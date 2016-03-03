@@ -29,13 +29,11 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.yahoo.validatar.OutputCaptor.redirectToDevNull;
 import static com.yahoo.validatar.OutputCaptor.redirectToStandard;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 public class AppTest {
