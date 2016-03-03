@@ -75,11 +75,20 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
         }
 
         String name = (String) PARSER.parse(arguments).valueOf(REPORT_FORMAT);
+        setupFormatter(name, arguments);
+    }
+
+    /**
+     * For testing purposes only. Pick the formatter to use.
+     *
+     * @param name The name of the formatter to setup
+     */
+    void setupFormatter(String name, String[] arguments) {
         formatterToUse = availableFormatters.get(name);
 
         if (formatterToUse == null) {
             printHelp();
-            throw new RuntimeException("Could not find a formatter to use");
+            throw new NullPointerException("Could not find a formatter to use");
         }
 
         if (!formatterToUse.setup(arguments)) {
@@ -89,12 +98,12 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
     }
 
     /**
-     * For testing purposes. Explicitly set the formatter to use.
+     * For testing purposes only. Explicitly set the formatters.
      *
-     * @param formatter The formatter to use.
+     * @param formatters The map of names to formatters to use.
      */
-    protected void setFormatterToUse(Formatter formatter) {
-        formatterToUse = formatter;
+    protected void setAvailableFormatters(Map<String, Formatter> formatters) {
+        availableFormatters = formatters;
     }
 
     /**

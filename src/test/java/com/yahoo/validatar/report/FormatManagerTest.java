@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
@@ -51,7 +52,6 @@ public class FormatManagerTest {
         }
     }
 
-    // Used for tests
     public static class FailingFormatter implements Formatter {
         public FailingFormatter() {
         }
@@ -74,47 +74,20 @@ public class FormatManagerTest {
             return "FailingFormat";
         }
     }
-    // Used for tests
-    public static class IllegalAccessFormatter implements Formatter {
-        public IllegalAccessFormatter() throws IllegalAccessException {
-            throw new IllegalAccessException();
-        }
 
-        @Override
-        public boolean setup(String[] arguments) {
-            return false;
-        }
-
-        @Override
-        public void printHelp() {
-        }
-
-        @Override
-        public void writeReport(List<TestSuite> testSuites) throws IOException {
-        }
-
-        @Override
-        public String getName() {
-            return "IllegalAccessFormat";
-        }
-    }
-
-    @Test(expectedExceptions = {RuntimeException.class})
+    @Test(expectedExceptions = {NullPointerException.class})
     public void testConstructorAndFindFormatterExceptionNoFormatterFound() throws FileNotFoundException {
         String[] args = {"--report-format", "INVALID"};
         runWithoutOutput(() -> new FormatManager(args));
     }
 
     @Test(expectedExceptions = {RuntimeException.class})
-    public void testFailFormatterSetup() throws IOException {
-        String[] args = {"--report-format", "FailingFormat"};
-        new FormatManager(args);
-    }
-
-    @Test(expectedExceptions = {RuntimeException.class})
-    public void testFailInstantiation() throws IOException {
-        String[] args = {"--report-format", "IllegalAccessFormat"};
-        runWithoutOutput(() -> new FormatManager(args));
+    public void testNullFormatter() {
+        String[] args = {};
+        FormatManager manager = new FormatManager(args);
+        FailingFormatter formatter = new FailingFormatter();
+        manager.setAvailableFormatters(Collections.singletonMap("fail", formatter));
+        runWithoutOutput(() -> manager.setupFormatter("fail", args));
     }
 
     @Test
@@ -122,7 +95,8 @@ public class FormatManagerTest {
         String[] args = {};
         FormatManager manager = new FormatManager(args);
         MockFormatter formatter = new MockFormatter();
-        manager.setFormatterToUse(formatter);
+        manager.setAvailableFormatters(Collections.singletonMap("MockFormat", formatter));
+        manager.setupFormatter("MockFormat", args);
         manager.writeReport(null);
         Assert.assertTrue(formatter.wroteReport);
     }
