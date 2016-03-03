@@ -157,13 +157,14 @@ public class App {
         // Parse CLI args
         OptionSet options = parse(args);
 
-        ParseManager parseManager = new ParseManager();
+        ParseManager parseManager = new ParseManager(args);
         EngineManager engineManager = new EngineManager(args);
         FormatManager formatManager = new FormatManager(args);
 
         // Check if user needs help
         if (options == null || options.has(HELP_ABBREVIATED) || options.has(HELP)) {
             Helpable.printHelp("Application options", PARSER);
+            parseManager.printHelp();
             engineManager.printHelp();
             formatManager.printHelp();
             return;

@@ -39,7 +39,7 @@ public class JUnitFormatterTest {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("DATE", "20140807");
 
-        ParseManager manager = new ParseManager();
+        ParseManager manager = new ParseManager(new String[0]);
 
         List<TestSuite> testSuites = manager.load((new File("src/test/resources/sample-tests/")));
         ParseManager.expandParameters(testSuites, paramMap);

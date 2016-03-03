@@ -17,22 +17,44 @@
 package com.yahoo.validatar.execution;
 
 import com.yahoo.validatar.common.Helpable;
+import com.yahoo.validatar.common.Pluggable;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.execution.hive.Apiary;
+import com.yahoo.validatar.execution.pig.Sty;
+import com.yahoo.validatar.execution.rest.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.reflections.Reflections;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
+
 
 /**
  * Manages the creation and execution of execution engines.
  */
 @Slf4j
-public class EngineManager implements Helpable {
+public class EngineManager extends Pluggable<Engine> implements Helpable {
+    public static final String CUSTOM_ENGINE = "custom-engine";
+    public static final String CUSTOM_ENGINE_DESCRIPTION = "Additional custom engine to load.";
+
+    /**
+     * The Engine classes to manage.
+     */
+    public static final List<Class<? extends Engine>> MANAGED_ENGINES = Arrays.asList(Apiary.class, Sty.class, JSON.class);
+
+    /**
+     * Stores the CLI arguments.
+     */
+    protected String[] arguments;
+
+    /**
+     * Stores engine names to engine references.
+     */
+    protected Map<String, WorkingEngine> engines;
+
     /**
      * A simple wrapper to mark an engine as started.
      */
@@ -60,44 +82,20 @@ public class EngineManager implements Helpable {
     }
 
     /**
-     * Stores the CLI arguments.
-     */
-    protected String[] arguments;
-
-    /**
-     * Stores engine names to engine references.
-     */
-    protected Map<String, WorkingEngine> engines;
-
-    /**
-     * Default no argument constructor.
-     */
-    public EngineManager() {
-    }
-
-    /**
      * Store arguments and create the engine map.
      *
      * @param arguments CLI arguments.
      */
     public EngineManager(String[] arguments) {
+        super(MANAGED_ENGINES, CUSTOM_ENGINE, CUSTOM_ENGINE_DESCRIPTION);
+
         this.arguments = arguments;
 
         // Create the engines map, engine name -> engine
         engines = new HashMap<>();
-        Reflections reflections = new Reflections("com.yahoo.validatar.execution");
-        Set<Class<? extends Engine>> subTypes = reflections.getSubTypesOf(Engine.class);
-        for (java.lang.Class<? extends com.yahoo.validatar.execution.Engine> engineClass : subTypes) {
-            Engine engine = null;
-            try {
-                engine = engineClass.newInstance();
-                engines.put(engine.getName(), new WorkingEngine(engine));
-                log.info("Added engine {} to list of engines.", engine.getName());
-            } catch (InstantiationException e) {
-                log.error("Error instantiating {} engine.\n{}", engineClass, e);
-            } catch (IllegalAccessException e) {
-                log.error("Illegal access while loading {} engine.\n{}", engineClass, e);
-            }
+        for (Engine engine : getPlugins(arguments)) {
+            engines.put(engine.getName(), new WorkingEngine(engine));
+            log.info("Added engine {} to list of engines.", engine.getName());
         }
     }
 
@@ -147,6 +145,7 @@ public class EngineManager implements Helpable {
     @Override
     public void printHelp() {
         engines.values().stream().map(WorkingEngine::getEngine).forEach(Engine::printHelp);
+        Helpable.printHelp("Advanced Engine Options", getPluginOptionsParser());
     }
 
     /**

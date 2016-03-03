@@ -76,7 +76,7 @@ public class AppTest {
 
     private class CustomEngineManager extends EngineManager {
         public CustomEngineManager(String[] arguments) {
-            super();
+            super(new String[0]);
             this.arguments = arguments;
             this.engines = new HashMap<>();
             MemoryDB db = new MemoryDB();
@@ -92,7 +92,7 @@ public class AppTest {
                          "--hive-jdbc", "jdbc:h2:mem:"};
         Map<String, String> parameterMap = new HashMap<>();
         File emptyTest = new File("src/test/resources/pig-tests/sample.yaml");
-        ParseManager parseManager = new ParseManager();
+        ParseManager parseManager = new ParseManager(args);
         EngineManager engineManager = new CustomEngineManager(args);
         FormatManager formatManager = new FormatManager(args);
 
@@ -140,7 +140,7 @@ public class AppTest {
                          "--hive-jdbc", "jdbc:h2:mem:"};
         Map<String, String> parameterMap = new HashMap<>();
         File emptyTest = new File("src/test/resources/sample-tests/empty-test.yaml");
-        ParseManager parseManager = new ParseManager();
+        ParseManager parseManager = new ParseManager(args);
         EngineManager engineManager = new CustomEngineManager(args);
         FormatManager formatManager = new FormatManager(args);
 

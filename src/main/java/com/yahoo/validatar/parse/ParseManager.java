@@ -16,26 +16,35 @@
 
 package com.yahoo.validatar.parse;
 
+import com.yahoo.validatar.common.Helpable;
+import com.yahoo.validatar.common.Pluggable;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
+import com.yahoo.validatar.parse.yaml.YAML;
 import lombok.extern.slf4j.Slf4j;
-import org.reflections.Reflections;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class ParseManager implements FileLoadable {
+public class ParseManager extends Pluggable<Parser> implements FileLoadable, Helpable {
+    public static final String CUSTOM_PARSER = "custom-parser";
+    public static final String CUSTOM_PARSER_DESCRIPTION = "Additional custom parser to load.";
+
+    /**
+     * The Parser classes to manage.
+     */
+    public static final List<Class<? extends Parser>> MANAGED_PARSERS = Arrays.asList(YAML.class);
 
     public static final Pattern REGEX = Pattern.compile("\\$\\{(.*?)\\}");
 
@@ -44,21 +53,12 @@ public class ParseManager implements FileLoadable {
     /**
      * Constructor. Default.
      */
-    public ParseManager() {
+    public ParseManager(String[] arguments) {
+        super(MANAGED_PARSERS, CUSTOM_PARSER, CUSTOM_PARSER_DESCRIPTION);
         availableParsers = new HashMap<>();
-
-        Reflections reflections = new Reflections("com.yahoo.validatar.parse");
-        Set<Class<? extends Parser>> subTypes = reflections.getSubTypesOf(Parser.class);
-        for (Class<? extends Parser> parserClass : subTypes) {
-            try {
-                Parser parser = parserClass.newInstance();
-                availableParsers.put(parser.getName(), parser);
-                log.info("Setup parser {}", parser.getName());
-            } catch (InstantiationException e) {
-                log.info("Error instantiating {}\n{}", parserClass, e);
-            } catch (IllegalAccessException e) {
-                log.info("Illegal access of {}\n{}", parserClass, e);
-            }
+        for (Parser parser : getPlugins(arguments)) {
+            availableParsers.put(parser.getName(), parser);
+            log.info("Setup parser {}", parser.getName());
         }
     }
 
@@ -145,5 +145,10 @@ public class ParseManager implements FileLoadable {
     private String getFileExtension(String fileName) {
         int index = fileName.lastIndexOf('.');
         return (index > 0) ? fileName.substring(index + 1) : null;
+    }
+
+    @Override
+    public void printHelp() {
+        Helpable.printHelp("Advanced Parsing Options", getPluginOptionsParser());
     }
 }

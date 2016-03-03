@@ -315,12 +315,13 @@
           <artifactId>httpclient</artifactId>
           <version>4.5.1</version>
       </dependency>
+
       <dependency>
           <groupId>org.reflections</groupId>
           <artifactId>reflections</artifactId>
           <version>0.9.9-RC1</version>
+          <scope>test</scope>
       </dependency>
-
       <dependency>
           <groupId>org.testng</groupId>
           <artifactId>testng</artifactId>

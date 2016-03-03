@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class EngineManagerTest extends OutputCaptor {
 
     private class MockFailingEngine implements Engine {
@@ -110,30 +111,6 @@ public class EngineManagerTest extends OutputCaptor {
         }
     }
 
-    public static class IllegalAccessEngine implements Engine {
-        public IllegalAccessEngine() throws IllegalAccessException {
-            throw new IllegalAccessException();
-        }
-
-        @Override
-        public boolean setup(String[] arguments) {
-            return true;
-        }
-
-        @Override
-        public void execute(Query query) {
-        }
-
-        @Override
-        public String getName() {
-            return "IllegalAccess";
-        }
-
-        @Override
-        public void printHelp() {
-        }
-    }
-
     List<Query> queries;
     List<Engine> engines;
     EngineManager manager;
@@ -176,12 +153,6 @@ public class EngineManagerTest extends OutputCaptor {
     }
 
     @Test
-    public void testEngineIllegalAccess() {
-        Assert.assertTrue(isStringInLog("Illegal access while loading class com.yahoo.validatar" +
-                                        ".execution.EngineManagerTest$IllegalAccessEngine engine."));
-    }
-
-    @Test
     public void testEngineNullQueriesNotNull() {
         query.engine = null;
         manager.setEngines(engines);
@@ -198,7 +169,7 @@ public class EngineManagerTest extends OutputCaptor {
     @Test
     public void testPrintHelp() {
         manager.setEngines(engines);
-        manager.printHelp();
+        runWithoutOutput(() -> manager.printHelp());
         MockPassingEngine engine = (MockPassingEngine) engines.get(1);
         Assert.assertTrue(engine.helpPrinted);
     }
