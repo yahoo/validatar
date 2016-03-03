@@ -91,7 +91,7 @@ public class PluggableTest {
 
     @Test
     public void testUnknownClass() {
-        Pluggable<Object> pluggable = new Pluggable<>(Collections.emptyList(), "key", "");
+        Pluggable<Object> pluggable = new Pluggable<>(Collections.emptyList(), "custom", "");
         String[] arguments = { "--custom", "foo.bar.FakeClass" };
         Set<Object> plugins = pluggable.getPlugins(arguments);
         Assert.assertEquals(plugins.size(), 0);
