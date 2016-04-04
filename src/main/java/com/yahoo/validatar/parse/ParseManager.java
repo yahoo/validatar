@@ -17,6 +17,7 @@
 package com.yahoo.validatar.parse;
 
 import com.yahoo.validatar.common.Helpable;
+import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.Pluggable;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
@@ -87,12 +88,12 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
      * @param suites       A list of TestSuites containing parametrized queries.
      * @param parameterMap A non null map of parameters to their values.
      */
-    public static void expandParameters(List<TestSuite> suites, Map<String, String> parameterMap) {
+    public static void deParametrize(List<TestSuite> suites, Map<String, String> parameterMap) {
         Objects.requireNonNull(suites);
 
         suites.stream().filter(Objects::nonNull).map(s -> s.queries)
         .flatMap(Collection::stream).filter(Objects::nonNull)
-        .forEach(q -> expandParameters(q, parameterMap));
+        .forEach(q -> deParametrize(q, parameterMap));
     }
 
     /**
@@ -102,19 +103,37 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
      * @param query        A query that is parametrized.
      * @param parameterMap A map of parameters to their values.
      */
-    public static void expandParameters(Query query, Map<String, String> parameterMap) {
+    public static void deParametrize(Query query, Map<String, String> parameterMap) {
         Objects.requireNonNull(query);
         Objects.requireNonNull(parameterMap);
-        Matcher matcher = REGEX.matcher(query.value);
-        StringBuffer newQuery = new StringBuffer();
+        query.value = deParametrize(query.value, parameterMap);
+        if (query.metadata == null) {
+            return;
+        }
+        query.metadata = query.metadata.stream().map(m -> new Metadata(deParametrize(m.key, parameterMap),
+                                                                       deParametrize(m.value, parameterMap)))
+                                                            .collect(Collectors.toList());
+    }
+
+    /**
+     * Takes a non null String and replaces all variables in it with the value of the
+     * variable in the map.
+     *
+     * @param source       The original string with parameters
+     * @param parameterMap A map of parameters to the their values.
+     * @return The new String with the replaced variables.
+     */
+    public static String deParametrize(String source, Map<String, String> parameterMap) {
+        Matcher matcher = REGEX.matcher(source);
+        StringBuffer replaced = new StringBuffer();
         while (matcher.find()) {
             String parameterValue = parameterMap.get(matcher.group(1));
             if (parameterValue != null) {
-                matcher.appendReplacement(newQuery, parameterValue);
+                matcher.appendReplacement(replaced, parameterValue);
             }
         }
-        matcher.appendTail(newQuery);
-        query.value = newQuery.toString();
+        matcher.appendTail(replaced);
+        return replaced.toString();
     }
 
     /**

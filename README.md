@@ -261,6 +261,7 @@ Version | Notes
 0.3.0 | Pig support added.
 0.4.0 | Rest API datasource added.
 0.4.1 | Classloader and reflections library removal [#19](https://github.com/yahoo/validatar/issues/19)
+0.4.2 | Parameter Expansion in metadata [#21](https://github.com/yahoo/validatar/issues/21)
 
 ## Members
 

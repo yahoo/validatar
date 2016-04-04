@@ -1,5 +1,6 @@
 package com.yahoo.validatar.parse;
 
+import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
 import org.mockito.Mockito;
@@ -7,8 +8,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ParseManagerTest {
     @Test
@@ -78,7 +82,7 @@ public class ParseManagerTest {
     public void testFailExpansion() {
         Query query = new Query();
         query.value = "${var}";
-        ParseManager.expandParameters(query, Collections.emptyMap());
+        ParseManager.deParametrize(query, Collections.emptyMap());
         Assert.assertEquals(query.value, "${var}");
     }
 
@@ -86,7 +90,27 @@ public class ParseManagerTest {
     public void testExpansion() {
         Query query = new Query();
         query.value = "${var}";
-        ParseManager.expandParameters(query, Collections.singletonMap("var", "foo"));
+        ParseManager.deParametrize(query, Collections.singletonMap("var", "foo"));
         Assert.assertEquals(query.value, "foo");
+    }
+
+    @Test
+    public void testMetadataExpansion() {
+        Query query = new Query();
+        Metadata metadataOne = new Metadata("${foo}", "${bar}");
+        Metadata metadataTwo = new Metadata("x", "${baz}");
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("foo", "1");
+        parameters.put("bar", "2");
+        parameters.put("baz", "3");
+        parameters.put("var", "4");
+        query.value = "${var}";
+        query.metadata = Arrays.asList(metadataOne, metadataTwo);
+        ParseManager.deParametrize(query, parameters);
+        Assert.assertEquals(query.metadata.get(0).key, "1");
+        Assert.assertEquals(query.metadata.get(0).value, "2");
+        Assert.assertEquals(query.metadata.get(1).key, "x");
+        Assert.assertEquals(query.metadata.get(1).value, "3");
+        Assert.assertEquals(query.value, "4");
     }
 }
