@@ -116,7 +116,7 @@ public class App {
         log.info("Parsing test files...");
         List<TestSuite> suites = parseManager.load(testSuite);
         log.info("Expanding parameters...");
-        ParseManager.expandParameters(suites, parameters);
+        ParseManager.deParametrize(suites, parameters);
 
         // Get the non-null queries
         List<Query> queries = suites.stream().map(s -> s.queries).filter(Objects::nonNull)
