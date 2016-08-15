@@ -20,14 +20,14 @@
 
     <section class="main-content">
       <h1>
-<a id="validatar" class="anchor" href="#validatar" aria-hidden="true"><span class="octicon octicon-link"></span></a>Validatar</h1>
+<a id="validatar" class="anchor" href="#validatar" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Validatar</h1>
 
 <p><a href="https://travis-ci.org/yahoo/validatar"><img src="https://travis-ci.org/yahoo/validatar.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/yahoo/validatar?branch=master"><img src="https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master" alt="Coverage Status"></a> <a href="https://bintray.com/yahoo/maven/validatar/_latestVersion"><img src="https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg" alt="Download"></a></p>
 
 <p>... is a Functional Testing Framework for Big Data pipelines. We currently support querying data through Hive (HiveServer2) and Pig (PigServer). Since a lot of other datasources (e.g. Storm DRPC) expose a REST interface, a REST datasource is also supported. You can GET or POST to your endpoint and parse the result into a standard format using some custom Javascript. Validatar is currently compiled against <em>Pig-0.14</em>. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code if absolutely needed.</p>
 
 <h2>
-<a id="how-to-build-validatar" class="anchor" href="#how-to-build-validatar" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to build Validatar</h2>
+<a id="how-to-build-validatar" class="anchor" href="#how-to-build-validatar" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to build Validatar</h2>
 
 <p>You need maven/JDK (1.8.60+ for Nashorn) to build Validatar.</p>
 
@@ -37,10 +37,10 @@
 </code></pre>
 
 <h2>
-<a id="writing-tests" class="anchor" href="#writing-tests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Writing Tests</h2>
+<a id="writing-tests" class="anchor" href="#writing-tests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Writing Tests</h2>
 
 <h3>
-<a id="test-file-format" class="anchor" href="#test-file-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test file format</h3>
+<a id="test-file-format" class="anchor" href="#test-file-format" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Test file format</h3>
 
 <p>Test files are written in the YAML format. See examples of all different datasources in src/test/resources/. The schema is as follows:</p>
 
@@ -64,7 +64,7 @@ tests:
 <p>Validatar can run a single test file or a folder of test files. Use the --help option to see more details or refer to the Help section below.</p>
 
 <h3>
-<a id="assertions" class="anchor" href="#assertions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Assertions</h3>
+<a id="assertions" class="anchor" href="#assertions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Assertions</h3>
 
 <p>Assertions are quite flexible, allowing for the following operations:</p>
 
@@ -86,31 +86,31 @@ approx(a, b, percent) : true if a and b within percent difference (0.0 to 1.0) o
 <p>Since these are the only operations we currently support, assertions are scalar, i.e. they operate on a single row. As a result, <em>Validatar currently limits all results from running queries to a single row.</em> Any need for aggregate or multi-row consideration can be pushed into the query itself. Please do open issues if you find that you are unable to do so and we will look into relaxing this requirement.</p>
 
 <h3>
-<a id="parameter-substitution" class="anchor" href="#parameter-substitution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameter Substitution</h3>
+<a id="parameter-substitution" class="anchor" href="#parameter-substitution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Parameter Substitution</h3>
 
 <p>You may want queries that use a specific date column, or similar changing parameter. For this, we have a parameter substation feature.</p>
 
 <p>Simply pass <code>--parameter KEY=VALUE</code> in the CLI and the <code>KEY</code> will be replaced with <code>VALUE</code> in all queries. For example, to query June 23rd 2015, you could use <code>--parameter DATE=2015-06-23</code>. If the query uses <code>${DATE}</code> in the query it will be replaced before execution with <code>2015-06-23</code>.</p>
 
 <h3>
-<a id="execution-engines" class="anchor" href="#execution-engines" aria-hidden="true"><span class="octicon octicon-link"></span></a>Execution Engines</h3>
+<a id="execution-engines" class="anchor" href="#execution-engines" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Execution Engines</h3>
 
 <h4>
-<a id="hive" class="anchor" href="#hive" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hive</h4>
+<a id="hive" class="anchor" href="#hive" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hive</h4>
 
 <p>The query part of a Hive test is just a HiveSQL statement. We recommend that you push all the heavy lifting to the query - joins, aggregate results etc. We use Hive JDBC underneath to execute against HiveServer2 and fetch the results. We support hive settings at the execution level by passing in --hive-setting arguments to validatar.</p>
 
 <p>Some mock tests can be found in src/test/resources/sample-tests/tests.yaml</p>
 
 <h4>
-<a id="pig" class="anchor" href="#pig" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pig</h4>
+<a id="pig" class="anchor" href="#pig" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Pig</h4>
 
 <p>The query part of a Pig test is a PigLatin script. You can register your UDFs etc as long as you register them with the full path to them at runtime. We use PigServer underneath to run the query. You can provide the alias in the script to fetch your results from (or leave it to the default). Setting the exec mode and other pig settings are supported.</p>
 
 <p>Some mock tests can be found in src/test/resources/pig-tests/sample.yaml</p>
 
 <h4>
-<a id="rest" class="anchor" href="#rest" aria-hidden="true"><span class="octicon octicon-link"></span></a>REST</h4>
+<a id="rest" class="anchor" href="#rest" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>REST</h4>
 
 <p>The query part of a REST test is a Javascript function that processes the response from your HTTP endpoint into a standard table-like format - a Javascript object (dictionary) where the keys are the column names and the value is an array of the column values.
 We execute the native Javascript via Nashorn. The function that takes a single argument - the string response from your endpoint. The name of this function is customizable if desired.</p>
@@ -122,12 +122,12 @@ We execute the native Javascript via Nashorn. The function that takes a single a
 <p>Some mock tests and examples can be found in src/test/resources/rest-tests/sample.yaml</p>
 
 <h2>
-<a id="how-to-run" class="anchor" href="#how-to-run" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to run</h2>
+<a id="how-to-run" class="anchor" href="#how-to-run" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to run</h2>
 
 <p>Use hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App --help (or -h) for Help</p>
 
 <h3>
-<a id="to-run-hive-tests-in-validatar" class="anchor" href="#to-run-hive-tests-in-validatar" aria-hidden="true"><span class="octicon octicon-link"></span></a>To run Hive tests in Validatar:</h3>
+<a id="to-run-hive-tests-in-validatar" class="anchor" href="#to-run-hive-tests-in-validatar" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>To run Hive tests in Validatar:</h3>
 
 <pre><code>export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/hive/jdbc/lib/jars/*"
 hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --hive-jdbc ...
@@ -146,7 +146,7 @@ hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/
 <p>format. Instead, you should leave it out and have ALL your queries specify the database.</p>
 
 <h3>
-<a id="to-run-pig-tests-in-validatar" class="anchor" href="#to-run-pig-tests-in-validatar" aria-hidden="true"><span class="octicon octicon-link"></span></a>To run Pig tests in Validatar:</h3>
+<a id="to-run-pig-tests-in-validatar" class="anchor" href="#to-run-pig-tests-in-validatar" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>To run Pig tests in Validatar:</h3>
 
 <pre><code>export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/pig/lib/*" (Add other jars here depending on your pig exec type or if hive/hcat is used in Pig)
 hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --pig-exec-type mr --pig-setting 'mapreduce.job.acl-view-job=*' ...
@@ -157,7 +157,15 @@ hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/
 <p>Running REST tests require no other dependencies and can be launched with Java instead of hadoop jar.</p>
 
 <h2>
-<a id="help" class="anchor" href="#help" aria-hidden="true"><span class="octicon octicon-link"></span></a>Help</h2>
+<a id="pluggability" class="anchor" href="#pluggability" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Pluggability</h2>
+
+<p>Engines, report generators and test suite parsers are all pluggable. You can implement your own extending the appropriate
+interfaces and pass them in to validatar to load at run time. If you wished to have a report generated and posted to a
+web service, you could do that! Or vice versa to read test suites off of a webservice or a queue somewhere. Refer to
+the options below to see how to pass in the custom implementations.</p>
+
+<h2>
+<a id="help" class="anchor" href="#help" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Help</h2>
 
 <p>Feel free to reach out to us if you run into issues. You are welcome to open any issues. Pull requests welcome!</p>
 
@@ -172,6 +180,13 @@ Option (* = required)             Description
                                     DATE=2014-07-24
 * --test-suite &lt;File: Test suite  File or folder that contains the test
   file/folder&gt;                      suite file(s).
+
+
+Advanced Parsing Options:
+Option                                 Description
+------                                 -----------
+--custom-parser &lt;Additional custom     Additional custom parser to load.
+  fully qualified classes to plug in&gt;
 
 
 Hive engine options:
@@ -190,6 +205,7 @@ Option (* = required)                   Description
 --hive-setting &lt;Hive generic settings   Settings and their values. Ex: 'hive.
   to use.&gt;                                execution.engine=mr'
 --hive-username &lt;Hive server username&gt;  Hive server username. (default: anon)
+
 
 REST Engine options:
 Option                               Description
@@ -238,6 +254,13 @@ Option                                  Description
                                           job=*'
 
 
+Advanced Engine Options:
+Option                                 Description
+------                                 -----------
+--custom-engine &lt;Additional custom     Additional custom engine to load.
+  fully qualified classes to plug in&gt;
+
+
 Reporting options:
 Option                           Description
 ------                           -----------
@@ -250,10 +273,18 @@ Option                       Description
 ------                       -----------
 --report-file &lt;Report file&gt;  File to store the test reports.
                                (default: report.xml)
+
+
+Advanced Reporting Options:
+Option                                 Description
+------                                 -----------
+--custom-formatter &lt;Additional custom  Additional custom formatter to load.
+  fully qualified classes to plug in&gt;
+
 </code></pre>
 
 <h2>
-<a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span class="octicon octicon-link"></span></a>Changelog</h2>
+<a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Changelog</h2>
 
 <table>
 <thead>
@@ -299,17 +330,27 @@ Option                       Description
 <td>0.4.0</td>
 <td>Rest API datasource added.</td>
 </tr>
+<tr>
+<td>0.4.1</td>
+<td>Classloader and reflections library removal <a href="https://github.com/yahoo/validatar/issues/19">#19</a>
+</td>
+</tr>
+<tr>
+<td>0.4.2</td>
+<td>Parameter Expansion in metadata <a href="https://github.com/yahoo/validatar/issues/21">#21</a>
+</td>
+</tr>
 </tbody>
 </table>
 
 <h2>
-<a id="members" class="anchor" href="#members" aria-hidden="true"><span class="octicon octicon-link"></span></a>Members</h2>
+<a id="members" class="anchor" href="#members" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Members</h2>
 
 <p>Akshai Sarma, <a href="mailto:akshaisarma@gmail.com">akshaisarma@gmail.com</a>
 Josh Walters, <a href="mailto:josh@joshwalters.com">josh@joshwalters.com</a></p>
 
 <h2>
-<a id="contributors" class="anchor" href="#contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributors</h2>
+<a id="contributors" class="anchor" href="#contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributors</h2>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/yahoo/validatar">Validatar</a> is maintained by <a href="https://github.com/yahoo">yahoo</a>.</span>
