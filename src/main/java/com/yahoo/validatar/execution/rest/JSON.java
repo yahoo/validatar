@@ -255,10 +255,9 @@ public class JSON implements Engine {
             typed =  new TypedObject((String) object, TypeSystem.Type.STRING);
         } else if (object instanceof Integer) {
             typed =  new TypedObject(((Integer) object).longValue(), TypeSystem.Type.LONG);
-        } else if (object instanceof Double) {
-            typed =  new TypedObject((Double) object, TypeSystem.Type.DOUBLE);
-        } else if (object instanceof Long) {
-            typed =  new TypedObject((Long) object, TypeSystem.Type.LONG);
+        } else if (object instanceof Number) {
+            // Can't recognize Longs and Doubles since that seems to change per JDK. Safer to use Number and use DOUBLE
+            typed =  new TypedObject(((Number) object).doubleValue(), TypeSystem.Type.DOUBLE);
         } else if (object instanceof Boolean) {
             typed =  new TypedObject((Boolean) object, TypeSystem.Type.BOOLEAN);
         } else {

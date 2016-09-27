@@ -113,4 +113,18 @@ public class ParseManagerTest {
         Assert.assertEquals(query.metadata.get(1).value, "3");
         Assert.assertEquals(query.value, "4");
     }
+
+    @Test
+    public void testTestAssertExpansion() {
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("foo", "1");
+        parameters.put("bar", "2");
+        parameters.put("baz", "3");
+        parameters.put("var", "4");
+        test.asserts = Arrays.asList("${foo} != QUERY.column", "${bar} > 1 && approx(${foo}, QUERY.column, ${var})");
+        ParseManager.deParametrize(test, parameters);
+        Assert.assertEquals(test.asserts.get(0), "1 != QUERY.column");
+        Assert.assertEquals(test.asserts.get(1), "2 > 1 && approx(1, QUERY.column, 4)");
+    }
 }

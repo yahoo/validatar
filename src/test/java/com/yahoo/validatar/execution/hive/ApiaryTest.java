@@ -49,6 +49,13 @@ public class ApiaryTest {
                                    "--hive-jdbc", "jdbc:h2:mem:",
                                    "--hive-setting", "mapreduce.job.queuename=default"};
 
+    private ResultSet getMockForNonNulls() throws SQLException {
+        ResultSet mocked = mock(ResultSet.class);
+        doReturn("").when(mocked).getObject(anyInt());
+        doReturn(false).when(mocked).wasNull();
+        return mocked;
+    }
+
     @Test
     public void testGetJDBCConnector() throws Exception {
         Apiary apiary = spy(new Apiary());
@@ -107,7 +114,15 @@ public class ApiaryTest {
     }
 
     @Test
-    public void testHiveTypeMappingNull() throws SQLException {
+    public void testHiveObjectNull() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = mock(ResultSet.class);
+        doReturn(null).when(mocked).getObject(anyInt());
+        Assert.assertNull(apiary.getAsTypedObject(mocked, 0, Types.CHAR));
+    }
+
+    @Test
+    public void testHiveObjectWasNull() throws SQLException {
         Apiary apiary = new Apiary();
         ResultSet mocked = mock(ResultSet.class);
         doReturn(true).when(mocked).wasNull();
@@ -115,9 +130,17 @@ public class ApiaryTest {
     }
 
     @Test
+    public void testHiveTypeMappingNull() throws SQLException {
+        Apiary apiary = new Apiary();
+        ResultSet mocked = getMockForNonNulls();
+        Assert.assertNull(apiary.getAsTypedObject(mocked, 0, Types.NULL));
+    }
+
+    @Test
     public void testHiveTypeMappingNullRun() throws SQLException {
         Apiary apiary = new Apiary();
         ResultSet mocked = mock(ResultSet.class);
+        doReturn("").when(mocked).getObject(anyInt());
         when(mocked.wasNull()).thenReturn(false, true, true);
         Assert.assertNotNull(apiary.getAsTypedObject(mocked, 0, Types.BIGINT));
         Assert.assertNull(apiary.getAsTypedObject(mocked, 1, Types.BIGINT));
@@ -127,7 +150,7 @@ public class ApiaryTest {
     @Test
     public void testHiveTypeMappingString() throws SQLException {
         Apiary apiary = new Apiary();
-        ResultSet mocked = mock(ResultSet.class);
+        ResultSet mocked = getMockForNonNulls();
         TypedObject object;
         // DATE, CHAR, VARCHAR
         doReturn("Sample").when(mocked).getString(anyInt());
@@ -147,7 +170,7 @@ public class ApiaryTest {
     @Test
     public void testHiveTypeMappingDouble() throws SQLException {
         Apiary apiary = new Apiary();
-        ResultSet mocked = mock(ResultSet.class);
+        ResultSet mocked = getMockForNonNulls();
         TypedObject object;
         // FLOAT, DOUBLE
         doReturn(Double.valueOf(3.14)).when(mocked).getDouble(anyInt());
@@ -163,7 +186,7 @@ public class ApiaryTest {
     @Test
     public void testHiveTypeMappingBoolean() throws SQLException {
         Apiary apiary = new Apiary();
-        ResultSet mocked = mock(ResultSet.class);
+        ResultSet mocked = getMockForNonNulls();
         TypedObject object;
 
         doReturn(Boolean.valueOf(false)).when(mocked).getBoolean(anyInt());
@@ -175,7 +198,7 @@ public class ApiaryTest {
     @Test
     public void testHiveTypeMappingLong() throws SQLException {
         Apiary apiary = new Apiary();
-        ResultSet mocked = mock(ResultSet.class);
+        ResultSet mocked = getMockForNonNulls();
         TypedObject object;
 
         doReturn(Long.valueOf(42)).when(mocked).getLong(anyInt());
@@ -200,7 +223,7 @@ public class ApiaryTest {
     @Test
     public void testHiveTypeMappingDecimal() throws SQLException {
         Apiary apiary = new Apiary();
-        ResultSet mocked = mock(ResultSet.class);
+        ResultSet mocked = getMockForNonNulls();
         TypedObject object;
 
         doReturn(new BigDecimal("3.14")).when(mocked).getBigDecimal(anyInt());
@@ -213,7 +236,7 @@ public class ApiaryTest {
     @Test
     public void testHiveTypeMappingTimestamp() throws SQLException {
         Apiary apiary = new Apiary();
-        ResultSet mocked = mock(ResultSet.class);
+        ResultSet mocked = getMockForNonNulls();
         TypedObject object;
 
         doReturn(new Timestamp(42L)).when(mocked).getTimestamp(anyInt());
@@ -226,7 +249,7 @@ public class ApiaryTest {
     @Test(expectedExceptions = {UnsupportedOperationException.class})
     public void testHiveTypeMappingUnknown() throws SQLException {
         Apiary apiary = new Apiary();
-        ResultSet mocked = mock(ResultSet.class);
+        ResultSet mocked = getMockForNonNulls();
         apiary.getAsTypedObject(mocked, 0, Types.CLOB);
     }
 }
