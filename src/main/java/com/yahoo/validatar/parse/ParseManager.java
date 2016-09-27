@@ -20,6 +20,7 @@ import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.Pluggable;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.parse.yaml.YAML;
 import lombok.extern.slf4j.Slf4j;
@@ -91,16 +92,37 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
     public static void deParametrize(List<TestSuite> suites, Map<String, String> parameterMap) {
         Objects.requireNonNull(suites);
 
+        suites.stream().filter(Objects::nonNull).map(s -> s.tests)
+              .flatMap(Collection::stream).filter(Objects::nonNull)
+              .forEach(t -> deParametrize(t, parameterMap));
+
         suites.stream().filter(Objects::nonNull).map(s -> s.queries)
-        .flatMap(Collection::stream).filter(Objects::nonNull)
-        .forEach(q -> deParametrize(q, parameterMap));
+              .flatMap(Collection::stream).filter(Objects::nonNull)
+              .forEach(q -> deParametrize(q, parameterMap));
     }
 
     /**
      * Takes a non null Query and replaces all the variables in the query
      * with the value in the map, in place.
      *
-     * @param query        A query that is parametrized.
+     * @param test         A Test that could be parametrized.
+     * @param parameterMap A map of parameters to their values.
+     */
+    public static void deParametrize(Test test, Map<String, String> parameterMap) {
+        Objects.requireNonNull(test);
+        Objects.requireNonNull(parameterMap);
+        if (test.asserts == null) {
+            return;
+        }
+        test.asserts = test.asserts.stream().map(assertString -> deParametrize(assertString, parameterMap))
+                                            .collect(Collectors.toList());
+    }
+
+    /**
+     * Takes a non null Query and replaces all the variables in the query
+     * with the value in the map, in place.
+     *
+     * @param query        A Query that could be parametrized.
      * @param parameterMap A map of parameters to their values.
      */
     public static void deParametrize(Query query, Map<String, String> parameterMap) {
@@ -112,7 +134,7 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
         }
         query.metadata = query.metadata.stream().map(m -> new Metadata(deParametrize(m.key, parameterMap),
                                                                        deParametrize(m.value, parameterMap)))
-                                                            .collect(Collectors.toList());
+                                                .collect(Collectors.toList());
     }
 
     /**

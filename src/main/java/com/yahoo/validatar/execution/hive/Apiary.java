@@ -153,6 +153,10 @@ public class Apiary implements Engine {
      * @throws java.sql.SQLException if any.
      */
     TypedObject getAsTypedObject(ResultSet results, int index, int type) throws SQLException {
+        if (results.getObject(index) == null || results.wasNull()) {
+            return null;
+        }
+
         TypedObject toReturn;
         switch (type) {
             case (Types.DATE):
@@ -185,7 +189,7 @@ public class Apiary implements Engine {
             default:
                 throw new UnsupportedOperationException("Unknown SQL type encountered from Hive: " + type);
         }
-        return results.wasNull() ? null : toReturn;
+        return toReturn;
     }
 
     /**
