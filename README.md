@@ -62,9 +62,9 @@ Since these are the only operations we currently support, assertions are scalar,
 
 ### Parameter Substitution
 
-You may want queries that use a specific date column, or similar changing parameter. For this, we have a parameter substation feature.
+You may want queries, asserts or query metadata to use a specific date column, or some other changing parameter. For this, we have a parameter substitution feature.
 
-Simply pass `--parameter KEY=VALUE` in the CLI and the `KEY` will be replaced with `VALUE` in all queries. For example, to query June 23rd 2015, you could use `--parameter DATE=2015-06-23`. If the query uses `${DATE}` in the query it will be replaced before execution with `2015-06-23`.
+Simply pass `--parameter KEY=VALUE` in the CLI and the `KEY` will be replaced with `VALUE` in all queries, query metadata and test assertions. For example, to query June 23rd 2015, you could use `--parameter DATE=2015-06-23`. If the query uses `${DATE}` in the query it will be replaced before execution with `2015-06-23`.
 
 ### Execution Engines
 
@@ -262,6 +262,7 @@ Version | Notes
 0.4.0 | Rest API datasource added.
 0.4.1 | Classloader and reflections library removal [#19](https://github.com/yahoo/validatar/issues/19)
 0.4.2 | Parameter Expansion in metadata [#21](https://github.com/yahoo/validatar/issues/21)
+0.4.3 | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
 
 ## Members
 
