@@ -97,7 +97,7 @@ public class JSONTest {
     @Test
     public void testJSONMapTypeConversions() {
         Query query = new Query();
-        String jsonData = "{'users' : ['user1', 'user2'], 'count': [10], 'ratio': [0.14], 'longs': [123123123123123]," +
+        String jsonData = "{'users' : ['user1', 'user2'], 'count': [10], 'ratio': [0.14], 'numbers': [123123123123, 1.23143]," +
                           " 'booleans': [true, false], 'mixed': [[1, 2], {'a': 1}, null, 2]}";
         Map<String, List<TypedObject>> actual = json.convertToMap(jsonData, query);
 
@@ -118,9 +118,11 @@ public class JSONTest {
         Assert.assertEquals(ratios.get(0).type, TypeSystem.Type.DOUBLE);
         Assert.assertEquals(ratios.get(0).data, 0.14);
 
-        List<TypedObject> longs = actual.get("longs");
-        Assert.assertEquals(longs.get(0).type, TypeSystem.Type.LONG);
-        Assert.assertEquals(longs.get(0).data, 123123123123123L);
+        List<TypedObject> longs = actual.get("numbers");
+        Assert.assertEquals(longs.get(0).type, TypeSystem.Type.DOUBLE);
+        Assert.assertEquals(longs.get(0).data, 123123123123.0);
+        Assert.assertEquals(longs.get(1).type, TypeSystem.Type.DOUBLE);
+        Assert.assertEquals(longs.get(1).data, 1.23143);
 
         List<TypedObject> booleans = actual.get("booleans");
         Assert.assertEquals(booleans.get(0).type, TypeSystem.Type.BOOLEAN);
