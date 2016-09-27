@@ -88,9 +88,9 @@ approx(a, b, percent) : true if a and b within percent difference (0.0 to 1.0) o
 <h3>
 <a id="parameter-substitution" class="anchor" href="#parameter-substitution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Parameter Substitution</h3>
 
-<p>You may want queries that use a specific date column, or similar changing parameter. For this, we have a parameter substation feature.</p>
+<p>You may want queries, asserts or query metadata to use a specific date column, or some other changing parameter. For this, we have a parameter substitution feature.</p>
 
-<p>Simply pass <code>--parameter KEY=VALUE</code> in the CLI and the <code>KEY</code> will be replaced with <code>VALUE</code> in all queries. For example, to query June 23rd 2015, you could use <code>--parameter DATE=2015-06-23</code>. If the query uses <code>${DATE}</code> in the query it will be replaced before execution with <code>2015-06-23</code>.</p>
+<p>Simply pass <code>--parameter KEY=VALUE</code> in the CLI and the <code>KEY</code> will be replaced with <code>VALUE</code> in all queries, query metadata and test assertions. For example, to query June 23rd 2015, you could use <code>--parameter DATE=2015-06-23</code>. If the query uses <code>${DATE}</code> in the query it will be replaced before execution with <code>2015-06-23</code>.</p>
 
 <h3>
 <a id="execution-engines" class="anchor" href="#execution-engines" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Execution Engines</h3>
@@ -339,6 +339,10 @@ Option                                 Description
 <td>0.4.2</td>
 <td>Parameter Expansion in metadata <a href="https://github.com/yahoo/validatar/issues/21">#21</a>
 </td>
+</tr>
+<tr>
+<td>0.4.3</td>
+<td>Parameter Expansion in asserts <a href="https://github.com/yahoo/validatar/issues/24">#24</a>. Hive NULL type bug fix.</td>
 </tr>
 </tbody>
 </table>
