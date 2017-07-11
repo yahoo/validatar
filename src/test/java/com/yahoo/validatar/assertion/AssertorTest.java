@@ -162,7 +162,7 @@ public class AssertorTest {
         Assert.assertTrue(test.failed());
         Assert.assertEquals(test.getMessages().get(0),
                             "pv_count > 1000 && li_count < 100 was false for these values " +
-                            "{pv_count=<Type: LONG, Value: 104255>, li_count=<Type: LONG, Value: 155>}");
+                            "{pv_count=[<Type: LONG, Value: 104255>], li_count=[<Type: LONG, Value: 155>]}");
     }
 
     @Test

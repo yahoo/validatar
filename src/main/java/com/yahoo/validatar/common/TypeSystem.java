@@ -123,7 +123,7 @@ public class TypeSystem {
      */
     public static TypedObject approx(TypedObject first, TypedObject second, TypedObject percent) {
         if ((Boolean) perform(BinaryOperation.GREATER, percent, asTypedObject(1L)).data ||
-            (Boolean) perform(BinaryOperation.LESS, percent, asTypedObject(1L)).data) {
+            (Boolean) perform(BinaryOperation.LESS, percent, asTypedObject(0L)).data) {
             throw new RuntimeException("Expected percentage for approx to be between 0 and 1. Got " + percent.data);
         }
         // max = second * (1 + percent)
@@ -160,17 +160,24 @@ public class TypeSystem {
     public static void unifySize(Column first, Column second) {
         Objects.requireNonNull(first);
         Objects.requireNonNull(second);
+
+        if (first.isEmpty() || second.isEmpty()) {
+            log.error("Tried making two columns have the same size but one or both had no data: {}, {}", first, second);
+            throw new RuntimeException("Either " + first + " or " + second + " had no data");
+        }
+
         boolean isFirstScalar = first.isScalar();
         boolean isSecondScalar = second.isScalar();
         // If both scalar or both vectors
         if (!(isFirstScalar ^ isSecondScalar)) {
-            if (first.size() == second.size()) {
-                return;
+            if (first.size() != second.size()) {
+                log.error("Cannot operate on two columns with different sizes: {} and {}", first, second);
+                throw new RuntimeException("Cannot operate on two columns with different sizes");
             }
-            log.error("Cannot operate on two columns with different sizes: {} and {}", first, second);
-            throw new RuntimeException("Cannot operate on two columns with different sizes");
+            // Both scalars or vectors and have the same size, we're good
+            return;
         }
-        // One is scalar and other is not
+        // Exactly one is scalar
         int firstSize = first.size();
         int secondSize = second.size();
         Column target = isFirstScalar ? first : second;
@@ -188,6 +195,7 @@ public class TypeSystem {
      * @return The resulting {@link Column}.
      */
     public static Column perform(BinaryOperation operation, Column first, Column second) {
+        log.debug("Performing {} on {} and {}", operation, first, second);
         unifySize(first, second);
 
         Column result = new Column();
@@ -205,6 +213,7 @@ public class TypeSystem {
      * @return The resulting {@link Column}.
      */
     public static Column perform(UnaryOperation operation, Column object) {
+        log.debug("Performing {} on {}", operation, object);
         return object.stream().map(t -> perform(operation, t)).collect(Column::new, Column::add, Column::add);
     }
 

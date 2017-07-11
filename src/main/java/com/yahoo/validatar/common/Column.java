@@ -44,12 +44,30 @@ public class Column implements Iterable<TypedObject> {
     }
 
     /**
+     * If this contains no data, then it is empty.
+     *
+     * @return A boolean denoting whether this is empty.
+     */
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    /**
      * If this contains only one {@link TypedObject}, then it is a scalar.
      *
      * @return A boolean denoting whether this is a scalar.
      */
     public boolean isScalar() {
         return size() == 1;
+    }
+
+    /**
+     * If this contains more than one {@link TypedObject}, then it is a vector.
+     *
+     * @return A boolean denoting whether this is a vector.
+     */
+    public boolean isVector() {
+        return size() > 1;
     }
 
     /**

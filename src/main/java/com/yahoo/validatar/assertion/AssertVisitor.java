@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -172,7 +173,8 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     @Override
     public Expression visitNegateValue(GrammarParser.NegateValueContext context) {
         Expression expression = visit(context.baseExpression());
-        return Expression.compose(AssertVisitor::negate, expression);
+        boolean hasMinus = context.MINUS() != null;
+        return hasMinus ? Expression.compose(AssertVisitor::negate, expression) : expression;
     }
 
     @Override
@@ -303,7 +305,8 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
 
     @Override
     public Expression visitBaseOrValue(GrammarParser.BaseOrValueContext context) {
-        return visit(context.orExpression());
+        Expression assertion = visit(context.orExpression());
+        return Expression.wrap(assertion.evaluate(columns));
     }
 
     @Override

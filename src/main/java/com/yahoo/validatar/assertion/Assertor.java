@@ -12,7 +12,6 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -47,10 +46,10 @@ public class Assertor {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             GrammarParser parser = new GrammarParser(tokens);
 
-            visitor.reset();
             Expression expression = visitor.visit(parser.statement());
-            // This expression will evaluate to a boolean Column of true or false TypedObjects with no context
-            Column result = expression.evaluate(Collections.emptyMap());
+            // This expression will evaluate to a boolean Column of true or false TypedObjects. It needs no data.
+            Column result = expression.evaluate();
+
             if (hasFailures(result)) {
                 log.info("Assertion failed. Result had false values: {}", result);
                 test.setFailed();
@@ -60,11 +59,12 @@ public class Assertor {
             test.setFailed();
             test.addMessage(assertion + " : " + e.toString());
             log.error("Assertion failed with exception", e);
+        } finally {
+            visitor.reset();
         }
     }
 
     private static boolean hasFailures(Column result) {
-        return result.stream().allMatch(t -> (Boolean) t.data);
+        return result.stream().anyMatch(t -> !((Boolean) t.data));
     }
 }
-

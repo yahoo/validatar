@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @NoArgsConstructor
 public class Result {
@@ -22,7 +23,7 @@ public class Result {
     /**
      * Constructor that initializes a result with a namespace to add for each column name.
      *
-     * @param namespace The namespace to add.
+     * @param namespace The non-null namespace to add.
      */
     public Result(String namespace) {
         this.namespace = namespace;
@@ -106,6 +107,6 @@ public class Result {
     }
 
     private String namespace(String name) {
-        return namespace + SEPARATOR + name;
+        return namespace == null || namespace.isEmpty() ? name : namespace + SEPARATOR + name;
     }
 }

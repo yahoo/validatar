@@ -37,6 +37,15 @@ public class Expression {
     }
 
     /**
+     * Evaluates the expression with the no data context and returns the result.
+     *
+     * @return The resulting {@link Column}.
+     */
+    public Column evaluate() {
+        return expression.apply(null);
+    }
+
+    /**
      * Composes a {@link UnaryStateOperation} onto a given {@link Expression}.
      *
      * @param operation The operation to chain onto.
