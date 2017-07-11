@@ -14,6 +14,16 @@ import java.util.function.Function;
  */
 @RequiredArgsConstructor
 public class Expression {
+    @FunctionalInterface
+    public interface UnaryStateOperation {
+        Column apply(Column input);
+    }
+
+    @FunctionalInterface
+    public interface BinaryStateOperation {
+        Column apply(Column a, Column b);
+    }
+
     private final Function<Map<String, Column>, Column> expression;
 
     /**
@@ -24,6 +34,29 @@ public class Expression {
      */
     public Column evaluate(Map<String, Column> context) {
         return expression.apply(context);
+    }
+
+    /**
+     * Composes a {@link UnaryStateOperation} onto a given {@link Expression}.
+     *
+     * @param operation The operation to chain onto.
+     * @param expression The expression to apply the operation on.
+     * @return The new expression.
+     */
+    public static Expression compose(UnaryStateOperation operation, Expression expression) {
+        return new Expression(data -> operation.apply(expression.evaluate(data)));
+    }
+
+    /**
+     * Composes a {@link BinaryStateOperation} onto two given {@link Expression}.
+     *
+     * @param operation The operation to chain onto.
+     * @param a The first expression to apply the operation on.
+     * @param b The second expression to apply the operation on.
+     * @return The new expression.
+     */
+    public static Expression compose(BinaryStateOperation operation, Expression a, Expression b) {
+        return new Expression(data -> operation.apply(a.evaluate(data), b.evaluate(data)));
     }
 
     /**

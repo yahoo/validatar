@@ -4,6 +4,7 @@
  */
 package com.yahoo.validatar.assertion;
 
+import com.yahoo.validatar.common.Column;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.Test;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -47,7 +49,10 @@ public class Assertor {
 
             visitor.reset();
             Expression expression = visitor.visit(parser.statement());
-            if (expression.evaluate() != null) {
+            // This expression will evaluate to a boolean Column of true or false TypedObjects with no context
+            Column result = expression.evaluate(Collections.emptyMap());
+            if (hasFailures(result)) {
+                log.info("Assertion failed. Result had false values: {}", result);
                 test.setFailed();
                 test.addMessage(assertion + " was false for these values " + visitor.getExaminedColumns());
             }
@@ -58,5 +63,8 @@ public class Assertor {
         }
     }
 
+    private static boolean hasFailures(Column result) {
+        return result.stream().allMatch(t -> (Boolean) t.data);
+    }
 }
 

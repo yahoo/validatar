@@ -93,7 +93,7 @@ public class Result {
      * @return The column viewed as a {@link List}.
      */
     public Column getColumn(String columnName) {
-        return data.get(namespace + columnName);
+        return data.get(namespace(columnName));
     }
 
     /**

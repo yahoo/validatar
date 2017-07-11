@@ -232,23 +232,6 @@ public class TypeSystem {
 
     /*
      ********************************************************************************
-     *                               Helper methods                                 *
-     ********************************************************************************
-     */
-
-    /**
-     * Negates a column.
-     *
-     * @param column The {@link Column} to negate.
-     * @return The negated column.
-     */
-    public static Column negate(Column column) {
-        Column negativeOnes = asColumn(asTypedObject(-1L), column.size());
-        return perform(BinaryOperation.MULTIPLY, negativeOnes, column);
-    }
-
-    /*
-     ********************************************************************************
      *                               Wrapper methods                                *
      ********************************************************************************
      */

@@ -11,26 +11,12 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import static com.yahoo.validatar.common.TypeSystem.Type;
-import static com.yahoo.validatar.common.TypeSystem.add;
 import static com.yahoo.validatar.common.TypeSystem.asTypedObject;
-import static com.yahoo.validatar.common.TypeSystem.divide;
-import static com.yahoo.validatar.common.TypeSystem.isEqualTo;
-import static com.yahoo.validatar.common.TypeSystem.isGreaterThan;
-import static com.yahoo.validatar.common.TypeSystem.isGreaterThanOrEqual;
-import static com.yahoo.validatar.common.TypeSystem.isLessThan;
-import static com.yahoo.validatar.common.TypeSystem.isLessThanOrEqual;
-import static com.yahoo.validatar.common.TypeSystem.isNotEqualTo;
-import static com.yahoo.validatar.common.TypeSystem.logicalAnd;
-import static com.yahoo.validatar.common.TypeSystem.logicalNegate;
-import static com.yahoo.validatar.common.TypeSystem.logicalOr;
-import static com.yahoo.validatar.common.TypeSystem.modulus;
-import static com.yahoo.validatar.common.TypeSystem.multiply;
-import static com.yahoo.validatar.common.TypeSystem.subtract;
 
 public class TypeSystemTest {
-    private Operations system = new TypeSystem();
+    private TypeSystem system = new TypeSystem();
 
-    private class CustomOperations implements Operations.Operations {
+    private class CustomOperations implements Operations {
     }
 
     public static final double EPSILON = 0.00001;
@@ -45,6 +31,62 @@ public class TypeSystemTest {
 
     private boolean equals(Timestamp first, Timestamp second) {
         return first.getTime() == second.getTime();
+    }
+
+    private TypedObject add(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.ADD, first, second);
+    }
+
+    private TypedObject subtract(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.SUBTRACT, first, second);
+    }
+
+    private TypedObject multiply(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.MULTIPLY, first, second);
+    }
+
+    private TypedObject divide(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.DIVIDE, first, second);
+    }
+
+    private TypedObject modulus(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.MODULUS, first, second);
+    }
+
+    private TypedObject isEqualTo(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.EQUAL, first, second);
+    }
+
+    private TypedObject isNotEqualTo(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.NOT_EQUAL, first, second);
+    }
+
+    private TypedObject isLessThanOrEqual(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.LESS_EQUAL, first, second);
+    }
+
+    private TypedObject isGreaterThanOrEqual(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.GREATER_EQUAL, first, second);
+    }
+
+    private TypedObject isLessThan(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.LESS, first, second);
+    }
+
+    private TypedObject isGreaterThan(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.GREATER, first, second);
+    }
+
+    private TypedObject logicalAnd(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.AND, first, second);
+    }
+
+    private TypedObject logicalOr(TypedObject first, TypedObject second) {
+        return TypeSystem.perform(Operations.BinaryOperation.OR, first, second);
+    }
+
+    private TypedObject logicalNegate(TypedObject first) {
+        return TypeSystem.perform(Operations.UnaryOperation.NOT, first);
     }
 
     @Test
@@ -101,7 +143,7 @@ public class TypeSystemTest {
     @Test(expectedExceptions = {ClassCastException.class})
     public void testNonArithmeticOperableTypes() {
         TypedObject booleanSample = asTypedObject(false);
-        TypeSystem.add(booleanSample, booleanSample);
+        add(booleanSample, booleanSample);
     }
 
     /***
@@ -655,13 +697,13 @@ public class TypeSystemTest {
     @Test
     public void testDispatchedCasting() {
         TypedObject first = asTypedObject("42");
-        TypedObject result = TypeSystem.perform(TypeSystem.UnaryOperation.CAST, first);
+        TypedObject result = TypeSystem.perform(Operations.UnaryOperation.CAST, first);
         Assert.assertTrue(boolify(isEqualTo(first, result)));
     }
 
     @Test
     public void testDefaultCasting() {
-        Operations.Operations operations = new CustomOperations();
+        Operations operations = new CustomOperations();
         Assert.assertNull(operations.cast(asTypedObject(42L)));
     }
 }
