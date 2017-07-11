@@ -5,6 +5,7 @@
 package com.yahoo.validatar.execution;
 
 import com.yahoo.validatar.OutputCaptor;
+import com.yahoo.validatar.common.Column;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
@@ -206,7 +207,7 @@ public class EngineManagerTest extends OutputCaptor {
         columns.add(new TypedObject("52", TypeSystem.Type.STRING));
         expected.put("Foo.b", columns);
 
-        Map<String, List<TypedObject>> actual = query.getResult().getColumns();
+        Map<String, Column> actual = query.getResult().getColumns();
 
         Assert.assertEquals(actual.size(), 2);
         Assert.assertEquals(expected.size(), 2);

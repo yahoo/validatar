@@ -28,9 +28,9 @@ import static com.yahoo.validatar.common.TypeSystem.multiply;
 import static com.yahoo.validatar.common.TypeSystem.subtract;
 
 public class TypeSystemTest {
-    private TypeSystem system = new TypeSystem();
+    private Operations system = new TypeSystem();
 
-    private class CustomOperations implements TypeSystem.Operations {
+    private class CustomOperations implements Operations.Operations {
     }
 
     public static final double EPSILON = 0.00001;
@@ -661,7 +661,7 @@ public class TypeSystemTest {
 
     @Test
     public void testDefaultCasting() {
-        TypeSystem.Operations operations = new CustomOperations();
+        Operations.Operations operations = new CustomOperations();
         Assert.assertNull(operations.cast(asTypedObject(42L)));
     }
 }

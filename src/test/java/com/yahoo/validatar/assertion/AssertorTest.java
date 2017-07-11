@@ -21,9 +21,9 @@ public class AssertorTest {
     private Result results;
     private Assertor assertor = new Assertor();
 
-    private List<com.yahoo.validatar.common.Test> wrap(com.yahoo.validatar.common.Test... tests) {
-        List<com.yahoo.validatar.common.Test> asList = new ArrayList<>();
-        Collections.addAll(asList, tests);
+    private <T> List<T> wrap(T... data) {
+        List<T> asList = new ArrayList<>();
+        Collections.addAll(asList, data);
         return asList;
     }
 
@@ -70,12 +70,12 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = null;
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
         Assert.assertEquals("No assertion was provided!", test.getMessages().get(0));
 
         test.asserts = new ArrayList<>();
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
         Assert.assertEquals("No assertion was provided!", test.getMessages().get(0));
     }
@@ -88,7 +88,7 @@ public class AssertorTest {
 
         results.addColumn("AV.pv_count");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
     }
 
@@ -98,7 +98,7 @@ public class AssertorTest {
         test.asserts = new ArrayList<>();
         test.asserts.add("100 > 1000");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
         Assert.assertEquals("100 > 1000 was false for these values {}", test.getMessages().get(0));
     }
@@ -112,40 +112,40 @@ public class AssertorTest {
         test.asserts = new ArrayList<>();
         test.asserts.add("AV.pv_count > 1000");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
     @Test
     public void testOneValidTextAssertion() {
-        addToResult("largest_spaceid", TypeSystem.Type.STRING, "104255");
+        addToResult("largest_id", TypeSystem.Type.STRING, "104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
-        test.asserts.add("largest_spaceid == \"104255\"");
-        Assertor.assertAll(results, wrap(test));
+        test.asserts.add("largest_id == \"104255\"");
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
     @Test
     public void testWhitespaceStringAssertion() {
-        addToResult("largest_spaceid", TypeSystem.Type.STRING, "  104255");
+        addToResult("largest_id", TypeSystem.Type.STRING, "  104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
-        test.asserts.add("largest_spaceid == \"  104255\"");
-        Assertor.assertAll(results, wrap(test));
+        test.asserts.add("largest_id == \"  104255\"");
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
     @Test
     public void testWhitespaceAssertion() {
-        addToResult("largest_spaceid", TypeSystem.Type.STRING, "104255");
+        addToResult("largest_id", TypeSystem.Type.STRING, "104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
-        test.asserts.add("\tlargest_spaceid                == \"104255\"      ");
-        Assertor.assertAll(results, wrap(test));
+        test.asserts.add("\tlargest_id                == \"104255\"      ");
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -157,7 +157,7 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("pv_count > 1000 && li_count < 100");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
 
         Assert.assertTrue(test.failed());
         Assert.assertEquals(test.getMessages().get(0),
@@ -172,7 +172,7 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("pv_count > -1000");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -184,7 +184,7 @@ public class AssertorTest {
         test.asserts = new ArrayList<>();
         test.asserts.add("!(pv_count < 1000)");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -197,7 +197,7 @@ public class AssertorTest {
         test.asserts.add("pv_count >= 104255");
         test.asserts.add("pv_count <= 104255");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -210,7 +210,7 @@ public class AssertorTest {
         test.asserts.add("pv_count < 104255*2");
         test.asserts.add("pv_count > 104255/2");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -223,7 +223,7 @@ public class AssertorTest {
         test.asserts.add("pv_count < 104255+1");
         test.asserts.add("pv_count > 104255-1");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -236,7 +236,7 @@ public class AssertorTest {
         test.asserts.add("pv_count == 104255");
         test.asserts.add("pv_count != 104255-1");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -250,7 +250,7 @@ public class AssertorTest {
         test.asserts.add("pv_count == 104255 && pv_count > li_count || pv_count == 5");
         test.asserts.add("pv_count != 104255 && pv_count > li_count || li_count == 155");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
 
         Assert.assertFalse(test.failed());
     }
@@ -263,37 +263,37 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, 100000, 0.05)");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, 100000, 0.01)");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, 100000, 11241)");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, pv_count, 0.01)");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("approx(10000, 10010, 0.01)");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
 
         test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("approx(pv_count, foo.pv_count, 0.10)");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
     }
 
@@ -305,7 +305,7 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("((pv_count == 104255 && pv_count < li_count) || (li_count*10000 > pv_count))");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -316,7 +316,7 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("str == \"\\u0001\"");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -327,7 +327,7 @@ public class AssertorTest {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
         test.asserts.add("str == \"Foo's Bar\"");
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -342,7 +342,7 @@ public class AssertorTest {
         test.asserts.add("bool");
         test.asserts.add("!(!bool)");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 
@@ -354,7 +354,7 @@ public class AssertorTest {
         test.asserts = new ArrayList<>();
         test.asserts.add("counts % 19 == 10");
 
-        Assertor.assertAll(results, wrap(test));
+        Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
 }

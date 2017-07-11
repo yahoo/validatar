@@ -4,32 +4,32 @@
  */
 package com.yahoo.validatar.common;
 
-import java.util.ArrayList;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@NoArgsConstructor
 public class Result {
-    private final Map<String, List<TypedObject>> data = new HashMap<>();
-    private String prefix = "";
+    private final Map<String, Column> data = new HashMap<>();
+    @Getter
+    private String namespace = "";
+
+    public static final String SEPARATOR = ".";
 
     /**
-     * Constructor that initializes a result with a prefix to add for each column name.
+     * Constructor that initializes a result with a namespace to add for each column name.
      *
-     * @param prefix The prefix to add.
+     * @param namespace The namespace to add.
      */
-    public Result(String prefix) {
-        this.prefix = prefix;
+    public Result(String namespace) {
+        this.namespace = namespace;
     }
 
     /**
-     * Default constructor with no prefix.
-     */
-    public Result() {
-    }
-
-    /**
-     * Adds an entire set of data to the results.
+     * Adds an entire set of data to the results. The namespace will be added.
      *
      * @param data The data to add to the result.
      */
@@ -45,7 +45,7 @@ public class Result {
      * @param name The name of the column.
      */
     public void addColumn(String name) {
-        data.put(prefix + name, new ArrayList<>());
+        data.put(namespace(name), new Column());
     }
 
     /**
@@ -55,14 +55,14 @@ public class Result {
      * @param values The column rows.
      */
     public void addColumn(String name, List<TypedObject> values) {
-        data.put(prefix + name, values);
+        data.put(namespace(name), new Column(values));
     }
 
     /**
      * Add a new row to a column.
      *
      * @param name  The name of the column.
-     * @param value The value to add to it.
+     * @param value The value to add t it.
      */
     public void addColumnRow(String name, TypedObject value) {
         if (getColumn(name) == null) {
@@ -72,10 +72,9 @@ public class Result {
     }
 
     /**
-     * Merge another result into this. Collision in names is not handled.
-     * Once results are merged in, column and row operations for this
-     * result will still affect only the existing columns and rows pre-merge
-     * unless there were collisions.
+     * Merge another result into this. Collision in names is not handled. Once results are merged in, column and
+     * row operations for this result will still affect only the existing columns and rows pre-merge unless there
+     * were collisions.
      *
      * @param result The result to merge with.
      * @return The merged result, i.e. this.
@@ -91,18 +90,22 @@ public class Result {
      * Gets the column for a given column name.
      *
      * @param columnName The name of the column.
-     * @return The TypeSystem.Type of the column.
+     * @return The column viewed as a {@link List}.
      */
-    public List<TypedObject> getColumn(String columnName) {
-        return data.get(prefix + columnName);
+    public Column getColumn(String columnName) {
+        return data.get(namespace + columnName);
     }
 
     /**
-     * Gets the columns representing as a Map of column names to their List of values.
+     * Gets the columns representing as a {@link Map} of column names to their values as a {@link Column}.
      *
      * @return The column viewed as a Map.
      */
-    public Map<String, List<TypedObject>> getColumns() {
+    public Map<String, Column> getColumns() {
         return data;
+    }
+
+    private String namespace(String name) {
+        return namespace + SEPARATOR + name;
     }
 }

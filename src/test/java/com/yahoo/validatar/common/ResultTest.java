@@ -17,7 +17,7 @@ import static java.util.Collections.singletonList;
 public class ResultTest {
     @Test
     public void testPrefix() {
-        Result result = new Result("foo.");
+        Result result = new Result("foo");
         result.addColumn("a", singletonList(new TypedObject(1L, TypeSystem.Type.LONG)));
 
         Assert.assertEquals(result.getColumn("a").size(), 1);
@@ -39,7 +39,7 @@ public class ResultTest {
         Result result = new Result();
 
         result.addColumn("a");
-        Assert.assertTrue(result.getColumn("a").isEmpty());
+        Assert.assertTrue(result.getColumn("a").getValues().isEmpty());
 
         result.addColumnRow("a", new TypedObject(2L, TypeSystem.Type.LONG));
         Assert.assertEquals(result.getColumn("a").get(0).data, Long.valueOf(2L));
@@ -65,18 +65,18 @@ public class ResultTest {
 
     @Test
     public void testMergeNull() {
-        Result result = new Result("Bar.");
+        Result result = new Result("Bar");
         result.merge(null);
         Assert.assertTrue(result.getColumns().isEmpty());
     }
 
     @Test
     public void testMerge() {
-        Result result = new Result("Bar.");
+        Result result = new Result("Bar");
         result.addColumnRow("a", new TypedObject(2L, TypeSystem.Type.LONG));
         Assert.assertEquals(result.getColumn("a").get(0).data, Long.valueOf(2L));
 
-        Result anotherResult = new Result("Foo.");
+        Result anotherResult = new Result("Foo");
         anotherResult.addColumnRow("a", new TypedObject(3L, TypeSystem.Type.LONG));
         Assert.assertEquals(anotherResult.getColumn("a").get(0).data, Long.valueOf(3L));
 
@@ -84,7 +84,7 @@ public class ResultTest {
         // You can't get anotherResult.a anymore
         Assert.assertEquals(result.getColumn("a").get(0).data, Long.valueOf(2L));
         // You have to get the map
-        Map<String, List<TypedObject>> results = result.getColumns();
+        Map<String, Column> results = result.getColumns();
         Assert.assertEquals(results.size(), 2);
         Assert.assertEquals(results.get("Foo.a").size(), 1);
         Assert.assertEquals(results.get("Foo.a").get(0).data, Long.valueOf(3L));
