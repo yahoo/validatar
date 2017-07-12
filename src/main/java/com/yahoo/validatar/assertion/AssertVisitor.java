@@ -31,7 +31,7 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     // These can change per assert.
     @Getter
     private Map<String, String> examinedColumns;
-    private List<String> potentialIdentifiers;
+    private List<String> seenIdentifiers;
     private Dataset joinedDataset;
 
     private Column getColumnValue(Dataset dataset, String name) {
@@ -45,23 +45,6 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
         examinedColumns.put(name, Objects.toString(result));
         return result;
     }
-
-    private Map<String, Dataset> findDataSetsToJoin() {
-        Map<String, Dataset> datasetsToJoin = new HashMap<>();
-
-        for (String identifier : potentialIdentifiers) {
-            String name = Result.getNamespace(identifier);
-            Dataset dataset = datasets.get(name);
-
-            if (dataset == null) {
-                log.error("Dataset {} from identifier {} used in join not found in {}", name, identifier, datasets.keySet());
-                throw new RuntimeException("Could not find the dataset for " + identifier + " to perform the join.");
-            }
-            datasetsToJoin.put(name, dataset);
-        }
-        return datasetsToJoin;
-    }
-
 
     private static String stripQuotes(String literal) {
         return literal.substring(1, literal.length() - 1);
@@ -81,6 +64,22 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     // Helper to partially apply perform
     private static BinaryStateOperation curry(Operations.BinaryOperation operation) {
         return (a, b) -> TypeSystem.perform(operation, a, b);
+    }
+
+    private static Map<String, Dataset> findDataSetsToJoin(List<String> seenIdentifiers, Map<String, Dataset> datasets) {
+        Map<String, Dataset> datasetsToJoin = new HashMap<>();
+
+        for (String identifier : seenIdentifiers) {
+            String name = Result.getNamespace(identifier);
+            Dataset dataset = datasets.get(name);
+
+            if (dataset == null) {
+                log.error("Dataset {} from identifier {} used in join not found in {}", name, identifier, datasets.keySet());
+                throw new RuntimeException("Could not find the dataset for " + identifier + " to perform the join.");
+            }
+            datasetsToJoin.put(name, dataset);
+        }
+        return datasetsToJoin;
     }
 
     /**************************************************************************************************************
@@ -111,7 +110,7 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     public void reset() {
         examinedColumns = new HashMap<>();
         joinedDataset = null;
-        potentialIdentifiers = new ArrayList<>();
+        seenIdentifiers = new ArrayList<>();
     }
 
     @Override
@@ -333,11 +332,11 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
 
     @Override
     public Expression visitJoinValue(GrammarParser.JoinValueContext context) {
+        // Visit and build the expression tree for the join expression
         Expression join = visit(context.j);
 
-        // As we have visited the joinExpression but not the assertion, all the identifiers seen so far determine
-        // our join datasets.
-        Map<String, Dataset> datasetsToJoin = findDataSetsToJoin();
+        // Since we have only visiting the join expression, all the identifiers seen o far determine // our join datasets.
+        Map<String, Dataset> datasetsToJoin = findDataSetsToJoin(seenIdentifiers, datasets);
 
         // Use those to do a cartesian product.
         Dataset cartesianProduct = Dataset.cartesianProduct(datasetsToJoin);
@@ -348,7 +347,10 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
         // The rows for which the expression is true have successfully joined
         joinedDataset = Dataset.join(cartesianProduct, joinResult);
 
+        // Now visit the assert statement
         Expression assertion = visit(context.o);
+
+        // Evaluate the assert statement on the joined data and return the result as an expression.
         return Expression.wrap(assertion.evaluate(joinedDataset));
     }
 }
