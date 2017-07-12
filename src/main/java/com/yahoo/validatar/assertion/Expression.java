@@ -4,8 +4,6 @@ import com.yahoo.validatar.common.Column;
 import com.yahoo.validatar.common.TypedObject;
 import lombok.RequiredArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -24,16 +22,16 @@ public class Expression {
         Column apply(Column a, Column b);
     }
 
-    private final Function<Map<String, Column>, Column> expression;
+    private final Function<Dataset, Column> expression;
 
     /**
-     * Evaluates the expression with the given data context and returns the result.
+     * Evaluates the expression with the given data dataset and returns the result.
      *
-     * @param context The columnar data, a {@link Map} of Strings to {@link Column}, that is the data for this expression.
+     * @param dataset The {@link Dataset} that is the data for this expression.
      * @return The resulting {@link Column}.
      */
-    public Column evaluate(Map<String, Column> context) {
-        return expression.apply(context);
+    public Column evaluate(Dataset dataset) {
+        return expression.apply(dataset);
     }
 
     /**
@@ -87,13 +85,4 @@ public class Expression {
     public static Expression wrap(TypedObject input) {
         return wrap(new Column(input));
     }
-
-    private static Map<String, Column> makeEmptyCopy(Map<String, Column> data) {
-        return data.keySet().stream().collect(HashMap::new, (m, c) -> m.put(c, new Column()), HashMap::putAll);
-    }
-
-    private static int largestVector(Map<String, Column> data) {
-        return data.values().stream().max((v1, v2) -> v1.size() - v2.size()).get().size();
-    }
-
 }

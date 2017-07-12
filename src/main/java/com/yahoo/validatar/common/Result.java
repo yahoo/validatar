@@ -106,7 +106,29 @@ public class Result {
         return data;
     }
 
-    private String namespace(String name) {
+    /**
+     * Strips out the namespace, if present, from a name.
+     *
+     * @param name The namespaced name to de-namespace.
+     * @return The namespace in the name.
+     */
+    public static String getNamespace(String name) {
+        Objects.requireNonNull(name);
+        return name.split(SEPARATOR)[0];
+    }
+
+    /**
+     * Gets a fully qualified name from the given namespace and name.
+     *
+     * @param namespace The namespace of the name.
+     * @param name The name.
+     * @return The fully qualified name.
+     */
+    public static String getName(String namespace, String name) {
         return namespace == null || namespace.isEmpty() ? name : namespace + SEPARATOR + name;
+    }
+
+    private String namespace(String name) {
+        return getName(namespace, name);
     }
 }

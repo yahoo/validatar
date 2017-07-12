@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,19 +25,17 @@ import java.util.Objects;
 @Slf4j
 public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     // These are read-only (including values)! Do not modify ever!
-    private final Map<String, Column> columns;
-    private final Map<String, Map<String, Column>> datasets;
+    private final Dataset allColumns;
+    private final Map<String, Dataset> datasets;
 
-    // These change per assert.
+    // These can change per assert.
     @Getter
     private Map<String, String> examinedColumns;
-    private Map<String, Column> joinedColumns;
+    private List<String> potentialIdentifiers;
+    private Dataset joinedDataset;
 
-    private static String stripQuotes(String literal) {
-        return literal.substring(1, literal.length() - 1);
-    }
-
-    private Column getColumnValue(Map<String, Column> columns, String name) {
+    private Column getColumnValue(Dataset dataset, String name) {
+        Map<String, Column> columns = dataset.getColumns();
         // Check for no mapping explicitly
         if (!columns.containsKey(name)) {
             log.error("Column not found: {}.\nAvailable Columns: {}", name, columns.keySet());
@@ -48,20 +46,45 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
         return result;
     }
 
-    // This function matches the UnaryStateOperation functional interface
+    private Map<String, Dataset> findDataSetsToJoin() {
+        Map<String, Dataset> datasetsToJoin = new HashMap<>();
+
+        for (String identifier : potentialIdentifiers) {
+            String name = Result.getNamespace(identifier);
+            Dataset dataset = datasets.get(name);
+
+            if (dataset == null) {
+                log.error("Dataset {} from identifier {} used in join not found in {}", name, identifier, datasets.keySet());
+                throw new RuntimeException("Could not find the dataset for " + identifier + " to perform the join.");
+            }
+            datasetsToJoin.put(name, dataset);
+        }
+        return datasetsToJoin;
+    }
+
+
+    private static String stripQuotes(String literal) {
+        return literal.substring(1, literal.length() - 1);
+    }
+
+    // This helper function matches the UnaryStateOperation functional interface
     private static Column negate(Column column) {
         Column negativeOnes = TypeSystem.asColumn(TypeSystem.asTypedObject(-1L), column.size());
         return TypeSystem.perform(Operations.BinaryOperation.MULTIPLY, negativeOnes, column);
     }
 
-    // Helpers to partially apply perform
+    // Helper to partially apply perform
     private static UnaryStateOperation curry(Operations.UnaryOperation operation) {
         return input -> TypeSystem.perform(operation, input);
     }
 
+    // Helper to partially apply perform
     private static BinaryStateOperation curry(Operations.BinaryOperation operation) {
         return (a, b) -> TypeSystem.perform(operation, a, b);
     }
+
+    /**************************************************************************************************************
+     **************************************************************************************************************/
 
     /**
      * Creates a vistor to walk the assertion parse tree.
@@ -72,16 +95,14 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
         Objects.requireNonNull(results);
 
         datasets = new HashMap<>();
-        examinedColumns = new HashMap<>();
-        joinedColumns = new HashMap<>();
 
         Result merged = new Result();
         for (Result result : results) {
             merged.merge(result);
-            datasets.put(result.getNamespace(), result.getColumns());
+            datasets.put(result.getNamespace(), new Dataset(result.getColumns()));
         }
-
-        columns = merged.getColumns();
+        allColumns = new Dataset(merged.getColumns());
+        reset();
     }
 
     /**
@@ -89,7 +110,8 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
      */
     public void reset() {
         examinedColumns = new HashMap<>();
-        joinedColumns = new HashMap<>();
+        joinedDataset = null;
+        potentialIdentifiers = new ArrayList<>();
     }
 
     @Override
@@ -306,15 +328,27 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     @Override
     public Expression visitBaseOrValue(GrammarParser.BaseOrValueContext context) {
         Expression assertion = visit(context.orExpression());
-        return Expression.wrap(assertion.evaluate(columns));
+        return Expression.wrap(assertion.evaluate(allColumns));
     }
 
     @Override
     public Expression visitJoinValue(GrammarParser.JoinValueContext context) {
-        Expression assertion = visit(context.o);
         Expression join = visit(context.j);
-        // TODO: Construct the joined dataset (for each column, construct every row possibility)
-        joinedColumns = columns;
-        return Expression.wrap(assertion.evaluate(joinedColumns));
+
+        // As we have visited the joinExpression but not the assertion, all the identifiers seen so far determine
+        // our join datasets.
+        Map<String, Dataset> datasetsToJoin = findDataSetsToJoin();
+
+        // Use those to do a cartesian product.
+        Dataset cartesianProduct = Dataset.cartesianProduct(datasetsToJoin);
+
+        // Evaluate the join expression on the cartesian product
+        Column joinResult = join.evaluate(cartesianProduct);
+
+        // The rows for which the expression is true have successfully joined
+        joinedDataset = Dataset.join(cartesianProduct, joinResult);
+
+        Expression assertion = visit(context.o);
+        return Expression.wrap(assertion.evaluate(joinedDataset));
     }
 }

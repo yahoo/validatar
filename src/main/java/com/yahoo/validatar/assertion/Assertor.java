@@ -57,7 +57,7 @@ public class Assertor {
             }
         } catch (Exception e) {
             test.setFailed();
-            test.addMessage(assertion + " : " + e.toString());
+            test.addMessage(assertion + " : " + e.getMessage());
             log.error("Assertion failed with exception", e);
         } finally {
             visitor.reset();

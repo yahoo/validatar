@@ -120,6 +120,15 @@ public class Column implements Iterable<TypedObject> {
     }
 
     /**
+     * Creates a full copy of this Column.
+     *
+     * @return The copied column.
+     */
+    public Column copy() {
+        return this.stream().collect(Column::new, (c, t) -> c.add(new TypedObject(t.data, t.type)), Column::add);
+    }
+
+    /**
      * Creates a {@link Stream} of the values in this Column.
      *
      * @return A Stream of the {@link TypedObject} in this object.
