@@ -33,7 +33,6 @@ public class Result {
 
     public static final String SEPARATOR = ".";
 
-
     /**
      * Creates an empty result containing the provided column names.
      *
@@ -168,7 +167,7 @@ public class Result {
      * @return The column as a {@link Column}.
      */
     public Column getQualifiedColumn(String columnName) {
-        return columns.get(namespace(columnName));
+        return columns.get(columnName);
     }
     /**
      * Gets the column for a given column name.
@@ -178,6 +177,26 @@ public class Result {
      */
     public Column getColumn(String columnName) {
         return getQualifiedColumn(namespace(columnName));
+    }
+
+    /**
+     * Returns true if the namespaced name is present in this result.
+     *
+     * @param name The fully qualified name for the column.
+     * @return A boolean denoting whether this is a column in this result.
+     */
+    public boolean hasQualifiedColumn(String name) {
+        return columns.containsKey(name);
+    }
+
+    /**
+     * Returns true if the name of a column is present in this result.
+     *
+     * @param name The name for the column.
+     * @return A boolean denoting whether this is a column in this result.
+     */
+    public boolean hasColumn(String name) {
+        return hasQualifiedColumn(namespace(name));
     }
 
     /**
@@ -211,7 +230,7 @@ public class Result {
 
     @Override
     public String toString() {
-        return "Name: " + namespace + "Columns: " + columns.keySet();
+        return "{ Name: " + namespace + ", Columns: " + columns.keySet() + " }";
     }
 
     /**
@@ -240,17 +259,16 @@ public class Result {
         // A  X (B X C) = (A X B) X C = A X B X C since there is a bijection from a, (b, c) -> (a, b), c.
         // For us, it is also commutative since A X B and B X A is the same result for the purposes of our
         // columnar operations.
-        log.info("Starting cartesian products on {}", results);
         return results.stream().reduce(Result::cartesianProduct).get();
     }
 
     private static Result cartesianProduct(Result currentProduct, Result target) {
-        log.info("Performing a cartesian product on {} and {}", currentProduct, target);
-
         // Identity: {} X B  = B
         if (currentProduct == null) {
             return copy(target);
         }
+
+        log.info("Performing a cartesian product on {} and {}", currentProduct, target);
         Result product = new Result();
 
         // The number of rows in currentProduct are the same for all columns in currentProduct.
