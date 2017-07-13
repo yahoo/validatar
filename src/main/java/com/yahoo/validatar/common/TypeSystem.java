@@ -181,7 +181,7 @@ public class TypeSystem {
         int firstSize = first.size();
         int secondSize = second.size();
         Column target = isFirstScalar ? first : second;
-        int numberOfValues = (isFirstScalar ? firstSize : secondSize ) - 1;
+        int numberOfValues = (isFirstScalar ? firstSize : secondSize) - 1;
         // Repeat the first element in target, 1 - the size of the other
         target.add(asColumn(target.first(), numberOfValues));
     }

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017 Yahoo Inc.
+ * Licensed under the terms of the Apache 2 license. Please see LICENSE file in the project root for terms.
+ */
 package com.yahoo.validatar.common;
 
 import java.math.BigDecimal;
@@ -17,18 +21,22 @@ import static com.yahoo.validatar.common.TypeSystem.asTypedObject;
  */
 public class Operators {
     public static class BooleanOperator implements Operations {
+        @Override
         public TypedObject or(TypedObject first, TypedObject second) {
             return asTypedObject((Boolean) first.data || (Boolean) second.data);
         }
 
+        @Override
         public TypedObject and(TypedObject first, TypedObject second) {
             return asTypedObject((Boolean) first.data && (Boolean) second.data);
         }
 
+        @Override
         public TypedObject not(TypedObject object) {
             return asTypedObject(!(Boolean) object.data);
         }
 
+        @Override
         public TypedObject cast(TypedObject object) {
             switch (object.type) {
                 case STRING:
@@ -48,26 +56,32 @@ public class Operators {
     }
 
     public static class LongOperator implements Operations {
+        @Override
         public TypedObject add(TypedObject first, TypedObject second) {
             return asTypedObject((Long) first.data + (Long) second.data);
         }
 
+        @Override
         public TypedObject subtract(TypedObject first, TypedObject second) {
             return asTypedObject((Long) first.data - (Long) second.data);
         }
 
+        @Override
         public TypedObject multiply(TypedObject first, TypedObject second) {
             return asTypedObject((Long) first.data * (Long) second.data);
         }
 
+        @Override
         public TypedObject divide(TypedObject first, TypedObject second) {
             return asTypedObject((Long) first.data / (Long) second.data);
         }
 
+        @Override
         public TypedObject modulus(TypedObject first, TypedObject second) {
             return asTypedObject((Long) first.data % (Long) second.data);
         }
 
+        @Override
         public TypedObject cast(TypedObject object) {
             switch (object.type) {
                 case STRING:
@@ -88,22 +102,27 @@ public class Operators {
         }
     }
     public static class DoubleOperator implements Operations {
+        @Override
         public TypedObject add(TypedObject first, TypedObject second) {
             return asTypedObject((Double) first.data + (Double) second.data);
         }
 
+        @Override
         public TypedObject subtract(TypedObject first, TypedObject second) {
             return asTypedObject((Double) first.data - (Double) second.data);
         }
 
+        @Override
         public TypedObject multiply(TypedObject first, TypedObject second) {
             return asTypedObject((Double) first.data * (Double) second.data);
         }
 
+        @Override
         public TypedObject divide(TypedObject first, TypedObject second) {
             return asTypedObject((Double) first.data / (Double) second.data);
         }
 
+        @Override
         public TypedObject cast(TypedObject object) {
             switch (object.type) {
                 case STRING:
@@ -125,10 +144,12 @@ public class Operators {
     }
 
     public static class StringOperator implements Operations {
+        @Override
         public TypedObject add(TypedObject first, TypedObject second) {
             return asTypedObject((String) first.data + (String) second.data);
         }
 
+        @Override
         public TypedObject cast(TypedObject object) {
             switch (object.type) {
                 case STRING:
@@ -154,26 +175,32 @@ public class Operators {
     }
 
     public static class DecimalOperator implements Operations {
+        @Override
         public TypedObject add(TypedObject first, TypedObject second) {
             return asTypedObject(((BigDecimal) first.data).add((BigDecimal) second.data));
         }
 
+        @Override
         public TypedObject subtract(TypedObject first, TypedObject second) {
             return asTypedObject(((BigDecimal) first.data).subtract((BigDecimal) second.data));
         }
 
+        @Override
         public TypedObject multiply(TypedObject first, TypedObject second) {
             return asTypedObject(((BigDecimal) first.data).multiply((BigDecimal) second.data));
         }
 
+        @Override
         public TypedObject divide(TypedObject first, TypedObject second) {
             return asTypedObject(((BigDecimal) first.data).divide((BigDecimal) second.data));
         }
 
+        @Override
         public TypedObject modulus(TypedObject first, TypedObject second) {
             return asTypedObject(((BigDecimal) first.data).divideAndRemainder((BigDecimal) second.data)[1]);
         }
 
+        @Override
         public TypedObject cast(TypedObject object) {
             switch (object.type) {
                 case STRING:
@@ -199,26 +226,32 @@ public class Operators {
     }
 
     public static class TimestampOperator implements Operations {
+        @Override
         public TypedObject add(TypedObject first, TypedObject second) {
             return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() + ((Timestamp) second.data).getTime()));
         }
 
+        @Override
         public TypedObject subtract(TypedObject first, TypedObject second) {
             return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() - ((Timestamp) second.data).getTime()));
         }
 
+        @Override
         public TypedObject multiply(TypedObject first, TypedObject second) {
             return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() * ((Timestamp) second.data).getTime()));
         }
 
+        @Override
         public TypedObject divide(TypedObject first, TypedObject second) {
             return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() / ((Timestamp) second.data).getTime()));
         }
 
+        @Override
         public TypedObject modulus(TypedObject first, TypedObject second) {
             return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() % ((Timestamp) second.data).getTime()));
         }
 
+        @Override
         public TypedObject cast(TypedObject object) {
             switch (object.type) {
                 case LONG:

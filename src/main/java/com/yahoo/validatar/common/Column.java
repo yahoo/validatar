@@ -1,3 +1,7 @@
+/*
+ * Copyright 2017 Yahoo Inc.
+ * Licensed under the terms of the Apache 2 license. Please see LICENSE file in the project root for terms.
+ */
 package com.yahoo.validatar.common;
 
 import lombok.Getter;
@@ -92,11 +96,12 @@ public class Column implements Iterable<TypedObject> {
      * Returns the {@link TypedObject} at the given position.
      *
      * @param position The integer representing the position to get.
-     * @return The TypedObject at that position if one exists, or null otherwise.
+     * @return The TypedObject at that position if one exists.
+     * @throws IndexOutOfBoundsException if the position is invalid.
      */
     public TypedObject get(int position) {
         if (position < 0 || position >= values.size()) {
-            return null;
+            throw new IndexOutOfBoundsException("There is no object at position " + position + " in " + this);
         }
         return values.get(position);
     }

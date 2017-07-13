@@ -5,20 +5,52 @@
 package com.yahoo.validatar.common;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
-@NoArgsConstructor
+/**
+ * Wrapper for a columnar dataset. Stores a {@link Map} of String column names to {@link Column} column values.
+ * The columns must have the same length or the behavior is undefined. The dataset is a Table or Matrix, in other words.
+ *
+ * If you provide a namespace for the dataset using {@link #Result(String)}, you can insert and get columns without
+ * having to specify the namespace. If you do not provide a namespace, then you will have to ensure that columns you
+ * operate on within the Result are unique yourself.
+ *
+ * Provides methods to do Cartesian Products and Joins on datasets. See {@link #cartesianProduct(List)} and
+ * {@link #join(Result, Column)}.
+ */
+@Slf4j @Getter
 public class Result {
-    private final Map<String, Column> data = new HashMap<>();
-    @Getter
+    private final Map<String, Column> columns;
     private String namespace = "";
 
     public static final String SEPARATOR = ".";
+
+
+    /**
+     * Creates an empty result containing the provided column names.
+     *
+     * @param names A {@link Collection} of column names.
+     */
+    public Result(Collection<String> names) {
+        Objects.requireNonNull(names);
+        columns = new HashMap<>();
+        names.stream().forEach(n -> columns.put(n, new Column()));
+    }
+
+    /**
+     * Creates an empty Result object.
+     */
+    public Result() {
+        this(Collections.emptyList());
+    }
 
     /**
      * Constructor that initializes a result with a namespace to add for each column name.
@@ -26,7 +58,69 @@ public class Result {
      * @param namespace The non-null namespace to add.
      */
     public Result(String namespace) {
+        this();
         this.namespace = namespace;
+    }
+
+    /**
+     * Constructor that initializes a result with some data as is.
+     *
+     * @param columns The {@link Map} of column names to {@link Column} values that is the data.
+     */
+    public Result(Map<String, Column> columns) {
+        this.columns = columns;
+    }
+
+    /**
+     * Returns the number of rows in this result.
+     *
+     * @return The number of entries in each {@link Column} stored within the result.
+     */
+    public int numberOfRows() {
+        if (columns == null || columns.isEmpty()) {
+            return 0;
+        }
+        Column someColumn = columns.values().iterator().next();
+        return someColumn.size();
+    }
+
+    /**
+     * Create or replace a column in the result with the given rows.
+     *
+     * @param name The fully qualified name of the column.
+     * @param value The column rows.
+     */
+    public void addQualifiedColumn(String name, Column value) {
+        columns.put(name, value);
+    }
+
+    /**
+     * Create and add a new column to the result with the given rows.
+     *
+     * @param name  The name of the column.
+     * @param value The column rows.
+     */
+    public void addColumn(String name, Column value) {
+        addQualifiedColumn(namespace(name), value);
+    }
+
+    /**
+     * Create and add a new column to the result with the given values.
+     *
+     * @param name The name of the column.
+     * @param values The column rows.
+     */
+    public void addColumn(String name, List<TypedObject> values) {
+        addColumn(name, new Column(values));
+    }
+
+    /**
+     * Create and add a new column to the result.
+     *
+     * @param name The name of the column.
+     */
+    public void addColumn(String name) {
+        addColumn(name, new Column());
     }
 
     /**
@@ -41,28 +135,23 @@ public class Result {
     }
 
     /**
-     * Create and add a new column to the result.
+     * Adds a row to the data. The names of the columns in the row will be treated as fully qualified.
      *
-     * @param name The name of the column.
+     * @param row A {@link Map} of fully qualified column names to their values.
      */
-    public void addColumn(String name) {
-        data.put(namespace(name), new Column());
-    }
-
-    /**
-     * Create and add a new column to the result with the given rows.
-     *
-     * @param name   The name of the column.
-     * @param values The column rows.
-     */
-    public void addColumn(String name, List<TypedObject> values) {
-        data.put(namespace(name), new Column(values));
+    public void addQualifiedRow(Map<String, TypedObject> row) {
+        // Will add nulls if row does not contain all the column names.
+        for (Map.Entry<String, Column> column : columns.entrySet()) {
+            TypedObject value = row.get(column.getKey());
+            // Create a copy of the TypedObject
+            column.getValue().add(new TypedObject(value.data, value.type));
+        }
     }
 
     /**
      * Add a new row to a column.
      *
-     * @param name  The name of the column.
+     * @param name The name of the column.
      * @param value The value to add t it.
      */
     public void addColumnRow(String name, TypedObject value) {
@@ -73,62 +162,137 @@ public class Result {
     }
 
     /**
-     * Merge another result into this. Collision in names is not handled. Once results are merged in, column and
-     * row operations for this result will still affect only the existing columns and rows pre-merge unless there
-     * were collisions.
+     * Gets the column for a given fully qualified column name.
+     *
+     * @param columnName The fully qualified name of the column.
+     * @return The column as a {@link Column}.
+     */
+    public Column getQualifiedColumn(String columnName) {
+        return columns.get(namespace(columnName));
+    }
+    /**
+     * Gets the column for a given column name.
+     *
+     * @param columnName The name of the column.
+     * @return The column as a {@link Column}.
+     */
+    public Column getColumn(String columnName) {
+        return getQualifiedColumn(namespace(columnName));
+    }
+
+    /**
+     * Returns the row values at the given zero-based index.
+     *
+     * @param row The index of the row to fetch.
+     * @return A {@link Map} of fully qualifed column names to {@link TypedObject} which are its values at that row.
+     */
+    public Map<String, TypedObject> getRow(int row) {
+        Map<String, TypedObject> value = new HashMap<>();
+        columns.entrySet().stream().forEach(e -> value.put(e.getKey(), e.getValue().get(row)));
+        return value;
+    }
+
+    private String namespace(String name) {
+        return namespace == null || namespace.isEmpty() ? name : namespace + SEPARATOR + name;
+    }
+
+    /**
+     * Merge another result as is into this result with its namespace. The current namespace is unaltered.
      *
      * @param result The result to merge with.
      * @return The merged result, i.e. this.
      */
     public Result merge(Result result) {
         if (result != null) {
-            data.putAll(result.data);
+            columns.putAll(result.columns);
         }
         return this;
     }
 
-    /**
-     * Gets the column for a given column name.
-     *
-     * @param columnName The name of the column.
-     * @return The column viewed as a {@link List}.
-     */
-    public Column getColumn(String columnName) {
-        return data.get(namespace(columnName));
+    @Override
+    public String toString() {
+        return "Name: " + namespace + "Columns: " + columns.keySet();
     }
 
     /**
-     * Gets the columns representing as a {@link Map} of column names to their values as a {@link Column}.
+     * Creates a full copy of the result.
      *
-     * @return The column viewed as a Map.
+     * @param result The {@link Result} to copy.
+     * @return A copy of the original.
      */
-    public Map<String, Column> getColumns() {
-        return data;
+    public static Result copy(Result result) {
+        // Already namespaced columns. So don't create a Result with a namespace.
+        Result copy = new Result();
+        for (Map.Entry<String, Column> column : result.getColumns().entrySet()) {
+            copy.addColumn(column.getKey(), column.getValue().copy());
+        }
+        return copy;
     }
 
     /**
-     * Strips out the namespace, if present, from a name.
+     * Performs a Cartesian Product of all the results.
      *
-     * @param name The namespaced name to de-namespace.
-     * @return The namespace in the name.
+     * @param results A {@link List} of {@link Result} datasets.
+     * @return A joined Result.
      */
-    public static String getNamespace(String name) {
-        Objects.requireNonNull(name);
-        return name.split(SEPARATOR)[0];
+    public static Result cartesianProduct(List<Result> results) {
+        // Product is not associative if you treat the results as actual sets of ordered tuples but generally
+        // A  X (B X C) = (A X B) X C = A X B X C since there is a bijection from a, (b, c) -> (a, b), c.
+        // For us, it is also commutative since A X B and B X A is the same result for the purposes of our
+        // columnar operations.
+        log.info("Starting cartesian products on {}", results);
+        return results.stream().reduce(Result::cartesianProduct).get();
+    }
+
+    private static Result cartesianProduct(Result currentProduct, Result target) {
+        log.info("Performing a cartesian product on {} and {}", currentProduct, target);
+
+        // Identity: {} X B  = B
+        if (currentProduct == null) {
+            return copy(target);
+        }
+        Result product = new Result();
+
+        // The number of rows in currentProduct are the same for all columns in currentProduct.
+        // This can be slow if there are lot of column or rows. This is the most generic and simplest to maintain
+        for (int i = 0; i < currentProduct.numberOfRows(); ++i) {
+            Map<String, TypedObject> row = currentProduct.getRow(i);
+            // Extend the row with the new values. They will be overridden each iteration.
+            for (int j = 0; j < target.numberOfRows(); ++j) {
+                row.putAll(target.getRow(j));
+                product.addQualifiedRow(row);
+            }
+        }
+        return product;
     }
 
     /**
-     * Gets a fully qualified name from the given namespace and name.
+     * Joins a {@link Result} and a {@link Column} containing boolean TypedObjects. The result must be a matrix with
+     * equal sizes for all columns and this must be the same seize as the column containing the booleans. Picks all
+     * the rows for which the corresponding boolean TypedObject in the column is true.
      *
-     * @param namespace The namespace of the name.
-     * @param name The name.
-     * @return The fully qualified name.
+     * @param result The result to join with the column.
+     * @param row The row containing booleans that has the same length as all the columns in the result.
+     * @return The joined result.
      */
-    public static String getName(String namespace, String name) {
-        return namespace == null || namespace.isEmpty() ? name : namespace + SEPARATOR + name;
+    public static Result join(Result result, Column row) {
+        Objects.requireNonNull(result);
+        Objects.requireNonNull(row);
+        // Empty copy
+        Result joined = new Result(result.getColumns().keySet());
+        // For all row numbers that have true in the row, copy them into the result
+        IntStream.range(0, row.size())
+                 .filter(r -> (Boolean) row.get(r).data)
+                 .forEach(i -> copyRow(result, joined, i));
+        return result;
     }
 
-    private String namespace(String name) {
-        return getName(namespace, name);
+    private static void copyRow(Result source, Result target, int rowNumber) {
+        Map<String, Column> sourceColumns = source.getColumns();
+        Map<String, Column> targetColumns = target.getColumns();
+        for (Map.Entry<String, Column> column : sourceColumns.entrySet()) {
+            Column targetColumn = targetColumns.get(column.getKey());
+            targetColumn.add(column.getValue().get(rowNumber));
+        }
     }
 }
