@@ -7,6 +7,7 @@ package com.yahoo.validatar.common;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -259,6 +260,7 @@ public class Result {
         // A  X (B X C) = (A X B) X C = A X B X C since there is a bijection from a, (b, c) -> (a, b), c.
         // For us, it is also commutative since A X B and B X A is the same result for the purposes of our
         // columnar operations.
+
         return results.stream().reduce(Result::cartesianProduct).get();
     }
 
@@ -269,7 +271,12 @@ public class Result {
         }
 
         log.info("Performing a cartesian product on {} and {}", currentProduct, target);
-        Result product = new Result();
+
+        // Create a new Result with all the new columns
+        List<String> names = new ArrayList<>();
+        names.addAll(currentProduct.getColumns().keySet());
+        names.addAll(target.getColumns().keySet());
+        Result product = new Result(names);
 
         // The number of rows in currentProduct are the same for all columns in currentProduct.
         // This can be slow if there are lot of column or rows. This is the most generic and simplest to maintain
@@ -302,7 +309,7 @@ public class Result {
         IntStream.range(0, row.size())
                  .filter(r -> (Boolean) row.get(r).data)
                  .forEach(i -> copyRow(result, joined, i));
-        return result;
+        return joined;
     }
 
     private static void copyRow(Result source, Result target, int rowNumber) {

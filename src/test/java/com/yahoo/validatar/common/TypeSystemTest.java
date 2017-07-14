@@ -15,6 +15,7 @@ import static com.yahoo.validatar.common.TypeSystem.asTypedObject;
 
 public class TypeSystemTest {
     private TypeSystem system = new TypeSystem();
+    private Operators operators = new Operators();
 
     private class CustomOperations implements Operations {
     }

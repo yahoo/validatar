@@ -80,6 +80,7 @@ statement
     ;
 
 DOUBLEQUOTE          : '"';
+QUOTE                : '\'';
 PERIOD               : '.';
 COMMA                : ',';
 LEFTPAREN            : '(';
@@ -114,8 +115,13 @@ Newline
     ;
 
 fragment
-StringCharacter
+NoDoubleQuoteCharacter
     : ~["]
+    ;
+
+fragment
+NoQuoteCharacter
+    : ~[']
     ;
 
 fragment
@@ -143,7 +149,8 @@ DecimalNumber
     ;
 
 StringLiteral
-    : DOUBLEQUOTE StringCharacter* DOUBLEQUOTE
+    : DOUBLEQUOTE NoDoubleQuoteCharacter* DOUBLEQUOTE
+    | QUOTE NoQuoteCharacter* QUOTE
     ;
 
 Identifier

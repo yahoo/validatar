@@ -37,8 +37,9 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     // These can change per assert.
     @Getter
     private Map<String, String> examinedColumns;
-    private List<String> seenIdentifiers;
+    @Getter
     private Result joinedResult;
+    private List<String> seenIdentifiers;
 
     private Column getColumnValue(Result result, String name) {
         Map<String, Column> columns = result.getColumns();
@@ -47,7 +48,7 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
             log.error("Column not found: {}.\nAvailable Columns: {}", name, columns.keySet());
             throw new NoSuchElementException("Unable to find value for column: " + name + " in results");
         }
-        Column column = columns.get(name);
+        Column column = columns.get(name).copy();
         examinedColumns.put(name, Objects.toString(column));
         return column;
     }
@@ -80,6 +81,7 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
                 log.error("Identifier {} used in join expression not found in results {}", identifier, datasets);
                 throw new RuntimeException("Could not find the result for " + identifier + " to perform the join.");
             }
+            datasets.add(result.get());
         }
         return datasets;
     }
@@ -153,6 +155,7 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     @Override
     public Expression visitIdentifier(GrammarParser.IdentifierContext context) {
         String text = context.getText();
+        seenIdentifiers.add(text);
         // We want to return an expression which will pull the value from a data set that we will pass in later.
         return new Expression(data -> getColumnValue(data, text));
     }
@@ -277,7 +280,11 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     @Override
     public Expression visitBaseOrValue(GrammarParser.BaseOrValueContext context) {
         Expression assertion = visit(context.orExpression());
-        return Expression.wrap(assertion.evaluate(allData));
+
+        // No join to do when just assertion
+        joinedResult = allData;
+
+        return Expression.wrap(assertion.evaluate(joinedResult));
     }
 
     @Override
@@ -285,13 +292,15 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
         // Visit and build the expression tree for the join expression
         Expression join = visit(context.j);
 
-        // Since we have only visited the join expression, all the identifiers seen so far determine our join results
+        // Do the same for the assert statement
+        Expression assertion = visit(context.o);
+
+        // All identifiers seen so far indicate the results we need to join
         List<Result> resultsToJoin = findDataSetsToJoin(seenIdentifiers, results);
 
         // Use those results to do a cartesian product.
-        log.info("Starting cartesian products on {}", resultsToJoin);
+        log.info("Starting joins on {}", resultsToJoin);
         Result cartesianProduct = Result.cartesianProduct(resultsToJoin);
-        log.info("Cartesian product result {}", cartesianProduct);
 
         // Evaluate the join expression on the cartesian product
         Column joinResult = join.evaluate(cartesianProduct);
@@ -300,10 +309,7 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
         joinedResult = Result.join(cartesianProduct, joinResult);
         log.info("Joined dataset {} to use for assertion", joinedResult);
 
-        // Now visit the assert statement
-        Expression assertion = visit(context.o);
-
-        // Evaluate the assert statement on the joined data and return the result as an expression.
+        // Evaluate the assert statement using the joined data and return the result as an expression.
         return Expression.wrap(assertion.evaluate(joinedResult));
     }
 }

@@ -16,18 +16,19 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AssertorTest {
     private Result results;
     private Assertor assertor = new Assertor();
 
-    private <T> List<T> wrap(T... data) {
+    private static <T> List<T> wrap(T... data) {
         List<T> asList = new ArrayList<>();
         Collections.addAll(asList, data);
         return asList;
     }
 
-    private TypedObject getTyped(TypeSystem.Type type, Object value) {
+    private static TypedObject getTyped(TypeSystem.Type type, Object value) {
         switch (type) {
             case STRING:
                 return new TypedObject((String) value, TypeSystem.Type.STRING);
@@ -46,23 +47,29 @@ public class AssertorTest {
         }
     }
 
+    private static void addColumnToResult(Result result, String name, TypeSystem.Type type, Object... values) {
+        result.addColumn(name, wrap(values).stream().map(t -> getTyped(type, t)).collect(Collectors.toList()));
+    }
+
+    private static void addRow(Result result, String name, TypedObject value) {
+        result.addColumnRow(name, value);
+    }
+
+    private void addRow(String name, TypedObject value) {
+        addRow(results, name, value);
+    }
+
+    private void addRow(String name, TypeSystem.Type type, Object value) {
+        addRow(name, getTyped(type, value));
+    }
+
+    private void addColumnToResult(String name, TypeSystem.Type type, Object... values) {
+        addColumnToResult(results, name, type, values);
+    }
+
     @BeforeMethod
     public void setup() {
         results = new Result();
-    }
-
-    private void addToResult(String name, TypedObject value) {
-        results.addColumnRow(name, value);
-    }
-
-    private void addToResult(String name, TypeSystem.Type type, Object value) {
-        addToResult(name, getTyped(type, value));
-    }
-
-    private void addToResult(String name, TypeSystem.Type type, Object... values) {
-        for (Object value : values) {
-            addToResult(name, type, value);
-        }
     }
 
     @Test
@@ -105,8 +112,8 @@ public class AssertorTest {
 
     @Test
     public void testOneValidNumericAssertion() {
-        addToResult("AV.pv_count", TypeSystem.Type.LONG, 104255L);
-        addToResult("AV.li_count", TypeSystem.Type.LONG, 155L);
+        addRow("AV.pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("AV.li_count", TypeSystem.Type.LONG, 155L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -118,7 +125,7 @@ public class AssertorTest {
 
     @Test
     public void testOneValidTextAssertion() {
-        addToResult("largest_id", TypeSystem.Type.STRING, "104255");
+        addRow("largest_id", TypeSystem.Type.STRING, "104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -129,7 +136,7 @@ public class AssertorTest {
 
     @Test
     public void testWhitespaceStringAssertion() {
-        addToResult("largest_id", TypeSystem.Type.STRING, "  104255");
+        addRow("largest_id", TypeSystem.Type.STRING, "  104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -140,7 +147,7 @@ public class AssertorTest {
 
     @Test
     public void testWhitespaceAssertion() {
-        addToResult("largest_id", TypeSystem.Type.STRING, "104255");
+        addRow("largest_id", TypeSystem.Type.STRING, "104255");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -151,8 +158,8 @@ public class AssertorTest {
 
     @Test
     public void testOneNonValidNumericAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
-        addToResult("li_count", TypeSystem.Type.LONG, 155L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("li_count", TypeSystem.Type.LONG, 155L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -167,7 +174,7 @@ public class AssertorTest {
 
     @Test
     public void testOneNegationAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -178,7 +185,7 @@ public class AssertorTest {
 
     @Test
     public void testOneNegationLogicalAndParanthesizedAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -190,7 +197,7 @@ public class AssertorTest {
 
     @Test
     public void testRelationalEqualityAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -203,7 +210,7 @@ public class AssertorTest {
 
     @Test
     public void testMultiplicativeAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -216,7 +223,7 @@ public class AssertorTest {
 
     @Test
     public void testAdditiveAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -229,7 +236,7 @@ public class AssertorTest {
 
     @Test
     public void testEqualityAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -242,8 +249,8 @@ public class AssertorTest {
 
     @Test
     public void testLogicalAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
-        addToResult("li_count", TypeSystem.Type.LONG, 155L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("li_count", TypeSystem.Type.LONG, 155L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -257,8 +264,8 @@ public class AssertorTest {
 
     @Test
     public void testApproxAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
-        addToResult("foo.pv_count", TypeSystem.Type.LONG, 0L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("foo.pv_count", TypeSystem.Type.LONG, 0L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -299,8 +306,8 @@ public class AssertorTest {
 
     @Test
     public void testComplexAssertion() {
-        addToResult("pv_count", TypeSystem.Type.LONG, 104255L);
-        addToResult("li_count", TypeSystem.Type.LONG, 155L);
+        addRow("pv_count", TypeSystem.Type.LONG, 104255L);
+        addRow("li_count", TypeSystem.Type.LONG, 155L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -311,7 +318,7 @@ public class AssertorTest {
 
     @Test
     public void testUnicodeStringAssertion() {
-        addToResult("str", TypeSystem.Type.STRING, "\u0001");
+        addRow("str", TypeSystem.Type.STRING, "\u0001");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -322,7 +329,7 @@ public class AssertorTest {
 
     @Test
     public void testSingleQuoteStringAssertion() {
-        addToResult("str", TypeSystem.Type.STRING, "Foo's Bar");
+        addRow("str", TypeSystem.Type.STRING, "Foo's Bar");
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -332,8 +339,19 @@ public class AssertorTest {
     }
 
     @Test
+    public void testDoubleQuoteStringAssertion() {
+        addRow("str", TypeSystem.Type.STRING, "Foo said \"Bar\"");
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("str == 'Foo said \"Bar\"'");
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
     public void testBooleanAssertion() {
-        addToResult("bool", TypeSystem.Type.BOOLEAN, true);
+        addRow("bool", TypeSystem.Type.BOOLEAN, true);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -348,7 +366,7 @@ public class AssertorTest {
 
     @Test
     public void testModulusAssertion() {
-        addToResult("counts", TypeSystem.Type.LONG, 29L);
+        addRow("counts", TypeSystem.Type.LONG, 29L);
 
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
@@ -357,5 +375,161 @@ public class AssertorTest {
         Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
-}
 
+    @Test
+    public void testLargeIntegerAssertion() {
+        addRow("count", TypeSystem.Type.DECIMAL, new BigDecimal("123456789123456789123456789"));
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("count == 123456789123456789123456789");
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testLargeDecimalAssertion() {
+        addRow("count", TypeSystem.Type.DECIMAL, new BigDecimal("123456789123456789123456789.123456789123456789123456789"));
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("count < 123456789123456789123456789.999999999999999999999999999");
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testVectorScalarAssertion() {
+        addColumnToResult("count", TypeSystem.Type.LONG, 1L, 2L, 10L, 15L, 0L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("count < 100");
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertFalse(test.failed());
+
+        test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("count > 100");
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertTrue(test.failed());
+    }
+
+    @Test
+    public void testVectorAssertion() {
+        addColumnToResult("p_count", TypeSystem.Type.LONG, 1L, 2L, 10L, 15L, 0L);
+        addColumnToResult("a_count", TypeSystem.Type.LONG, 10L, 20L, 100L, 150L, 0L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("p_count <= a_count");
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertFalse(test.failed());
+
+        test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("p_count > a_count");
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertTrue(test.failed());
+
+        test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("10 * p_count == a_count");
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testVectorComplexAssertion() {
+        addColumnToResult("id", TypeSystem.Type.STRING, "a", "b", "c", "d", "a");
+        addColumnToResult("pv_count", TypeSystem.Type.LONG, 1L, 2L, 10L, 15L, 0L);
+        addColumnToResult("li_count", TypeSystem.Type.LONG, 2L, 2L, 10L, 15L, 2042L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        // First and last rows have the LHS of this assert true but RHS false. Other rows have RHS false but LHS true
+        // Together, the result should have true for all rows
+        test.asserts.add("((id == 'a' && (pv_count*li_count <= 2)) || (li_count/2 < pv_count))");
+
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testCartesianProductAssertion() {
+        Result a = new Result("A");
+        addColumnToResult(a, "country", TypeSystem.Type.STRING, "us", "au", "cn", "in", "uk", "fr", "es", "de", "ru");
+        addColumnToResult(a, "region", TypeSystem.Type.STRING, "na", "au", "as", "as", "eu", "eu", "ue", "eu", "eu");
+        addColumnToResult(a, "id", TypeSystem.Type.LONG, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L);
+        addColumnToResult(a, "total", TypeSystem.Type.LONG, 19L, 5L, 9L, 4L, 1200L, 90L, 120L, 9000L, 10000L);
+
+        Result b = new Result("B");
+        addColumnToResult(b, "region", TypeSystem.Type.STRING, "na", "as", "au");
+        addColumnToResult(b, "count", TypeSystem.Type.LONG, 1L, 2L, -4L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        // This assert is meaningless but serves to show that we get B's columns in the join even though the join
+        // expression did not mention B
+        test.asserts.add("B.count <= 2 where A.region == 'eu'");
+
+        Assertor.assertAll(wrap(a, b), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testSimpleJoinAssertion() {
+        Result a = new Result("A");
+        addColumnToResult(a, "country", TypeSystem.Type.STRING, "us", "au", "cn", "in", "uk", "fr", "es", "de", "ru");
+        addColumnToResult(a, "region", TypeSystem.Type.STRING, "na", "au", "as", "as", "eu", "eu", "ue", "eu", "eu");
+        addColumnToResult(a, "id", TypeSystem.Type.LONG, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L);
+        addColumnToResult(a, "total", TypeSystem.Type.LONG, 19L, 5L, 9L, 4L, 1200L, 90L, 120L, 9000L, 10000L);
+
+        Result b = new Result("B");
+        addColumnToResult(b, "region", TypeSystem.Type.STRING, "na", "as", "au");
+        addColumnToResult(b, "count", TypeSystem.Type.LONG, 1L, 2L, -4L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("A.total >= B.count where A.region == B.region");
+        test.asserts.add("A.region != 'eu' where A.region == B.region");
+
+        Assertor.assertAll(wrap(a, b), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testComplexJoinAssertion() {
+        Result a = new Result("A");
+        addColumnToResult(a, "country", TypeSystem.Type.STRING, "us", "au", "cn", "in", "uk", "fr", "es", "de", "ru");
+        addColumnToResult(a, "region", TypeSystem.Type.STRING, "na", "au", "as", "as", "eu", "eu", "ue", "eu", "eu");
+        addColumnToResult(a, "id", TypeSystem.Type.LONG, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L);
+        addColumnToResult(a, "total", TypeSystem.Type.LONG, 19L, 5L, 9L, 4L, 1200L, 90L, 120L, 9000L, 10000L);
+
+        Result b = new Result("B");
+        addColumnToResult(b, "region", TypeSystem.Type.STRING, "na", "as", "au");
+        addColumnToResult(b, "count", TypeSystem.Type.LONG, 1L, 2L, -4L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("A.region != 'eu' && B.count + A.total <= 20 where A.region == B.region");
+        Assertor.assertAll(wrap(a, b), wrap(test));
+        Assert.assertFalse(test.failed());
+
+        test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("A.region == 'na' && B.count + A.total == 20 where A.country == 'us' && B.region == 'na'");
+        Assertor.assertAll(wrap(a, b), wrap(test));
+        Assert.assertFalse(test.failed());
+
+        test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("A.country == 'in' where A.region == 'as' && B.count + A.total == 6");
+        test.asserts.add("A.country == 'cn' && A.id == 3 where B.count + A.total == 11");
+        Assertor.assertAll(wrap(a, b), wrap(test));
+        Assert.assertFalse(test.failed());
+
+        Assertor.assertAll(wrap(a, b), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+}

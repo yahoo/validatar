@@ -54,6 +54,7 @@ public class Assertor {
                 log.info("Assertion failed. Result had false values: {}", result);
                 test.setFailed();
                 test.addMessage(assertion + " was false for these values " + visitor.getExaminedColumns());
+                test.addMessage("Data used {}" + visitor.getJoinedResult());
             }
         } catch (Exception e) {
             test.setFailed();
