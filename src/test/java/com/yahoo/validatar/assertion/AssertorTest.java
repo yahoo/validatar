@@ -28,7 +28,7 @@ public class AssertorTest {
         return asList;
     }
 
-    private static TypedObject getTyped(TypeSystem.Type type, Object value) {
+    public static TypedObject getTyped(TypeSystem.Type type, Object value) {
         switch (type) {
             case STRING:
                 return new TypedObject((String) value, TypeSystem.Type.STRING);
@@ -47,11 +47,11 @@ public class AssertorTest {
         }
     }
 
-    private static void addColumnToResult(Result result, String name, TypeSystem.Type type, Object... values) {
+    public static void addColumnToResult(Result result, String name, TypeSystem.Type type, Object... values) {
         result.addColumn(name, wrap(values).stream().map(t -> getTyped(type, t)).collect(Collectors.toList()));
     }
 
-    private static void addRow(Result result, String name, TypedObject value) {
+    public static void addRow(Result result, String name, TypedObject value) {
         result.addColumnRow(name, value);
     }
 
@@ -107,7 +107,10 @@ public class AssertorTest {
 
         Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
-        Assert.assertEquals("100 > 1000 was false for these values {}", test.getMessages().get(0));
+        Assert.assertEquals(test.getMessages().get(0), "Assertion 100 > 1000 was false");
+        Assert.assertEquals(test.getMessages().get(1), "Result had false values: [<false, BOOLEAN>]");
+        Assert.assertEquals(test.getMessages().get(2), "Examined columns: []");
+        Assert.assertNotNull(test.getMessages().get(3));
     }
 
     @Test
@@ -167,9 +170,12 @@ public class AssertorTest {
         Assertor.assertAll(wrap(results), wrap(test));
 
         Assert.assertTrue(test.failed());
-        Assert.assertEquals(test.getMessages().get(0),
-                            "pv_count > 1000 && li_count < 100 was false for these values " +
-                            "{pv_count=[<Type: LONG, Value: 104255>], li_count=[<Type: LONG, Value: 155>]}");
+        Assert.assertEquals(test.getMessages().get(0), "Assertion pv_count > 1000 && li_count < 100 was false");
+        Assert.assertEquals(test.getMessages().get(1), "Result had false values: [<false, BOOLEAN>]");
+        Assert.assertEquals(test.getMessages().get(2), "Examined columns: [pv_count, li_count]");
+        String actualDataMessage = test.getMessages().get(3);
+        Assert.assertTrue(actualDataMessage.contains("104255"));
+        Assert.assertTrue(actualDataMessage.contains("155"));
     }
 
     @Test
@@ -391,9 +397,10 @@ public class AssertorTest {
     public void testLargeDecimalAssertion() {
         addRow("count", TypeSystem.Type.DECIMAL, new BigDecimal("123456789123456789123456789.123456789123456789123456789"));
 
+        String large = BigDecimal.valueOf(Double.MAX_VALUE).multiply(BigDecimal.TEN).toPlainString() + ".42";
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         test.asserts = new ArrayList<>();
-        test.asserts.add("count < 123456789123456789123456789.999999999999999999999999999");
+        test.asserts.add("count < " + large);
         Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertFalse(test.failed());
     }
@@ -530,6 +537,33 @@ public class AssertorTest {
         Assert.assertFalse(test.failed());
 
         Assertor.assertAll(wrap(a, b), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
+    public void testMultipleJoinAssertion() {
+        Result a = new Result("A");
+        addColumnToResult(a, "country", TypeSystem.Type.STRING, "us", "au", "cn", "in", "uk", "fr", "es", "de", "ru");
+        addColumnToResult(a, "region", TypeSystem.Type.STRING, "na", "au", "as", "as", "eu", "eu", "ue", "eu", "eu");
+        addColumnToResult(a, "id", TypeSystem.Type.LONG, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L);
+
+        Result b = new Result("B");
+        addColumnToResult(b, "region", TypeSystem.Type.STRING, "na", "as", "au");
+        addColumnToResult(b, "count", TypeSystem.Type.LONG, 900L, 21042L, 4042L);
+
+        Result c = new Result("C");
+        addColumnToResult(c, "key", TypeSystem.Type.STRING, "2", "6", "1");
+        addColumnToResult(c, "total", TypeSystem.Type.LONG, 4242L, 20000L, 1000L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+
+        // This will be the join result
+        //A.region,           C.key,         B.count,       A.country,        B.region,            A.id,         C.total
+        //      na,               1,             900,              us,              na,               1,            1000
+        //      au,               2,            4042,              au,              au,               2,            4242
+        test.asserts.add("A.region != 'eu' && approx(C.total, B.count, 0.15) where A.region == B.region && A.id == C.key");
+        Assertor.assertAll(wrap(a, b, c), wrap(test));
         Assert.assertFalse(test.failed());
     }
 }

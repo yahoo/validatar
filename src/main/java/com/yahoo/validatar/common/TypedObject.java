@@ -33,6 +33,6 @@ public class TypedObject {
 
     @Override
     public String toString() {
-        return "<Type: " + type + ", Value: " + data.toString() + ">";
+        return "<" + data.toString() + ", " + type.toString() + ">";
     }
 }

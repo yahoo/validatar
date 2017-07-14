@@ -51,15 +51,24 @@ public class Assertor {
             Column result = expression.evaluate();
 
             if (hasFailures(result)) {
-                log.info("Assertion failed. Result had false values: {}", result);
+                String assertionMessage = "Assertion " + assertion + " was false";
+                String resultsMessage = "Result had false values: " + result;
+                String columnsMessage = "Examined columns: " + visitor.getSeenIdentifiers();
+                String dataMessage = "Data used: \n" + visitor.getJoinedResult().prettyPrint();
                 test.setFailed();
-                test.addMessage(assertion + " was false for these values " + visitor.getExaminedColumns());
-                test.addMessage("Data used {}" + visitor.getJoinedResult());
+                test.addMessage(assertionMessage);
+                test.addMessage(resultsMessage);
+                test.addMessage(columnsMessage);
+                test.addMessage(dataMessage);
+                log.info("{}\n{}\n{}\n{}\n", assertionMessage, resultsMessage, columnsMessage, dataMessage);
             }
         } catch (Exception e) {
             test.setFailed();
-            test.addMessage(assertion + " : " + e.getMessage());
+            String dataMessage = "Data used: \n" + visitor.getJoinedResult().prettyPrint();
+            test.addMessage(assertion + " failed with exception: " + e.getMessage());
+            test.addMessage(dataMessage);
             log.error("Assertion failed with exception", e);
+            log.error("\n{}", dataMessage);
         } finally {
             visitor.reset();
         }

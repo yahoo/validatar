@@ -9,11 +9,14 @@
     <testcase name="ALPHA"/>
     <testcase name="BETA"/>
     <testcase name="FAIL">
-      <failed>Query had a typo</failed>
+      <failed><![CDATA[Query had a typo]]></failed>
     </testcase>
     <testcase name="Checking alpha"/>
     <testcase name="Checking beta">
-      <failed>Description: Long description of the second query; Failed asserts: Sample fail message</failed>
+      <failed><![CDATA[
+Description: Long description of the second query
+Messages: Sample fail message
+]]></failed>
     </testcase>
   </testsuite>
   <testsuite tests="6" name="Validatar Example">

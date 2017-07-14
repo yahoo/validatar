@@ -10,10 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -29,10 +31,14 @@ import java.util.stream.IntStream;
  */
 @Slf4j @Getter
 public class Result {
+    public static final String COMMA = ",";
+    public static final String FORMAT_NEWLINE = "%n";
+    public static final String EMPTY_RESULT = "";
     private final Map<String, Column> columns;
     private String namespace = "";
 
     public static final String SEPARATOR = ".";
+    public static final String FORMAT_VALUE = "%16s";
 
     /**
      * Creates an empty result containing the provided column names.
@@ -212,6 +218,16 @@ public class Result {
         return value;
     }
 
+    private Map<String, TypedObject> getRowSafe(int row) {
+        // Only for prettyprint (to diagnose the problem)
+        Map<String, TypedObject> value = new HashMap<>();
+        for (Map.Entry<String, Column> column : columns.entrySet()) {
+            Column columnEntry = column.getValue();
+            value.put(column.getKey(), columnEntry.size() > row ? columnEntry.get(row) : TypeSystem.asTypedObject(""));
+        }
+        return value;
+    }
+
     private String namespace(String name) {
         return namespace == null || namespace.isEmpty() ? name : namespace + SEPARATOR + name;
     }
@@ -232,6 +248,41 @@ public class Result {
     @Override
     public String toString() {
         return "{ Name: " + namespace + ", Columns: " + columns.keySet() + " }";
+    }
+
+    /**
+     * Pretty prints the entire result.
+     *
+     * @return A String representing the result.
+     */
+    public String prettyPrint() {
+        Set<String> columnSet = columns.keySet();
+        int numberOfColumns = columnSet.size();
+
+        if (numberOfColumns == 0) {
+            return EMPTY_RESULT;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        Formatter formatter = new Formatter(builder);
+        // Pad each column as 16 width and strings
+        String format = columnSet.stream().map(c -> FORMAT_VALUE).reduce((a, b) -> a + COMMA + b).get();
+        // Add a platform specific newline
+        format += FORMAT_NEWLINE;
+
+        String[] columnNames = columnSet.toArray(new String[numberOfColumns]);
+        Comparable[] values = new Comparable[numberOfColumns];
+
+        // Add header
+        formatter.format(format, columns.keySet().toArray());
+        for (int i = 0; i < numberOfRows(); ++i) {
+            Map<String, TypedObject> row = getRowSafe(i);
+            for (int j = 0; j < numberOfColumns; ++j) {
+                values[j] = row.get(columnNames[j]).data;
+            }
+            formatter.format(format, values);
+        }
+        return builder.toString();
     }
 
     /**
