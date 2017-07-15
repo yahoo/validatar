@@ -69,21 +69,12 @@ public class Result {
     }
 
     /**
-     * Constructor that initializes a result with some data as is.
-     *
-     * @param columns The {@link Map} of column names to {@link Column} values that is the data.
-     */
-    public Result(Map<String, Column> columns) {
-        this.columns = columns;
-    }
-
-    /**
      * Returns the number of rows in this result.
      *
      * @return The number of entries in each {@link Column} stored within the result.
      */
     public int numberOfRows() {
-        if (columns == null || columns.isEmpty()) {
+        if (columns.isEmpty()) {
             return 0;
         }
         Column someColumn = columns.values().iterator().next();
@@ -218,7 +209,14 @@ public class Result {
         return value;
     }
 
-    private Map<String, TypedObject> getRowSafe(int row) {
+    /**
+     * Gets a row safely from this result even if the result is no longer a matrix.
+     *
+     * @param row The index of the row to fetch. Missing entries are replaced with a {@link TypedObject}
+     *            with String type and the empty string value.
+     * @return {@link Map} of column names to values.
+     */
+    public Map<String, TypedObject> getRowSafe(int row) {
         // Only for prettyprint (to diagnose the problem)
         Map<String, TypedObject> value = new HashMap<>();
         for (Map.Entry<String, Column> column : columns.entrySet()) {
@@ -312,15 +310,18 @@ public class Result {
         // For us, it is also commutative since A X B and B X A is the same result for the purposes of our
         // columnar operations.
 
+        if (results == null || results.isEmpty()) {
+            return new Result();
+        }
+        // Identity: {} X B  = B
+        if (results.size() == 1) {
+            return copy(results.get(0));
+        }
+
         return results.stream().reduce(Result::cartesianProduct).get();
     }
 
     private static Result cartesianProduct(Result currentProduct, Result target) {
-        // Identity: {} X B  = B
-        if (currentProduct == null) {
-            return copy(target);
-        }
-
         log.info("Performing a cartesian product on {} and {}", currentProduct, target);
 
         // Create a new Result with all the new columns

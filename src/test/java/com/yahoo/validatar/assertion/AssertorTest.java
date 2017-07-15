@@ -4,6 +4,7 @@
  */
 package com.yahoo.validatar.assertion;
 
+import com.yahoo.validatar.common.Column;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
@@ -97,6 +98,20 @@ public class AssertorTest {
 
         Assertor.assertAll(wrap(results), wrap(test));
         Assert.assertTrue(test.failed());
+    }
+
+    @Test
+    public void testMissingColumnAssertion() {
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("AV.pv_count > 1000");
+
+        results.addColumn("AV.id", new Column());
+
+        Assertor.assertAll(wrap(results), wrap(test));
+        Assert.assertTrue(test.failed());
+        Assert.assertEquals(test.getMessages().get(0), "AV.pv_count > 1000 failed with exception: Unable to find " +
+                                                       "value for column: AV.pv_count in results");
     }
 
     @Test
@@ -485,6 +500,22 @@ public class AssertorTest {
     }
 
     @Test
+    public void testFilteringJoinAssertion() {
+        Result a = new Result("A");
+        addColumnToResult(a, "country", TypeSystem.Type.STRING, "us", "au", "cn", "in", "uk", "fr", "es", "de", "ru");
+        addColumnToResult(a, "region", TypeSystem.Type.STRING, "na", "au", "as", "as", "eu", "eu", "ue", "eu", "eu");
+        addColumnToResult(a, "id", TypeSystem.Type.LONG, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L);
+        addColumnToResult(a, "total", TypeSystem.Type.LONG, 19L, 5L, 9L, 4L, 1200L, 90L, 120L, 9000L, 10000L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("A.total >= 90 where A.region == 'eu'");
+
+        Assertor.assertAll(wrap(a), wrap(test));
+        Assert.assertFalse(test.failed());
+    }
+
+    @Test
     public void testSimpleJoinAssertion() {
         Result a = new Result("A");
         addColumnToResult(a, "country", TypeSystem.Type.STRING, "us", "au", "cn", "in", "uk", "fr", "es", "de", "ru");
@@ -559,11 +590,16 @@ public class AssertorTest {
         test.asserts = new ArrayList<>();
 
         // This will be the join result
-        //A.region,           C.key,         B.count,       A.country,        B.region,            A.id,         C.total
-        //      na,               1,             900,              us,              na,               1,            1000
-        //      au,               2,            4042,              au,              au,               2,            4242
+        // A.region,           C.key,         B.count,       A.country,        B.region,            A.id,         C.total
+        //       na,               1,             900,              us,              na,               1,            1000
+        //       au,               2,            4042,              au,              au,               2,            4242
         test.asserts.add("A.region != 'eu' && approx(C.total, B.count, 0.15) where A.region == B.region && A.id == C.key");
         Assertor.assertAll(wrap(a, b, c), wrap(test));
-        Assert.assertFalse(test.failed());
+
+        test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("A.region != 'eu' && approx(C.total, B.count, 0.05) where A.region == B.region && A.id == C.key");
+        Assertor.assertAll(wrap(a, b, c), wrap(test));
+        Assert.assertTrue(test.failed());
     }
 }

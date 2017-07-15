@@ -4,14 +4,19 @@
  */
 package com.yahoo.validatar.common;
 
+import com.yahoo.validatar.assertion.AssertorTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 
 import static com.yahoo.validatar.common.TypeSystem.Type;
+import static com.yahoo.validatar.common.TypeSystem.approx;
 import static com.yahoo.validatar.common.TypeSystem.asTypedObject;
+import static com.yahoo.validatar.common.TypeSystem.unifySize;
+import static java.util.Arrays.asList;
 
 public class TypeSystemTest {
     private TypeSystem system = new TypeSystem();
@@ -22,8 +27,25 @@ public class TypeSystemTest {
 
     public static final double EPSILON = 0.00001;
 
+    public static Column asColumn(TypeSystem.Type type, Object... data) {
+        Column column = new Column();
+        for (Object object : data) {
+            column.add(AssertorTest.getTyped(type, object));
+        }
+        return column;
+    }
+
     private boolean boolify(TypedObject type) {
         return (Boolean) type.data;
+    }
+
+    private boolean boolify(Column data) {
+        for (TypedObject object : data) {
+            if (!boolify(object)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean equals(Double first, Double second) {
@@ -117,31 +139,31 @@ public class TypeSystemTest {
         Assert.assertEquals(asTypedObject(timestampValue).type, Type.TIMESTAMP);
     }
 
-    @Test(expectedExceptions = {NullPointerException.class})
+    @Test(expectedExceptions = NullPointerException.class)
     public void testFirstOperandNull() {
         TypedObject stringSample = asTypedObject("foo");
         TypeSystem.compare(null, stringSample);
     }
 
-    @Test(expectedExceptions = {NullPointerException.class})
+    @Test(expectedExceptions = NullPointerException.class)
     public void testSecondOperandNull() {
         TypedObject stringSample = asTypedObject("foo");
         TypeSystem.compare(stringSample, null);
     }
 
-    @Test(expectedExceptions = {NullPointerException.class})
+    @Test(expectedExceptions = NullPointerException.class)
     public void testBothOperandsNull() {
         TypeSystem.compare(null, null);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testNotUnifiableTypes() {
         TypedObject booleanSample = asTypedObject(false);
         TypedObject longSample = asTypedObject(123L);
         TypeSystem.compare(longSample, booleanSample);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testNonArithmeticOperableTypes() {
         TypedObject booleanSample = asTypedObject(false);
         add(booleanSample, booleanSample);
@@ -172,7 +194,7 @@ public class TypeSystemTest {
         Assert.assertTrue(boolify(isEqualTo(stringedObject, booleanSample)));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingTimestampToString() {
         TypedObject stringedObject = asTypedObject("2015-06-28 21:57:56.0");
         TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
@@ -203,22 +225,22 @@ public class TypeSystemTest {
         Assert.assertEquals((String) (add(asTypedObject("sample"), asTypedObject("foo")).data), "samplefoo");
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testStringSubtraction() {
         subtract(asTypedObject("sample"), asTypedObject("foo"));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testStringMultiplication() {
         multiply(asTypedObject("sample"), asTypedObject("foo"));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testStringDivision() {
         divide(asTypedObject("sample"), asTypedObject("foo"));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testStringModulus() {
         modulus(asTypedObject("sample"), asTypedObject("foo"));
     }
@@ -254,7 +276,7 @@ public class TypeSystemTest {
         Assert.assertFalse(boolify(isEqualTo(longedObject, decimalSample)));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingBooleanToLong() {
         TypedObject longedObject = asTypedObject(0L);
         TypedObject booleanSample = asTypedObject(false);
@@ -313,14 +335,14 @@ public class TypeSystemTest {
         Assert.assertTrue(boolify(isEqualTo(doubledObject, decimalSample)));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingTimestampToDouble() {
         TypedObject doubledObject = asTypedObject(12.23);
         TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
         isEqualTo(doubledObject, timestampSample);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingBooleanToDouble() {
         TypedObject doubledObject = asTypedObject(12.23);
         TypedObject booleanSample = asTypedObject(false);
@@ -354,7 +376,7 @@ public class TypeSystemTest {
         Assert.assertTrue(equals((Double) divide(asTypedObject(14.0), asTypedObject(4.0)).data, Double.valueOf(3.5)));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testDoubleModulus() {
         modulus(asTypedObject(14.0), asTypedObject(4.0));
     }
@@ -384,7 +406,7 @@ public class TypeSystemTest {
         isEqualTo(decimaledObject, timestampSample);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingBooleanToDecimal() {
         TypedObject decimaledObject = asTypedObject(new BigDecimal("0.1"));
         TypedObject booleanSample = asTypedObject(false);
@@ -413,15 +435,15 @@ public class TypeSystemTest {
     @Test
     public void testDecimalArithmetic() {
         Assert.assertEquals(add(asTypedObject(new BigDecimal("0.01")), asTypedObject(new BigDecimal("10.0"))).data,
-                            new BigDecimal("10.01"));
+                new BigDecimal("10.01"));
         Assert.assertEquals(subtract(asTypedObject(new BigDecimal("0.01")), asTypedObject(new BigDecimal("10.0"))).data,
-                            new BigDecimal("-9.99"));
+                new BigDecimal("-9.99"));
         Assert.assertEquals(multiply(asTypedObject(new BigDecimal("0.01")), asTypedObject(new BigDecimal("10.0"))).data,
-                            new BigDecimal("0.100"));
+                new BigDecimal("0.100"));
         Assert.assertEquals(divide(asTypedObject(new BigDecimal("0.01")), asTypedObject(new BigDecimal("10.0"))).data,
-                            new BigDecimal("0.001"));
+                new BigDecimal("0.001"));
         Assert.assertEquals(modulus(asTypedObject(new BigDecimal("101.2")), asTypedObject(new BigDecimal("10.0"))).data,
-                            new BigDecimal("1.2"));
+                new BigDecimal("1.2"));
     }
 
     /***
@@ -435,28 +457,28 @@ public class TypeSystemTest {
         Assert.assertTrue(boolify(isEqualTo(booleanedObject, stringSample)));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingLongToBoolean() {
         TypedObject booleanedObject = asTypedObject(false);
         TypedObject longSample = asTypedObject(1L);
         isEqualTo(booleanedObject, longSample);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingDoubleToBoolean() {
         TypedObject booleanedObject = asTypedObject(false);
         TypedObject doubleSample = asTypedObject(1.0);
         isEqualTo(booleanedObject, doubleSample);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingDecimalToBoolean() {
         TypedObject booleanedObject = asTypedObject(false);
         TypedObject decimalSample = asTypedObject(new BigDecimal("1.2"));
         isEqualTo(booleanedObject, decimalSample);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingTimestampToBoolean() {
         TypedObject booleanedObject = asTypedObject(false);
         TypedObject timestampSample = asTypedObject(new Timestamp(1435553876000L));
@@ -482,27 +504,27 @@ public class TypeSystemTest {
         Assert.assertTrue(boolify(isGreaterThanOrEqual(booleanSample, anotherSample)));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testBooleanAddition() {
         add(asTypedObject(false), asTypedObject(true));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testBooleanSubtraction() {
         subtract(asTypedObject(false), asTypedObject(true));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testBooleanMultiplication() {
         multiply(asTypedObject(false), asTypedObject(true));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testBooleanDivision() {
         divide(asTypedObject(false), asTypedObject(true));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testBooleanModulus() {
         modulus(asTypedObject(false), asTypedObject(true));
     }
@@ -525,21 +547,21 @@ public class TypeSystemTest {
         Assert.assertFalse(boolify(isEqualTo(timestampedObject, decimalSample)));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingStringToTimestamp() {
         TypedObject timestampedObject = asTypedObject(new Timestamp(1435553876000L));
         TypedObject stringSample = asTypedObject("1435553876000");
         isEqualTo(timestampedObject, stringSample);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingDoubleToTimestamp() {
         TypedObject timestampedObject = asTypedObject(new Timestamp(1435553876000L));
         TypedObject doubleSample = asTypedObject(1.0);
         isEqualTo(timestampedObject, doubleSample);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailCastingBooleanToTimestamp() {
         TypedObject timestampedObject = asTypedObject(new Timestamp(1435553876000L));
         TypedObject booleanSample = asTypedObject(true);
@@ -568,20 +590,20 @@ public class TypeSystemTest {
     @Test
     public void testTimestampArithmetic() {
         Assert.assertTrue(equals((Timestamp) add(asTypedObject(new Timestamp(1435553876000L)),
-                                                 asTypedObject(new Timestamp(1000L))).data,
-                                 new Timestamp(1435553877000L)));
+                        asTypedObject(new Timestamp(1000L))).data,
+                new Timestamp(1435553877000L)));
         Assert.assertTrue(equals((Timestamp) subtract(asTypedObject(new Timestamp(1435553876000L)),
-                                                      asTypedObject(new Timestamp(1435553876000L))).data,
-                                 new Timestamp(0L)));
+                        asTypedObject(new Timestamp(1435553876000L))).data,
+                new Timestamp(0L)));
         Assert.assertTrue(equals((Timestamp) multiply(asTypedObject(new Timestamp(16000L)),
-                                                      asTypedObject(new Timestamp(2L))).data,
-                                 new Timestamp(32000L)));
+                        asTypedObject(new Timestamp(2L))).data,
+                new Timestamp(32000L)));
         Assert.assertTrue(equals((Timestamp) divide(asTypedObject(new Timestamp(14000L)),
-                                                    asTypedObject(new Timestamp(3L))).data,
-                                 new Timestamp(4666L)));
+                        asTypedObject(new Timestamp(3L))).data,
+                new Timestamp(4666L)));
         Assert.assertTrue(equals((Timestamp) modulus(asTypedObject(new Timestamp(1435553876001L)),
-                                                     asTypedObject(new Timestamp(1435553876000L))).data,
-                                 new Timestamp(1L)));
+                        asTypedObject(new Timestamp(1435553876000L))).data,
+                new Timestamp(1L)));
     }
 
     /*****************************/
@@ -592,27 +614,27 @@ public class TypeSystemTest {
         Assert.assertFalse(boolify(logicalNegate(asTypedObject(true))));
     }
 
-    @Test(expectedExceptions = {NullPointerException.class})
+    @Test(expectedExceptions = NullPointerException.class)
     public void testFailLogicalNegateNull() {
         logicalNegate(null);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalNegateLong() {
         logicalNegate(asTypedObject(1L));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalNegateDouble() {
         logicalNegate(asTypedObject(1.0));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalNegateDecimal() {
         logicalNegate(asTypedObject(new BigDecimal("1.0")));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalNegateTimestamp() {
         logicalNegate(asTypedObject(new Timestamp(1L)));
     }
@@ -625,32 +647,32 @@ public class TypeSystemTest {
         Assert.assertFalse(boolify(logicalOr(asTypedObject(false), asTypedObject(false))));
     }
 
-    @Test(expectedExceptions = {NullPointerException.class})
+    @Test(expectedExceptions = NullPointerException.class)
     public void testFailLogicalOrNull() {
         logicalOr(null, asTypedObject(1L));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalOrLong() {
         logicalOr(asTypedObject(false), asTypedObject(1L));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalOrDouble() {
         logicalOr(asTypedObject(1.2), asTypedObject(false));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalOrDecimal() {
         logicalOr(asTypedObject(true), asTypedObject(new BigDecimal("1.2")));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalOrTimestamp() {
         logicalOr(asTypedObject(new Timestamp(1L)), asTypedObject(false));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalOrString() {
         logicalOr(asTypedObject("false"), asTypedObject("true"));
     }
@@ -663,32 +685,32 @@ public class TypeSystemTest {
         Assert.assertTrue(boolify(logicalAnd(asTypedObject(true), asTypedObject(true))));
     }
 
-    @Test(expectedExceptions = {NullPointerException.class})
+    @Test(expectedExceptions = NullPointerException.class)
     public void testFailLogicalAndNull() {
         logicalAnd(asTypedObject(true), null);
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalAndLong() {
         logicalAnd(asTypedObject(false), asTypedObject(1L));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalAndDouble() {
         logicalAnd(asTypedObject(1.2), asTypedObject(false));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalAndDecimal() {
         logicalAnd(asTypedObject(true), asTypedObject(new BigDecimal("1.2")));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalAndTimestamp() {
         logicalAnd(asTypedObject(new Timestamp(1L)), asTypedObject(false));
     }
 
-    @Test(expectedExceptions = {ClassCastException.class})
+    @Test(expectedExceptions = ClassCastException.class)
     public void testFailLogicalAndString() {
         logicalAnd(asTypedObject("false"), asTypedObject("true"));
     }
@@ -706,6 +728,136 @@ public class TypeSystemTest {
     public void testDefaultCasting() {
         Operations operations = new CustomOperations();
         Assert.assertNull(operations.cast(asTypedObject(42L)));
+    }
+
+    @Test
+    public void testApprox() {
+        Assert.assertTrue(boolify(approx(asTypedObject(100L), asTypedObject(95L), asTypedObject(0.1))));
+        Assert.assertFalse(boolify(approx(asTypedObject(100L), asTypedObject(89L), asTypedObject(0.1))));
+        Assert.assertFalse(boolify(approx(asTypedObject(95L), asTypedObject(105L), asTypedObject(0.04))));
+        Assert.assertTrue(boolify(approx(asTypedObject(97L), asTypedObject(100L), asTypedObject(0.04))));
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*between 0 and 1.*")
+    public void testApproxBadPercentageLower() {
+        approx(asTypedObject(100L), asTypedObject(95L), asTypedObject(-0.2));
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*between 0 and 1.*")
+    public void testApproxBadPercentageUpper() {
+        approx(asTypedObject(100L), asTypedObject(95L), asTypedObject(1.2));
+    }
+
+    @Test(expectedExceptions = ClassCastException.class)
+    public void testApproxBadPercentageType() {
+        approx(asTypedObject(100L), asTypedObject(95L), new TypedObject(0.2, Type.LONG));
+    }
+
+    @Test
+    public void testApproxColumnarScalarPercent() {
+        Assert.assertTrue(boolify(approx(asColumn(Type.LONG, 100L, 99L, 98L),
+                                         asColumn(Type.LONG, 97L, 96L, 95L),
+                                         asColumn(Type.DOUBLE, 0.05))));
+
+        Assert.assertFalse(boolify(approx(asColumn(Type.LONG, 100L, 99L, 98L),
+                                          asColumn(Type.LONG, 96L, 95L, 92L),
+                                          asColumn(Type.DOUBLE, 0.05))));
+
+    }
+
+    @Test
+    public void testSizeUnificationPassThrough() {
+        Column a = new Column(asList(asTypedObject(false), asTypedObject(true), asTypedObject(true)));
+        Column b = new Column(asList(asTypedObject(1L), asTypedObject(2L), asTypedObject(5L)));
+        List<TypedObject> dataA = a.getValues();
+        List<TypedObject> dataB = b.getValues();
+        unifySize(a, b);
+        // In place
+        Assert.assertTrue(a.getValues() == dataA);
+        Assert.assertTrue(b.getValues() == dataB);
+
+        Assert.assertEquals(a.get(0).data, false);
+        Assert.assertEquals(a.get(1).data, true);
+        Assert.assertEquals(a.get(2).data, true);
+        Assert.assertEquals(b.get(0).data, 1L);
+        Assert.assertEquals(b.get(1).data, 2L);
+        Assert.assertEquals(b.get(2).data, 5L);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*had no data.*")
+    public void testSizeUnificationVectorAndEmpty() {
+        Column a = new Column(asList(asTypedObject(false), asTypedObject(true), asTypedObject(true)));
+        Column b = new Column();
+        unifySize(a, b);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*had no data.*")
+    public void testSizeUnificationEmptyAndVector() {
+        Column a = new Column();
+        Column b = new Column(asList(asTypedObject(false), asTypedObject(true), asTypedObject(true)));
+        unifySize(a, b);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*different sizes.*")
+    public void testSizeUnificationVectorAndVector() {
+        Column a = new Column(asList(asTypedObject(false), asTypedObject(true), asTypedObject(true)));
+        Column b = new Column(asList(asTypedObject(1L), asTypedObject(2L)));
+        unifySize(a, b);
+    }
+
+    @Test
+    public void testSizeUnificationScalarAndVector() {
+        Column a = new Column(asList(asTypedObject(false)));
+        Column b = new Column(asList(asTypedObject(1L), asTypedObject(2L), asTypedObject(5L)));
+        List<TypedObject> dataA = a.getValues();
+        List<TypedObject> dataB = b.getValues();
+        unifySize(a, b);
+
+        Assert.assertTrue(a.getValues() == dataA);
+        Assert.assertTrue(b.getValues() == dataB);
+
+        Assert.assertEquals(a.get(0).data, false);
+        Assert.assertEquals(a.get(1).data, false);
+        Assert.assertEquals(a.get(2).data, false);
+        Assert.assertEquals(b.get(0).data, 1L);
+        Assert.assertEquals(b.get(1).data, 2L);
+        Assert.assertEquals(b.get(2).data, 5L);
+    }
+
+    @Test
+    public void testSizeUnificationVectorAndScalar() {
+        Column a = new Column(asList(asTypedObject(false), asTypedObject(true), asTypedObject(true)));
+        Column b = new Column(asList(asTypedObject(1L)));
+        List<TypedObject> dataA = a.getValues();
+        List<TypedObject> dataB = b.getValues();
+        unifySize(a, b);
+
+        Assert.assertTrue(a.getValues() == dataA);
+        Assert.assertTrue(b.getValues() == dataB);
+
+        Assert.assertEquals(a.get(0).data, false);
+        Assert.assertEquals(a.get(1).data, true);
+        Assert.assertEquals(a.get(2).data, true);
+        Assert.assertEquals(b.get(0).data, 1L);
+        Assert.assertEquals(b.get(1).data, 1L);
+        Assert.assertEquals(b.get(2).data, 1L);
+    }
+
+    @Test
+    public void testApproxColumnarVectorPercent() {
+        Assert.assertTrue(boolify(approx(asColumn(Type.LONG, 100L, 100L, 100L),
+                                         asColumn(Type.LONG, 98L, 97L, 96L),
+                                         asColumn(Type.DOUBLE, 0.03, 0.04, 0.05))));
+
+        Assert.assertFalse(boolify(approx(asColumn(Type.LONG, 100L, 100L, 100L),
+                                          asColumn(Type.LONG, 96L, 97L, 96L),
+                                          asColumn(Type.DOUBLE, 0.03, 0.04, 0.05))));
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*percentage column.*")
+    public void testApproxColumnarVectorPercentBadSize() {
+        approx(asColumn(Type.LONG, 100L, 100L, 100L), asColumn(Type.LONG, 98L, 97L, 96L),
+               asColumn(Type.DOUBLE, 0.03, 0.04));
     }
 }
 
