@@ -108,7 +108,7 @@ public class App {
 
         // Get the non-null queries
         List<Query> queries = suites.stream().map(s -> s.queries).filter(Objects::nonNull)
-                                     .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
+                                    .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
 
         // Run the queries
         log.info("Running queries...");

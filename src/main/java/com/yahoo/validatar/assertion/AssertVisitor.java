@@ -5,6 +5,7 @@
 package com.yahoo.validatar.assertion;
 
 import com.yahoo.validatar.assertion.Expression.BinaryColumnOperation;
+import com.yahoo.validatar.assertion.Expression.UnaryColumnOperation;
 import com.yahoo.validatar.common.Column;
 import com.yahoo.validatar.common.Operations;
 import com.yahoo.validatar.common.Result;
@@ -61,7 +62,7 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
     }
 
     // Helper to partially apply perform
-    private static Expression.UnaryColumnOperation curry(Operations.UnaryOperation operation) {
+    private static UnaryColumnOperation curry(Operations.UnaryOperation operation) {
         return input -> TypeSystem.perform(operation, input);
     }
 
