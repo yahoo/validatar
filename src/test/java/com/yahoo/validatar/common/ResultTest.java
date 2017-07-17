@@ -12,15 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.yahoo.validatar.TestHelpers.asColumn;
+import static com.yahoo.validatar.TestHelpers.isEqual;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 public class ResultTest {
-    public static Column asColumn(Type type, Object... data) {
-        return TypeSystemTest.asColumn(type, data);
-    }
-
     @Test
     public void testPrefix() {
         Result result = new Result("foo");
@@ -121,7 +119,7 @@ public class ResultTest {
     @Test
     public void testDataAddition() {
         Result result = new Result("A");
-        result.addColumn("a", asList(new TypedObject(1L, Type.LONG), new TypedObject(4L, Type.LONG)));
+        result.addColumn("a", asColumn(Type.LONG, 1L, 4L));
         result.addQualifiedColumn("B.foo", asColumn(Type.BOOLEAN, true, false));
 
         Assert.assertTrue(result.hasColumn("a"));
@@ -172,8 +170,8 @@ public class ResultTest {
     @Test
     public void testCartesianProductOneInput() {
         Result result = new Result("A");
-        result.addColumn("a", asList(new TypedObject(1L, Type.LONG), new TypedObject(4L, Type.LONG)));
-        result.addColumn("b", asList(new TypedObject(4L, Type.LONG), new TypedObject(2L, Type.LONG)));
+        result.addColumn("a", asColumn(Type.LONG, 1L, 4L));
+        result.addColumn("b", asColumn(Type.LONG, 4L, 2L));
 
         Result actual = Result.cartesianProduct(singletonList(result));
 
@@ -190,5 +188,53 @@ public class ResultTest {
 
         Assert.assertEquals(result.numberOfRows(), 3);
         Assert.assertEquals(actual.numberOfRows(), 2);
+    }
+
+    @Test
+    public void testCartesianProductTwoInputs() {
+        Result first = new Result("A");
+        first.addColumn("a", asColumn(Type.LONG, 1L, 4L));
+        first.addColumn("b", asColumn(Type.BOOLEAN, true, true));
+
+        Result second = new Result("B");
+        second.addColumn("a", asColumn(Type.LONG, 2L, 8L, 84L));
+        second.addColumn("c", asColumn(Type.STRING, "foo", "bar", "baz"));
+
+        Result actual = Result.cartesianProduct(asList(first, second));
+
+        Result expected = new Result();
+        expected.addColumn("A.a", asColumn(Type.LONG, 1L, 1L, 1L, 4L, 4L, 4L));
+        expected.addColumn("A.b", asColumn(Type.BOOLEAN, true, true, true, true, true, true));
+        expected.addColumn("B.a", asColumn(Type.LONG, 2L, 8L, 84L, 2L, 8L, 84L));
+        expected.addColumn("B.c", asColumn(Type.STRING, "foo", "bar", "baz", "foo", "bar", "baz"));
+
+        Assert.assertTrue(isEqual(actual, expected));
+    }
+
+    @Test
+    public void testCartesianProductThreeInputs() {
+        Result first = new Result("A");
+        first.addColumn("a", asColumn(Type.LONG, 1L, 4L));
+        first.addColumn("b", asColumn(Type.BOOLEAN, true, false));
+
+        Result second = new Result("B");
+        second.addColumn("a", asColumn(Type.LONG, 2L, 8L));
+        second.addColumn("c", asColumn(Type.STRING, "foo", "bar"));
+
+        Result third = new Result("C");
+        third.addColumn("d", asColumn(Type.DOUBLE, 42.0, 84.0));
+        third.addColumn("f", asColumn(Type.STRING, "baz", "qux"));
+
+        Result actual = Result.cartesianProduct(asList(first, second, third));
+
+        Result expected = new Result();
+        expected.addColumn("A.a", asColumn(Type.LONG, 1L, 1L, 1L, 1L, 4L, 4L, 4L, 4L));
+        expected.addColumn("A.b", asColumn(Type.BOOLEAN, true, true, true, true, false, false, false, false));
+        expected.addColumn("B.a", asColumn(Type.LONG, 2L, 2L, 8L, 8L, 2L, 2L, 8L, 8L));
+        expected.addColumn("B.c", asColumn(Type.STRING, "foo", "foo", "bar", "bar", "foo", "foo", "bar", "bar"));
+        expected.addColumn("C.d", asColumn(Type.DOUBLE, 42.0, 84.0, 42.0, 84.0, 42.0, 84.0, 42.0, 84.0));
+        expected.addColumn("C.f", asColumn(Type.STRING, "baz", "qux", "baz", "qux", "baz", "qux", "baz", "qux"));
+
+        Assert.assertTrue(isEqual(actual, expected));
     }
 }

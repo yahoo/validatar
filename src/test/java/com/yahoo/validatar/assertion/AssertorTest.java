@@ -13,40 +13,15 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.yahoo.validatar.TestHelpers.getTyped;
+import static com.yahoo.validatar.TestHelpers.wrap;
 
 public class AssertorTest {
     private Result results;
     private Assertor assertor = new Assertor();
-
-    private static <T> List<T> wrap(T... data) {
-        List<T> asList = new ArrayList<>();
-        Collections.addAll(asList, data);
-        return asList;
-    }
-
-    public static TypedObject getTyped(TypeSystem.Type type, Object value) {
-        switch (type) {
-            case STRING:
-                return new TypedObject((String) value, TypeSystem.Type.STRING);
-            case LONG:
-                return new TypedObject((Long) value, TypeSystem.Type.LONG);
-            case DOUBLE:
-                return new TypedObject((Double) value, TypeSystem.Type.DOUBLE);
-            case DECIMAL:
-                return new TypedObject((BigDecimal) value, TypeSystem.Type.DECIMAL);
-            case TIMESTAMP:
-                return new TypedObject((Timestamp) value, TypeSystem.Type.TIMESTAMP);
-            case BOOLEAN:
-                return new TypedObject((Boolean) value, TypeSystem.Type.BOOLEAN);
-            default:
-                throw new RuntimeException("Unknown type");
-        }
-    }
 
     public static void addColumnToResult(Result result, String name, TypeSystem.Type type, Object... values) {
         result.addColumn(name, wrap(values).stream().map(t -> getTyped(type, t)).collect(Collectors.toList()));
