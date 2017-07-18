@@ -90,9 +90,6 @@ public class AssertVisitor extends GrammarBaseVisitor<Expression> {
         return datasets;
     }
 
-    /**************************************************************************************************************
-     **************************************************************************************************************/
-
     /**
      * Creates a vistor to walk the assertion parse tree.
      *
