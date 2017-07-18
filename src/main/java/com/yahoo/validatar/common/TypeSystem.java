@@ -4,18 +4,22 @@
  */
 package com.yahoo.validatar.common;
 
+import com.yahoo.validatar.common.Operations.BinaryOperation;
+import com.yahoo.validatar.common.Operations.UnaryOperation;
+import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BinaryOperator;
-import java.util.function.UnaryOperator;
+import java.util.stream.IntStream;
 
 /**
  * This is a class that wraps the supported types that the assertor will work with
  * when operating on data returned by an data source.
  */
+@Slf4j
 public class TypeSystem {
     /**
      * These are the official types we support. They correspond to Java types.
@@ -25,399 +29,15 @@ public class TypeSystem {
         LONG, DOUBLE, DECIMAL, BOOLEAN, STRING, TIMESTAMP
     }
 
-    /**
-     * These are the binary operations we will support.
-     */
-    public enum BinaryOperation {
-        ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULUS, OR, AND
-    }
-
-    /**
-     * These are the unary operations we will support.
-     */
-    public enum UnaryOperation {
-        CAST, NEGATE
-    }
-
-    /*
-     * The mapping of Type to its operations.
-     * <p/>
-     * In general, we don't want lossy casting, or strange casting like a boolean to a short etc.
-     * But we will follow the basic Java widening primitive rules.
-     * https://docs.oracle.com/javase/specs/jls/se7/html/jls-5.html
-     * <p/>
-     * Exceptions:
-     * Timestamp to and from Long will do a millis since epoch
-     */
-    public interface Operations {
-        /**
-         * Adds two TypedObjects.
-         *
-         * @param first The first object.
-         * @param second The second object.
-         * @return The result object.
-         */
-        default TypedObject add(TypedObject first, TypedObject second) {
-            return null;
-        }
-
-        /**
-         * Subtracts two TypedObjects.
-         *
-         * @param first The first object.
-         * @param second The second object.
-         * @return The result object.
-         */
-        default TypedObject subtract(TypedObject first, TypedObject second) {
-            return null;
-        }
-
-        /**
-         * Multiplies two TypedObjects.
-         *
-         * @param first The first object.
-         * @param second The second object.
-         * @return The result object.
-         */
-        default TypedObject multiply(TypedObject first, TypedObject second) {
-            return null;
-        }
-
-        /**
-         * Divides two TypedObjects.
-         *
-         * @param first The first object.
-         * @param second The second object.
-         * @return The result object.
-         */
-        default TypedObject divide(TypedObject first, TypedObject second) {
-            return null;
-        }
-
-        /**
-         * Finds the integer remainder after division two TypedObjects.
-         *
-         * @param first The first object.
-         * @param second The second object.
-         * @return The result object.
-         */
-        default TypedObject modulus(TypedObject first, TypedObject second) {
-            return null;
-        }
-
-        /**
-         * Logical ors two TypedObjects.
-         *
-         * @param first The first object.
-         * @param second The second object.
-         * @return The result object.
-         */
-        default TypedObject or(TypedObject first, TypedObject second) {
-            return null;
-        }
-
-        /**
-         * Logical ands two TypedObjects.
-         *
-         * @param first The first object.
-         * @param second The second object.
-         * @return The result object.
-         */
-        default TypedObject and(TypedObject first, TypedObject second) {
-            return null;
-        }
-
-        /**
-         * Logical negates a TypedObject.
-         *
-         * @param object The object.
-         * @return The result object.
-         */
-        default TypedObject negate(TypedObject object) {
-            return null;
-        }
-
-        /**
-         * Casts a TypedObject into its given type.
-         *
-         * @param object The object.
-         * @return The result object.
-         */
-        default TypedObject cast(TypedObject object) {
-            return null;
-        }
-
-        /**
-         * Given a BinaryOperation, finds the operator for it. Null if it cannot.
-         *
-         * @param operation The operation
-         * @return The result binary operator that can be applied.
-         */
-        default BinaryOperator<TypedObject> dispatch(BinaryOperation operation) {
-            // Can assign to a return value and return it, getting rid of the unreachable default...
-            Objects.requireNonNull(operation);
-            switch (operation) {
-                case ADD:
-                    return this::add;
-                case SUBTRACT:
-                    return this::subtract;
-                case MULTIPLY:
-                    return this::multiply;
-                case DIVIDE:
-                    return this::divide;
-                case MODULUS:
-                    return this::modulus;
-                case OR:
-                    return this::or;
-                case AND:
-                    return this::and;
-                default:
-                    return null;
-            }
-        }
-
-        /**
-         * Given a UnaryOperation, finds the operator for it. Null if it cannot.
-         *
-         * @param operation The operation.
-         * @return The result unary operator that can be applied.
-         */
-        default UnaryOperator<TypedObject> dispatch(UnaryOperation operation) {
-            Objects.requireNonNull(operation);
-            switch (operation) {
-                case NEGATE:
-                    return this::negate;
-                case CAST:
-                    return this::cast;
-                default:
-                    return null;
-            }
-        }
-    }
 
     private static final Map<Type, Operations> OPERATIONS = new HashMap<>();
     static {
-        OPERATIONS.put(Type.LONG, new Operations() {
-            public TypedObject add(TypedObject first, TypedObject second) {
-                return asTypedObject((Long) first.data + (Long) second.data);
-            }
-
-            public TypedObject subtract(TypedObject first, TypedObject second) {
-                return asTypedObject((Long) first.data - (Long) second.data);
-            }
-
-            public TypedObject multiply(TypedObject first, TypedObject second) {
-                return asTypedObject((Long) first.data * (Long) second.data);
-            }
-
-            public TypedObject divide(TypedObject first, TypedObject second) {
-                return asTypedObject((Long) first.data / (Long) second.data);
-            }
-
-            public TypedObject modulus(TypedObject first, TypedObject second) {
-                return asTypedObject((Long) first.data % (Long) second.data);
-            }
-
-            public TypedObject cast(TypedObject object) {
-                switch (object.type) {
-                    case STRING:
-                        object.data = Long.valueOf((String) object.data);
-                        break;
-                    case LONG:
-                        break;
-                    case TIMESTAMP:
-                        object.data = ((Timestamp) object.data).getTime();
-                        break;
-                    case DOUBLE:
-                    case DECIMAL:
-                    case BOOLEAN:
-                        return null;
-                }
-                object.type = Type.LONG;
-                return object;
-            }
-        });
-
-        OPERATIONS.put(Type.DOUBLE, new Operations() {
-            public TypedObject add(TypedObject first, TypedObject second) {
-                return asTypedObject((Double) first.data + (Double) second.data);
-            }
-
-            public TypedObject subtract(TypedObject first, TypedObject second) {
-                return asTypedObject((Double) first.data - (Double) second.data);
-            }
-
-            public TypedObject multiply(TypedObject first, TypedObject second) {
-                return asTypedObject((Double) first.data * (Double) second.data);
-            }
-
-            public TypedObject divide(TypedObject first, TypedObject second) {
-                return asTypedObject((Double) first.data / (Double) second.data);
-            }
-
-            public TypedObject cast(TypedObject object) {
-                switch (object.type) {
-                    case STRING:
-                        object.data = Double.valueOf((String) object.data);
-                        break;
-                    case DOUBLE:
-                        break;
-                    case LONG:
-                        object.data = ((Long) object.data).doubleValue();
-                        break;
-                    case DECIMAL:
-                    case BOOLEAN:
-                    case TIMESTAMP:
-                        return null;
-                }
-                object.type = Type.DOUBLE;
-                return object;
-            }
-        });
-
-        OPERATIONS.put(Type.DECIMAL, new Operations() {
-            public TypedObject add(TypedObject first, TypedObject second) {
-                return asTypedObject(((BigDecimal) first.data).add((BigDecimal) second.data));
-            }
-
-            public TypedObject subtract(TypedObject first, TypedObject second) {
-                return asTypedObject(((BigDecimal) first.data).subtract((BigDecimal) second.data));
-            }
-
-            public TypedObject multiply(TypedObject first, TypedObject second) {
-                return asTypedObject(((BigDecimal) first.data).multiply((BigDecimal) second.data));
-            }
-
-            public TypedObject divide(TypedObject first, TypedObject second) {
-                return asTypedObject(((BigDecimal) first.data).divide((BigDecimal) second.data));
-            }
-
-            public TypedObject modulus(TypedObject first, TypedObject second) {
-                return asTypedObject(((BigDecimal) first.data).divideAndRemainder((BigDecimal) second.data)[1]);
-            }
-
-            public TypedObject cast(TypedObject object) {
-                switch (object.type) {
-                    case STRING:
-                        object.data = new BigDecimal((String) object.data);
-                        break;
-                    case LONG:
-                        object.data = BigDecimal.valueOf((Long) object.data);
-                        break;
-                    case DOUBLE:
-                        object.data = BigDecimal.valueOf((Double) object.data);
-                        break;
-                    case DECIMAL:
-                        break;
-                    case TIMESTAMP:
-                        object.data = BigDecimal.valueOf(((Timestamp) object.data).getTime());
-                        break;
-                    case BOOLEAN:
-                        return null;
-                }
-                object.type = Type.DECIMAL;
-                return object;
-            }
-        });
-
-        OPERATIONS.put(Type.BOOLEAN, new Operations() {
-            public TypedObject or(TypedObject first, TypedObject second) {
-                return asTypedObject((Boolean) first.data || (Boolean) second.data);
-            }
-
-            public TypedObject and(TypedObject first, TypedObject second) {
-                return asTypedObject((Boolean) first.data && (Boolean) second.data);
-            }
-
-            public TypedObject negate(TypedObject object) {
-                return asTypedObject(!(Boolean) object.data);
-            }
-
-            public TypedObject cast(TypedObject object) {
-                switch (object.type) {
-                    case STRING:
-                        object.data = Boolean.valueOf((String) object.data);
-                        break;
-                    case BOOLEAN:
-                        break;
-                    case LONG:
-                    case DOUBLE:
-                    case DECIMAL:
-                    case TIMESTAMP:
-                        return null;
-                }
-                object.type = Type.BOOLEAN;
-                return object;
-            }
-        });
-
-        OPERATIONS.put(Type.STRING, new Operations() {
-            public TypedObject add(TypedObject first, TypedObject second) {
-                return asTypedObject((String) first.data + (String) second.data);
-            }
-
-            public TypedObject cast(TypedObject object) {
-                switch (object.type) {
-                    case STRING:
-                        break;
-                    case LONG:
-                        object.data = ((Long) object.data).toString();
-                        break;
-                    case DOUBLE:
-                        object.data = ((Double) object.data).toString();
-                        break;
-                    case DECIMAL:
-                        object.data = ((BigDecimal) object.data).toString();
-                        break;
-                    case BOOLEAN:
-                        object.data = ((Boolean) object.data).toString();
-                        break;
-                    case TIMESTAMP:
-                        return null;
-                }
-                object.type = Type.STRING;
-                return object;
-            }
-        });
-
-        OPERATIONS.put(Type.TIMESTAMP, new Operations() {
-            public TypedObject add(TypedObject first, TypedObject second) {
-                return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() + ((Timestamp) second.data).getTime()));
-            }
-
-            public TypedObject subtract(TypedObject first, TypedObject second) {
-                return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() - ((Timestamp) second.data).getTime()));
-            }
-
-            public TypedObject multiply(TypedObject first, TypedObject second) {
-                return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() * ((Timestamp) second.data).getTime()));
-            }
-
-            public TypedObject divide(TypedObject first, TypedObject second) {
-                return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() / ((Timestamp) second.data).getTime()));
-            }
-
-            public TypedObject modulus(TypedObject first, TypedObject second) {
-                return asTypedObject(new Timestamp(((Timestamp) first.data).getTime() % ((Timestamp) second.data).getTime()));
-            }
-
-            public TypedObject cast(TypedObject object) {
-                switch (object.type) {
-                    case LONG:
-                        object.data = new Timestamp((Long) object.data);
-                        break;
-                    case TIMESTAMP:
-                        break;
-                    case STRING:
-                    case DOUBLE:
-                    case DECIMAL:
-                    case BOOLEAN:
-                        return null;
-                }
-                object.type = Type.TIMESTAMP;
-                return object;
-            }
-        });
+        OPERATIONS.put(Type.LONG, new Operators.LongOperator());
+        OPERATIONS.put(Type.DOUBLE, new Operators.DoubleOperator());
+        OPERATIONS.put(Type.DECIMAL, new Operators.DecimalOperator());
+        OPERATIONS.put(Type.BOOLEAN, new Operators.BooleanOperator());
+        OPERATIONS.put(Type.STRING, new Operators.StringOperator());
+        OPERATIONS.put(Type.TIMESTAMP, new Operators.TimestampOperator());
     }
 
     /**
@@ -426,13 +46,12 @@ public class TypeSystem {
      * final Type wasn't what was passed in. Throws an NullPointerException if either argument
      * is null. If successful, first and second will be the of the same type.
      *
-     * @param first  The first {@link com.yahoo.validatar.common.TypedObject}.
-     * @param second The first {@link com.yahoo.validatar.common.TypedObject}.
+     * @param first  The first {@link TypedObject}.
+     * @param second The first {@link TypedObject}.
      */
     public static void unifyType(TypedObject first, TypedObject second) {
-        if (first == null || second == null) {
-            throw new NullPointerException("Cannot operate on null arguments. Argument 1: " + first + " Argument 2: " + second);
-        }
+        Objects.requireNonNull(first);
+        Objects.requireNonNull(second);
         // Relying on the type system to return null if invalid conversions were tried and non null if not.
         TypedObject unified = OPERATIONS.get(first.type).cast(second);
         if (unified == null) {
@@ -447,10 +66,10 @@ public class TypeSystem {
     /**
      * Perform a binary operation on two TypedObjects.
      *
-     * @param operation The {@link com.yahoo.validatar.common.TypeSystem.BinaryOperation} operator to perform.
-     * @param first     The LHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
-     * @param second    The RHS {@link com.yahoo.validatar.common.TypedObject} of the arithmetic.
-     * @return The resulting {@link com.yahoo.validatar.common.TypedObject}.
+     * @param operation The {@link BinaryOperation} operator to perform.
+     * @param first     The LHS {@link TypedObject} of the arithmetic.
+     * @param second    The RHS {@link TypedObject} of the arithmetic.
+     * @return The resulting {@link TypedObject}.
      */
     public static TypedObject perform(BinaryOperation operation, TypedObject first, TypedObject second) {
         unifyType(first, second);
@@ -465,11 +84,11 @@ public class TypeSystem {
     }
 
     /**
-     * Perform an unary operation on two TypedObjects.
+     * Perform an unary operation on a TypedObject.
      *
-     * @param operation The {@link com.yahoo.validatar.common.TypeSystem.UnaryOperation} operator to perform.
-     * @param object    The target {@link com.yahoo.validatar.common.TypedObject} of the operation.
-     * @return The resulting {@link com.yahoo.validatar.common.TypedObject}.
+     * @param operation The {@link UnaryOperation} operator to perform.
+     * @param object    The target {@link TypedObject} of the operation.
+     * @return The resulting {@link TypedObject}.
      */
     public static TypedObject perform(UnaryOperation operation, TypedObject object) {
         TypedObject result = OPERATIONS.get(object.type).dispatch(operation).apply(object);
@@ -483,8 +102,8 @@ public class TypeSystem {
     /**
      * Compare two TypedObjects.
      *
-     * @param first  The first {@link com.yahoo.validatar.common.TypedObject} to compare.
-     * @param second The second {@link com.yahoo.validatar.common.TypedObject} to compare.
+     * @param first  The first {@link TypedObject} to compare.
+     * @param second The second {@link TypedObject} to compare.
      * @return -1 if first is less than second, 1 if first is greater than second and 0 if first equals second.
      */
     @SuppressWarnings("unchecked")
@@ -494,174 +113,130 @@ public class TypeSystem {
         return first.data.compareTo(second.data);
     }
 
+    /**
+     * Performs an approximate comparison of the first and second {@link TypedObject} using the third as a percentage.
+     *
+     * @param first The first object.
+     * @param second The second object.
+     * @param percent The percentage by which the first and second be within.
+     * @return The result of the operation - a boolean TypedObject.
+     */
+    public static TypedObject approx(TypedObject first, TypedObject second, TypedObject percent) {
+        if ((Boolean) perform(BinaryOperation.GREATER, percent, asTypedObject(1L)).data ||
+            (Boolean) perform(BinaryOperation.LESS, percent, asTypedObject(0L)).data) {
+            throw new RuntimeException("Expected percentage for approx to be between 0 and 1. Got " + percent.data);
+        }
+        // max = second * (1 + percent)
+        // if first > max, then not approx equal
+        TypedObject max = perform(BinaryOperation.MULTIPLY, second, perform(BinaryOperation.ADD, asTypedObject(1L), percent));
+        if ((Boolean) perform(BinaryOperation.GREATER, first, max).data) {
+            return asTypedObject(false);
+        }
+
+        // min = second * (1 - percent)
+        // if first < min, then not approx equal
+        TypedObject min = perform(BinaryOperation.MULTIPLY, second, perform(BinaryOperation.SUBTRACT, asTypedObject(1L), percent));
+        if ((Boolean) perform(BinaryOperation.LESS, first, min).data) {
+            return asTypedObject(false);
+        }
+        return asTypedObject(true);
+    }
+
     /*
      ********************************************************************************
-     *                                Helper methods                                *
+     *                               Vector Operations                              *
      ********************************************************************************
      */
 
     /**
-     * Helper method that returns the sum of the first and second.
+     * Tries to unify the sizes of the two {@link Column}. If one is a {@link Column#isScalar()} and the other is
+     * not, the scalar is extended to be a vector of the size of the other. It is an error if both are vectors with
+     * different sizes.
      *
-     * @param first  A {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second A {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
+     * @param first The first non-null column to check.
+     * @param second The second non-null column to check.
+     * @throws RuntimeException if the sizes cannot be unified.
      */
-    public static TypedObject add(TypedObject first, TypedObject second) {
-        return perform(BinaryOperation.ADD, first, second);
+    public static void unifySize(Column first, Column second) {
+        Objects.requireNonNull(first);
+        Objects.requireNonNull(second);
+
+        if (first.isEmpty() || second.isEmpty()) {
+            log.error("Tried making two columns have the same size but one or both had no data: {}, {}", first, second);
+            throw new RuntimeException("Either " + first + " or " + second + " had no data");
+        }
+
+        boolean isFirstScalar = first.isScalar();
+        boolean isSecondScalar = second.isScalar();
+        // If both scalar or both vectors
+        if (!(isFirstScalar ^ isSecondScalar)) {
+            if (first.size() != second.size()) {
+                log.error("Cannot operate on two columns with different sizes: {} and {}", first, second);
+                throw new RuntimeException("Cannot operate on two columns with different sizes");
+            }
+            // Both scalars or vectors and have the same size, we're good
+            return;
+        }
+        // Exactly one is scalar
+        int firstSize = first.size();
+        int secondSize = second.size();
+        Column target = isFirstScalar ? first : second;
+        int numberOfValues = (isFirstScalar ? secondSize : firstSize) - 1;
+        // Repeat the first element in target, 1 - the size of the other
+        target.add(asColumn(target.first(), numberOfValues));
     }
 
     /**
-     * Helper method that returns the difference of the first and second.
+     * Perform a binary operation on two Columns.
      *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
+     * @param operation The {@link BinaryOperation} operator to perform.
+     * @param first     The LHS {@link Column} of the arithmetic.
+     * @param second    The RHS {@link Column} of the arithmetic.
+     * @return The resulting {@link Column}.
      */
-    public static TypedObject subtract(TypedObject first, TypedObject second) {
-        return perform(BinaryOperation.SUBTRACT, first, second);
+    public static Column perform(BinaryOperation operation, Column first, Column second) {
+        log.debug("Performing {} on {} and {}", operation, first, second);
+        unifySize(first, second);
+
+        Column result = new Column();
+        for (int i = 0; i < first.size(); ++i) {
+            result.add(perform(operation, first.get(i), second.get(i)));
+        }
+        return result;
     }
 
     /**
-     * Helper method that returns the product of the first and second.
+     * Perform an unary operation on a Column.
      *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
+     * @param operation The {@link UnaryOperation} operator to perform.
+     * @param object    The target {@link Column} of the operation.
+     * @return The resulting {@link Column}.
      */
-    public static TypedObject multiply(TypedObject first, TypedObject second) {
-        return perform(BinaryOperation.MULTIPLY, first, second);
+    public static Column perform(UnaryOperation operation, Column object) {
+        log.debug("Performing {} on {}", operation, object);
+        return object.stream().map(t -> perform(operation, t)).collect(Column::new, Column::add, Column::add);
     }
 
     /**
-     * Helper method that returns the quotient of the first divided by second.
+     * Performs an approximate comparison of the first and second {@link Column} using the third as a percentage.
      *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
+     * @param first The first object.
+     * @param second The second object.
+     * @param percent The percentage by which the first and second be within.
+     * @return The {@link Column} containing boolean Columns representing the result of each comparison.
      */
-    public static TypedObject divide(TypedObject first, TypedObject second) {
-        return perform(BinaryOperation.DIVIDE, first, second);
-    }
-
-    /**
-     * Helper method that returns the modulus of the first and second.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject modulus(TypedObject first, TypedObject second) {
-        return perform(BinaryOperation.MODULUS, first, second);
-    }
-
-    /**
-     * Helper method that negates the input.
-     *
-     * @param input a {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject negate(TypedObject input) {
-        // We'll use our narrowest numeric type - LONG. STRING would work too.
-        return perform(BinaryOperation.MULTIPLY, new TypedObject(Long.valueOf(-1), Type.LONG), input);
-    }
-
-    /**
-     * Helper method that returns true iff first equals second.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject isEqualTo(TypedObject first, TypedObject second) {
-        return asTypedObject(compare(first, second) == 0);
-    }
-
-    /**
-     * Helper method that returns true iff first not equals second.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject isNotEqualTo(TypedObject first, TypedObject second) {
-        return asTypedObject(compare(first, second) != 0);
-    }
-
-    /**
-     * Helper method that returns true iff first is less than second.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject isLessThan(TypedObject first, TypedObject second) {
-        return asTypedObject(compare(first, second) < 0);
-    }
-
-    /**
-     * Helper method that returns true iff first is less than or equal to second.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject isLessThanOrEqual(TypedObject first, TypedObject second) {
-        return asTypedObject(compare(first, second) <= 0);
-    }
-
-    /**
-     * Helper method that returns true iff first is greater than second.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject isGreaterThan(TypedObject first, TypedObject second) {
-        return asTypedObject(compare(first, second) > 0);
-    }
-
-    /**
-     * Helper method that returns true iff first is greater than or equal to second.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject isGreaterThanOrEqual(TypedObject first, TypedObject second) {
-        return asTypedObject(compare(first, second) >= 0);
-    }
-
-    /**
-     * Helper method to do logical negation.
-     *
-     * @param input a {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject logicalNegate(TypedObject input) {
-        return perform(UnaryOperation.NEGATE, input);
-    }
-
-    /**
-     * Helper method to do logical and.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject logicalAnd(TypedObject first, TypedObject second) {
-        return perform(BinaryOperation.AND, first, second);
-    }
-
-    /**
-     * Helper method to do logical or.
-     *
-     * @param first  The LHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @param second The RHS {@link com.yahoo.validatar.common.TypedObject} object.
-     * @return The {@link com.yahoo.validatar.common.TypedObject} result.
-     */
-    public static TypedObject logicalOr(TypedObject first, TypedObject second) {
-        return perform(BinaryOperation.OR, first, second);
+    public static Column approx(Column first, Column second, Column percent) {
+        unifySize(first, second);
+        if (!percent.isScalar() && percent.size() != first.size())  {
+            log.error("Your approx percentage {} is a column but its size does not match the other columns: {} and {} ",
+                      percent, first, second);
+            throw new RuntimeException("The percentage column in approx has a different size from the other columns");
+        }
+        Column result = new Column();
+        for (int i = 0; i < first.size(); ++i) {
+            result.add(approx(first.get(i), second.get(i), percent.get(percent.isScalar() ? 0 : i)));
+        }
+        return result;
     }
 
     /*
@@ -674,7 +249,7 @@ public class TypeSystem {
      * Takes a Boolean and wraps it a proper TypedObject.
      *
      * @param value a {@link java.lang.Boolean} object.
-     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
+     * @return The wrapped {@link TypedObject} result.
      */
     public static TypedObject asTypedObject(Boolean value) {
         return new TypedObject(value, Type.BOOLEAN);
@@ -684,7 +259,7 @@ public class TypeSystem {
      * Takes a Long and wraps it a proper TypedObject.
      *
      * @param value a {@link java.lang.Long} object.
-     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
+     * @return The wrapped {@link TypedObject} result.
      */
     public static TypedObject asTypedObject(Long value) {
         return new TypedObject(value, Type.LONG);
@@ -694,7 +269,7 @@ public class TypeSystem {
      * Takes a Double and wraps it a proper TypedObject.
      *
      * @param value a {@link java.lang.Double} object.
-     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
+     * @return The wrapped {@link TypedObject} result.
      */
     public static TypedObject asTypedObject(Double value) {
         return new TypedObject(value, Type.DOUBLE);
@@ -704,7 +279,7 @@ public class TypeSystem {
      * Takes a Double and wraps it a proper TypedObject.
      *
      * @param value a {@link java.math.BigDecimal} object.
-     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
+     * @return The wrapped {@link TypedObject} result.
      */
     public static TypedObject asTypedObject(BigDecimal value) {
         return new TypedObject(value, Type.DECIMAL);
@@ -714,7 +289,7 @@ public class TypeSystem {
      * Takes a Timestamp and wraps it a proper TypedObject.
      *
      * @param value a {@link java.sql.Timestamp} object.
-     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
+     * @return The wrapped {@link TypedObject} result.
      */
     public static TypedObject asTypedObject(Timestamp value) {
         return new TypedObject(value, Type.TIMESTAMP);
@@ -724,9 +299,21 @@ public class TypeSystem {
      * Takes a String and wraps it a proper TypedObject.
      *
      * @param value a {@link java.lang.String} object.
-     * @return The wrapped {@link com.yahoo.validatar.common.TypedObject} result.
+     * @return The wrapped {@link TypedObject} result.
      */
     public static TypedObject asTypedObject(String value) {
         return new TypedObject(value, Type.STRING);
+    }
+
+    /**
+     * Repeats the given object {@code repeat} times and makes it a {@link Column}.
+     *
+     * @param object The object to replicate.
+     * @param repeat The number of times to replicate it.
+     * @return A Column containing the replicated items
+     */
+    public static Column asColumn(TypedObject object, int repeat) {
+        return IntStream.range(0, repeat).mapToObj(t -> new TypedObject(object.data, object.type))
+                        .collect(Column::new, Column::add, Column::add);
     }
 }

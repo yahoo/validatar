@@ -62,12 +62,16 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
             return Stream.empty();
         }
         if (path.isFile()) {
-            log.info("TestSuite parameter is a file, loading...");
+            log.info("TestSuite parameter {} is a file. Loading...", path);
             return Stream.of(path);
         }
-        log.info("TestSuite parameter is a folder, loading all files inside...");
+        log.info("TestSuite parameter {} is a folder. Loading all files inside...", path);
         File[] files = path.listFiles();
-        return files == null ? Stream.empty() : Stream.of(files).sorted();
+        if (files == null) {
+            log.warn("No files found in {}. Skipping...", path);
+            return Stream.empty();
+        }
+        return Stream.of(files).sorted();
     }
 
     /**

@@ -4,7 +4,7 @@
     <groupId>com.yahoo.validatar</groupId>
     <artifactId>validatar</artifactId>
     <packaging>jar</packaging>
-    <version>0.4.4-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <name>validatar</name>
 
     <properties>
@@ -154,13 +154,17 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
-                <version>4.5</version>
+                <version>4.7</version>
                 <executions>
                     <execution>
                         <id>antlr</id>
                         <goals>
                             <goal>antlr4</goal>
                         </goals>
+                        <configuration>
+                            <listener>true</listener>
+                            <visitor>true</visitor>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -207,7 +211,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
+                <version>0.7.9</version>
                 <executions>
                     <execution>
                         <goals>
@@ -273,7 +277,7 @@
       <dependency>
          <groupId>org.antlr</groupId>
          <artifactId>antlr4-runtime</artifactId>
-         <version>4.5</version>
+         <version>4.7</version>
       </dependency>
       <dependency>
          <groupId>net.sf.jopt-simple</groupId>

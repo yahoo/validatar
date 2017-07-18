@@ -2,171 +2,85 @@
  * Copyright 2015 Yahoo Inc.
  * Licensed under the terms of the Apache 2 license. Please see LICENSE file in the project root for terms.
  */
+
 grammar Grammar;
 
-@parser::header {
-import com.yahoo.validatar.common.TypedObject;
-import com.yahoo.validatar.common.TypeSystem.Type;
-import static com.yahoo.validatar.common.TypeSystem.*;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.math.BigDecimal;
-import org.apache.commons.lang3.StringEscapeUtils;
-}
-
-@parser::members {
-    private Map<String, TypedObject> row = null;
-    private Map<String, String> lookedUpValues = new HashMap<>();;
-
-    public void setCurrentRow(Map<String, TypedObject> row) {
-        this.row = row;
-    }
-
-    public Map<String, String> getLookedUpValues() {
-        return lookedUpValues;
-    }
-
-    private TypedObject getColumnValue(String name) {
-        // Check for no mapping explicitly
-        if (!row.containsKey(name)) {
-            throw new NoSuchElementException("Unable to find value for column: " + name + " in results");
-        }
-        TypedObject result = row.get(name);
-        lookedUpValues.put(name, (result == null ? "null" : result.toString()));
-        return result;
-    }
-
-    private String stripQuotes(String literal) {
-        return literal.substring(1, literal.length() - 1);
-    }
-
-    private TypedObject parseString(String text) {
-        return new TypedObject(StringEscapeUtils.unescapeJava(stripQuotes(text)), Type.STRING);
-    }
-
-    private TypedObject parseWholeNumber(String text) {
-        TypedObject object;
-        try {
-            object = new TypedObject(Long.parseLong(text), Type.LONG);
-        } catch (NumberFormatException nfe) {
-            object = new TypedObject(new BigDecimal(text), Type.DECIMAL);
-        }
-        return object;
-    }
-
-    private TypedObject parseDecimalNumber(String text) {
-        TypedObject object;
-        try {
-            object = new TypedObject(Double.parseDouble(text), Type.DOUBLE);
-        } catch (NumberFormatException nfe) {
-            object = new TypedObject(new BigDecimal(text), Type.DECIMAL);
-        }
-        return object;
-    }
-
-    private TypedObject approx(TypedObject first, TypedObject second, TypedObject percent) {
-        if ((Boolean) isGreaterThan(percent, asTypedObject(1L)).data || (Boolean) isLessThan(percent, asTypedObject(0L)).data) {
-            throw new RuntimeException("Expected percentage for approx to be between 0 and 1. Got " + percent.data);
-        }
-
-        TypedObject max = multiply(second, add(asTypedObject(1L), percent));
-        if ((Boolean) isGreaterThan(first, max).data) {
-            return asTypedObject(false);
-        }
-
-        TypedObject min = multiply(second, subtract(asTypedObject(1L), percent));
-        if ((Boolean) isLessThan(first, min).data) {
-            return asTypedObject(false);
-        }
-        return asTypedObject(true);
-    }
-}
-
-functionalExpression returns [TypedObject value]
-    :   APPROX LEFTPAREN l=base COMMA r=base COMMA p=numeric RIGHTPAREN {$value = approx($l.value, $r.value, $p.value);}
+truthy
+    :   TRUE
+    |   FALSE
     ;
 
-base returns [TypedObject value]
-    :   i=Identifier                               {$value = getColumnValue($i.text);}
-    |   t=truthy                                   {$value = $t.value;}
-    |   n=numeric                                  {$value = $n.value;}
-    |   s=StringLiteral                            {$value = parseString($s.text);}
-    |   LEFTPAREN o=orExpression RIGHTPAREN        {$value = $o.value;}
-    |   f=functionalExpression                     {$value = $f.value;}
+numeric
+    :   w=WholeNumber     # wholeNumber
+    |   d=DecimalNumber   # decimalNumber
     ;
 
-truthy returns [TypedObject value]
-    :   TRUE                                       {$value = new TypedObject(Boolean.valueOf(true), Type.BOOLEAN);}
-    |   FALSE                                      {$value = new TypedObject(Boolean.valueOf(false), Type.BOOLEAN);}
+base
+    :   t=truthy          # truthValue
+    |   n=numeric         # numericValue
+    |   s=StringLiteral   # stringValue
+    |   i=Identifier      # identifier
     ;
 
-numeric returns [TypedObject value]
-    :   w=WholeNumber                              {$value = parseWholeNumber($w.text);}
-    |   d=DecimalNumber                            {$value = parseDecimalNumber($d.text);}
+functionalExpression
+    :   APPROX LEFTPAREN l=base COMMA r=base COMMA p=base RIGHTPAREN   # approxValue
     ;
 
-unaryExpression returns [TypedObject value]
-    :   m=MINUS? b=base
-                        {
-                            if ($m == null) {
-                                $value = $b.value;
-                            } else {
-                                $value = negate($b.value);
-                            };
-                        }
-    |   n=NOT? b=base
-                        {
-                            if ($n == null) {
-                                $value = $b.value;
-                            } else {
-                                $value = logicalNegate($b.value);
-                            };
-                        }
+baseExpression
+    : b=base                                # baseValue
+    | f=functionalExpression                # functionalValue
+    | LEFTPAREN o=orExpression RIGHTPAREN   # parenthesizedValue
     ;
 
-multiplicativeExpression returns [TypedObject value]
-    :   u=unaryExpression                                    {$value = $u.value;}
-    |   m=multiplicativeExpression TIMES u=unaryExpression   {$value = multiply($m.value, $u.value);}
-    |   m=multiplicativeExpression DIVIDE u=unaryExpression  {$value = divide($m.value, $u.value);}
-    |   m=multiplicativeExpression MODULUS u=unaryExpression {$value = modulus($m.value, $u.value);}
+unaryExpression
+    :   m=MINUS? b=baseExpression # negateValue
+    |   n=NOT? b=baseExpression   # logicalNegateValue
     ;
 
-additiveExpression returns [TypedObject value]
-    :   m=multiplicativeExpression                              {$value = $m.value;}
-    |   a=additiveExpression PLUS m=multiplicativeExpression    {$value = add($a.value, $m.value);}
-    |   a=additiveExpression MINUS m=multiplicativeExpression   {$value = subtract($a.value, $m.value);}
+multiplicativeExpression
+    :   u=unaryExpression                                      # baseUnaryValue
+    |   m=multiplicativeExpression TIMES u=unaryExpression     # multiplyValue
+    |   m=multiplicativeExpression DIVIDE u=unaryExpression    # divideValue
+    |   m=multiplicativeExpression MODULUS u=unaryExpression   # modValue
     ;
 
-relationalExpression returns [TypedObject value]
-    :   a=additiveExpression                                     {$value = $a.value;}
-    |   r=relationalExpression GREATER a=additiveExpression      {$value = isGreaterThan($r.value, $a.value);}
-    |   r=relationalExpression LESS a=additiveExpression         {$value = isLessThan($r.value, $a.value);}
-    |   r=relationalExpression LESSEQUAL a=additiveExpression    {$value = isLessThanOrEqual($r.value, $a.value);}
-    |   r=relationalExpression GREATEREQUAL a=additiveExpression {$value = isGreaterThanOrEqual($r.value, $a.value);}
+additiveExpression
+    :   m=multiplicativeExpression                            # baseMultiplicativeValue
+    |   a=additiveExpression PLUS m=multiplicativeExpression  # addValue
+    |   a=additiveExpression MINUS m=multiplicativeExpression # subtractValue
     ;
 
-equalityExpression returns [TypedObject value]
-    :   r=relationalExpression                               {$value = $r.value;}
-    |   e=equalityExpression EQUAL r=relationalExpression    {$value = isEqualTo($e.value, $r.value);}
-    |   e=equalityExpression NOTEQUAL r=relationalExpression {$value = isNotEqualTo($e.value, $r.value);}
+relationalExpression
+    :   a=additiveExpression                                       # baseAdditiveValue
+    |   r=relationalExpression GREATER a=additiveExpression        # greaterValue
+    |   r=relationalExpression LESS a=additiveExpression           # lessValue
+    |   r=relationalExpression LESSEQUAL a=additiveExpression      # lessEqualValue
+    |   r=relationalExpression GREATEREQUAL a=additiveExpression   # greaterEqualValue
     ;
 
-andExpression returns [TypedObject value]
-    :   e=equalityExpression                     {$value = $e.value;}
-    |   a=andExpression AND e=equalityExpression {$value = logicalAnd($a.value, $e.value);}
+equalityExpression
+    :   r=relationalExpression                                 # baseRelativeValue
+    |   e=equalityExpression EQUAL r=relationalExpression      # equalityValue
+    |   e=equalityExpression NOTEQUAL r=relationalExpression   # notEqualityValue
     ;
 
-orExpression returns [TypedObject value]
-    :   a=andExpression                   {$value = $a.value;}
-    |   o=orExpression OR a=andExpression {$value = logicalOr($o.value, $a.value);}
+andExpression
+    :   e=equalityExpression                       # baseEqualityValue
+    |   a=andExpression AND e=equalityExpression   # andValue
     ;
 
-expression returns [Boolean value]
-    :   o=orExpression                    {$value = (Boolean) $o.value.data;}
+orExpression
+    :   a=andExpression                    # baseAndValue
+    |   o=orExpression OR a=andExpression  # orValue
+    ;
+
+statement
+    :   o=orExpression                        # baseOrValue
+    |   o=orExpression WHERE j=orExpression   # joinValue
     ;
 
 DOUBLEQUOTE          : '"';
+QUOTE                : '\'';
 PERIOD               : '.';
 COMMA                : ',';
 LEFTPAREN            : '(';
@@ -187,6 +101,7 @@ AND                  : '&&';
 OR                   : '||';
 TRUE                 : 'true';
 FALSE                : 'false';
+WHERE                : 'where';
 APPROX               : 'approx';
 
 Whitespace
@@ -200,8 +115,13 @@ Newline
     ;
 
 fragment
-StringCharacter
+NoDoubleQuoteCharacter
     : ~["]
+    ;
+
+fragment
+NoQuoteCharacter
+    : ~[']
     ;
 
 fragment
@@ -229,10 +149,10 @@ DecimalNumber
     ;
 
 StringLiteral
-    : DOUBLEQUOTE StringCharacter* DOUBLEQUOTE
+    : DOUBLEQUOTE NoDoubleQuoteCharacter* DOUBLEQUOTE
+    | QUOTE NoQuoteCharacter* QUOTE
     ;
 
 Identifier
     :  IdentifierCharacter+ PERIOD ? IdentifierCharacter+
     ;
-

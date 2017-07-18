@@ -108,7 +108,7 @@ public class App {
 
         // Get the non-null queries
         List<Query> queries = suites.stream().map(s -> s.queries).filter(Objects::nonNull)
-                              .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
+                                    .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
 
         // Run the queries
         log.info("Running queries...");
@@ -117,12 +117,13 @@ public class App {
             return;
         }
 
-        // Get the query results and merge them into one
-        Result data = queries.stream().map(Query::getResult).reduce(new Result(), Result::merge);
+        // Get the non-null query results
+        List<Result> data = queries.stream().map(Query::getResult).filter(Objects::nonNull).collect(Collectors.toList());
 
         // Get the non-null tests
         List<Test> tests = suites.stream().map(s -> s.tests).filter(Objects::nonNull)
-                           .flatMap(Collection::stream).filter(Objects::nonNull).collect(Collectors.toList());
+                                          .flatMap(Collection::stream).filter(Objects::nonNull)
+                                          .collect(Collectors.toList());
 
         // Run the tests
         log.info("Running tests...");

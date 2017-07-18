@@ -4,6 +4,7 @@
  */
 package com.yahoo.validatar.execution.pig;
 
+import com.yahoo.validatar.common.Column;
 import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TypedObject;
@@ -131,7 +132,7 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fake), null, null));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> result = query.getResult().getColumn("a");
+        List<TypedObject> result = query.getResult().getColumn("a").getValues();
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isEmpty());
     }
@@ -146,7 +147,7 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> result = query.getResult().getColumn("a");
+        List<TypedObject> result = query.getResult().getColumn("a").getValues();
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 1);
         Assert.assertNull(result.get(0));
@@ -162,7 +163,7 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> result = query.getResult().getColumn("a");
+        List<TypedObject> result = query.getResult().getColumn("a").getValues();
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 1);
         Assert.assertNull(result.get(0));
@@ -178,7 +179,7 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> result = query.getResult().getColumn("a");
+        List<TypedObject> result = query.getResult().getColumn("a").getValues();
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.get(0).data, Boolean.valueOf(false));
@@ -195,8 +196,8 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> columnOne = query.getResult().getColumn("a");
-        List<TypedObject> columnTwo = query.getResult().getColumn("b");
+        List<TypedObject> columnOne = query.getResult().getColumn("a").getValues();
+        List<TypedObject> columnTwo = query.getResult().getColumn("b").getValues();
         Assert.assertNotNull(columnOne);
         Assert.assertEquals(columnOne.size(), 1);
         Assert.assertEquals(columnOne.get(0).data, Long.valueOf(42));
@@ -216,8 +217,8 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> columnOne = query.getResult().getColumn("a");
-        List<TypedObject> columnTwo = query.getResult().getColumn("b");
+        List<TypedObject> columnOne = query.getResult().getColumn("a").getValues();
+        List<TypedObject> columnTwo = query.getResult().getColumn("b").getValues();
         Assert.assertNotNull(columnOne);
         Assert.assertEquals(columnOne.size(), 1);
         Assert.assertTrue(Math.abs((Double) columnOne.get(0).data - Double.valueOf(2.1)) < EPSILON);
@@ -237,8 +238,8 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> columnOne = query.getResult().getColumn("a");
-        List<TypedObject> columnTwo = query.getResult().getColumn("b");
+        List<TypedObject> columnOne = query.getResult().getColumn("a").getValues();
+        List<TypedObject> columnTwo = query.getResult().getColumn("b").getValues();
         Assert.assertNotNull(columnOne);
         Assert.assertEquals(columnOne.size(), 1);
         Assert.assertEquals(columnOne.get(0).data, new BigDecimal("42"));
@@ -259,9 +260,9 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> columnOne = query.getResult().getColumn("a");
-        List<TypedObject> columnTwo = query.getResult().getColumn("b");
-        List<TypedObject> columnThree = query.getResult().getColumn("c");
+        List<TypedObject> columnOne = query.getResult().getColumn("a").getValues();
+        List<TypedObject> columnTwo = query.getResult().getColumn("b").getValues();
+        List<TypedObject> columnThree = query.getResult().getColumn("c").getValues();
         Assert.assertNotNull(columnOne);
         Assert.assertEquals(columnOne.size(), 1);
         Assert.assertEquals(columnOne.get(0).data, "1");
@@ -283,7 +284,7 @@ public class StyTest {
         sty = getSty(withMockResult(withMockSchema(getServer(), fakeSchema), fakeTuple));
         runWithoutOutput(() -> sty.execute(query));
         Assert.assertFalse(query.failed());
-        List<TypedObject> result = query.getResult().getColumn("a");
+        List<TypedObject> result = query.getResult().getColumn("a").getValues();
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.get(0).data, new Timestamp(142151414341L));
@@ -299,10 +300,10 @@ public class StyTest {
         runWithoutOutput(() -> sty.execute(query));
 
         Assert.assertFalse(query.failed());
-        Map<String, List<TypedObject>> result = query.getResult().getColumns();
+        Map<String, Column> result = query.getResult().getColumns();
         Assert.assertEquals(result.size(), 2);
-        List<TypedObject> names = result.get("Defaults.name");
-        List<TypedObject> counts = result.get("Defaults.count");
+        List<TypedObject> names = result.get("Defaults.name").getValues();
+        List<TypedObject> counts = result.get("Defaults.count").getValues();
         Assert.assertEquals(names.size(), 1);
         Assert.assertEquals(counts.size(), 1);
         Assert.assertEquals(names.get(0).data, String.valueOf("baz"));
@@ -344,10 +345,10 @@ public class StyTest {
         runWithoutOutput(() -> sty.execute(query));
 
         Assert.assertFalse(query.failed());
-        Map<String, List<TypedObject>> result = query.getResult().getColumns();
+        Map<String, Column> result = query.getResult().getColumns();
         Assert.assertEquals(result.size(), 2);
-        List<TypedObject> names = result.get("Query.name");
-        List<TypedObject> totals = result.get("Query.total");
+        List<TypedObject> names = result.get("Query.name").getValues();
+        List<TypedObject> totals = result.get("Query.total").getValues();
         Assert.assertEquals(names.size(), 1);
         Assert.assertEquals(totals.size(), 1);
         Assert.assertEquals(names.get(0).data, String.valueOf("foo"));

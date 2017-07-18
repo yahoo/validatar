@@ -14,8 +14,6 @@ public class Query extends Executable {
     public String value;
     public List<Metadata> metadata;
 
-    public static final String NAMESPACE_SEPARATOR = ".";
-
     private Result result = null;
 
     /**
@@ -34,7 +32,7 @@ public class Query extends Executable {
      * @return The created {@link com.yahoo.validatar.common.Result} object.
      */
     public Result createResults() {
-        result = new Result(name + NAMESPACE_SEPARATOR);
+        result = new Result(name);
         return result;
     }
 

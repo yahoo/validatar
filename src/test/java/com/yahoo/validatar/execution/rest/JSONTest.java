@@ -257,14 +257,14 @@ public class JSONTest {
         Assert.assertFalse(query.failed());
         Assert.assertEquals(query.getResult().getColumns().size(), 2);
 
-        List<TypedObject> users = query.getResult().getColumn("users");
+        List<TypedObject> users = query.getResult().getColumn("users").getValues();
         Assert.assertEquals(users.size(), 2);
         Assert.assertEquals(users.get(0).data, "foo");
         Assert.assertEquals(users.get(0).type, TypeSystem.Type.STRING);
         Assert.assertEquals(users.get(1).data, "bar");
         Assert.assertEquals(users.get(1).type, TypeSystem.Type.STRING);
 
-        List<TypedObject> counts = query.getResult().getColumn("counts");
+        List<TypedObject> counts = query.getResult().getColumn("counts").getValues();
         Assert.assertEquals(counts.size(), 2);
         Assert.assertEquals(counts.get(0).data, 4L);
         Assert.assertEquals(counts.get(0).type, TypeSystem.Type.LONG);
@@ -286,7 +286,7 @@ public class JSONTest {
 
         Assert.assertFalse(query.failed());
         Assert.assertEquals(query.getResult().getColumns().size(), 1);
-        List<TypedObject> max = query.getResult().getColumn("max");
+        List<TypedObject> max = query.getResult().getColumn("max").getValues();
         Assert.assertEquals(max.size(), 1);
         Assert.assertEquals(max.get(0).data, 14L);
         Assert.assertEquals(max.get(0).type, TypeSystem.Type.LONG);
