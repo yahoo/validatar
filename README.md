@@ -2,23 +2,49 @@
 
 [![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
 
+## Table of Contents
+
+* [What is Validatar?](#what-is-validatar)
+* [Using Validatar](#using-validatar)
+	* [Test File Format](#test-file-format)
+	* [Assertions](#assertions)
+		* [Assertion Format](#assertion-format)
+		* [Examples](#examples)
+	* [Parameter Substitution](#parameter-substitution)
+* [Execution Engines](#execution-engines)
+	* [Hive](#hive)
+	* [Pig](#pig)
+	* [REST](#rest)
+	* [CSV](#csv-and-other-delimited-text-data)
+* [How to Install](#how-to-install)
+	* [Direct Download](#direct-download)
+	* [Maven](#maven)
+	* [Gradle](#gradle)
+* [How to Run](#how-to-run)
+	* [Running Hive Tests](#running-hive-tests]
+	* [Running Pig Tests](#running-pig-tests]
+* [Pluggability](#pluggability)
+* [Help](#help)
+* [Contributing](#contributing)
+* [Changelog](#how-to-build)
+
 ## What is Validatar?
 
-    * A functional Testing Framework for Big Data
-    * Lets you define how to read your data and what the tests are using a simple YAML file (or folder of files)
-    * Talks to various data sources like Hive, Pig, REST based endpoints
-    * Reads and models data from highly variable datasources as a standard columnar or table like format
-    * Lets you write powerful assertions on this data. You can join, filter and other compare data
-    * Is fully typed and preserves the types of your data
-    * Generates test reports that can be published in CI environments (currently the JUnit format is supported)
-    * Is completely modular and pluggable. You can easily extend and add new datasources, input sources, output reports etc.
+* A functional Testing Framework for Big Data
+* Lets you define how to read your data and what the tests are using a simple YAML file (or folder of files)
+* Talks to various data sources like Hive, Pig, REST based endpoints
+* Reads and models data from highly variable datasources as a standard columnar or table like format
+* Lets you write powerful assertions on this data. You can join, filter and other compare data
+* Is fully typed and preserves the types of your data
+* Generates test reports that can be published in CI environments (currently the JUnit format is supported)
+* Is completely modular and pluggable. You can easily extend and add new datasources, input sources, output reports etc.
 
 The data sources we currently support:
 
-    * Hive (HiveServer2)
-    * Pig (PigServer)
-    * Generic REST endpoint (for datasources like Druid etc)
-    * Static data (CSV, TSV, etc)
+* Hive (HiveServer2)
+* Pig (PigServer)
+* Generic REST endpoint (for datasources like Druid etc)
+* Static data (CSV, TSV, etc)
 
 ## Using Validatar
 
@@ -76,6 +102,8 @@ A Validatar assertion can optionally contain a ```where``` clause that can filte
 The syntax for the where clause is the same as the assert itself, so you can leverage the full power of Validatar's assertion expressions to filter and join your datasets as well.
 
 Your assertion can omit the ```where``` clause and simply assert using the operations above. For the examples below, let us pretend we had the following two queries, A and B, that were run against Hive and produced the data as below.
+
+#### Examples
 
 Query: A
 
@@ -170,11 +198,13 @@ Some mock tests and examples can be found in [src/test/resources/rest-tests/samp
 
 ### CSV (and other delimited text data)
 
-This execution engine lets you load static data from a file or by defining it in your test YAML file. This is provided to make it easy for to load expected data to run assertions against your actual data. For instance, in the [examples shown above](#assertion-format), Query B with the thresholds for the various countries could be defined as a static dataset and Query A could actually be the result of a query on your Big Data that you are validating.
+This execution engine lets you load static data from a file or by defining it in your test YAML file. This is provided to make it easy for to load expected data to run assertions against your actual data. For instance, in the [examples shown above](#examples), Query B with the thresholds for the various countries could be defined as a static dataset and Query A could actually be the result of a query on your Big Data that you are validating.
 
 Some mock tests and examples can be found in [src/test/resources/csv-tests/sample.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/csv-tests/sample.yaml).
 
 ## How to install
+
+### Direct Download
 
 Validatar is available on JCenter/Bintray. You can download the artifacts directly from [JCenter](http://jcenter.bintray.com/com/yahoo/validatar/validatar/)
 
@@ -217,13 +247,13 @@ repositories {
 compile 'com.yahoo.validatar:validatar:${validatar.version}'
 ```
 
-## How to run
+## How to Run
 
 For Hadoop based engines, it is recommended you run Validatar with ```hadoop jar``` since that sets up your classpaths for you. Otherwise, you can launch validatar with ```java -cp /PATH/TO/JAR com.yahoo.validatar.App ...```
 
 Use ```hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App --help``` (or -h) for Help
 
-### To run Hive tests in Validatar:
+### Running Hive Tests
 
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/hive/jdbc/lib/jars/*"
     hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --hive-jdbc ...
@@ -242,7 +272,7 @@ Do not add it if your queries use the
 
 format. Instead, you should leave it out and have ALL your queries specify the database.
 
-### To run Pig tests in Validatar:
+### Running Pig Tests
 
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:/path/to/pig/lib/*" (Add other jars here depending on your pig exec type or if hive/hcat is used in Pig)
     hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App -s tests/ --report report.xml --pig-exec-type mr --pig-setting 'mapreduce.job.acl-view-job=*' ...
@@ -397,14 +427,10 @@ Option                                 Description
   fully qualified classes to plug in>
 ```
 
-## How to build from source
+## Contributions
 
-You need maven/JDK (1.8.60+ for Nashorn) to build Validatar.
-
-Run:
-
-    make jar
-
+All contributions, ideas and feedback are welcome! To run and build Validatar, you need Maven 3 and JDK (1.8.60+ for Nashorn). You can
+use the make commands in the Makefile to run tests and see coverage (need a clover license) etc.
 
 ## Changelog
 
