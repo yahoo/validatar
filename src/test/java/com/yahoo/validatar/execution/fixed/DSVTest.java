@@ -172,12 +172,26 @@ public class DSVTest {
     }
 
     @Test
-    public void testCustomDelimiter() throws IOException {
-        Query query = getQueryFrom("csv-tests/sample.yaml", "CustomDelim");
+    public void testCustomDelimiterASCII() throws IOException {
+        Query query = getQueryFrom("csv-tests/sample.yaml", "CustomDelimASCII");
         dsv.execute(query);
 
         Result actual = query.getResult();
-        Result expected = new Result("CustomDelim");
+        Result expected = new Result("CustomDelimASCII");
+        expected.addColumn("A", asColumn(Type.STRING, "foo", "baz", "foo"));
+        expected.addColumn("B", asColumn(Type.STRING, "234.3", "9", "42"));
+        expected.addColumn("C", asColumn(Type.STRING, "bar", "qux", "norf"));
+
+        Assert.assertTrue(isEqual(actual, expected));
+    }
+
+    @Test
+    public void testCustomDelimiterUnicode() throws IOException {
+        Query query = getQueryFrom("csv-tests/sample.yaml", "CustomDelimUnicode");
+        dsv.execute(query);
+
+        Result actual = query.getResult();
+        Result expected = new Result("CustomDelimUnicode");
         expected.addColumn("A", asColumn(Type.STRING, "foo", "baz", "foo"));
         expected.addColumn("B", asColumn(Type.STRING, "234.3", "9", "42"));
         expected.addColumn("C", asColumn(Type.STRING, "bar", "qux", "norf"));

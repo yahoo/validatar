@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -138,7 +139,8 @@ public class DSV implements Engine {
     }
 
     private static byte[] getBytes(String string) {
-        return string.getBytes(StandardCharsets.UTF_8);
+        String unescaped = StringEscapeUtils.unescapeJava(string);
+        return unescaped.getBytes(StandardCharsets.UTF_8);
     }
 
     private static boolean isPath(String string) {

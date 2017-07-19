@@ -20,7 +20,7 @@ queries:
            value: LONG
          - key: fieldC
            value: DECIMAL
-   - name: CustomDelim
+   - name: CustomDelimASCII
      engine: csv
      value: |
             A;B;C
@@ -30,6 +30,16 @@ queries:
      metadata:
          - key: delimiter
            value: ";"
+   - name: CustomDelimUnicode
+     engine: csv
+     value: |
+            A\u0001B\u0001C
+            foo\u0001234.3\u0001bar
+            baz\u00019\u0001qux
+            foo\u000142\u0001norf
+     metadata:
+         - key: delimiter
+           value: "\u0001"
 tests:
    - name: Testing something
      description: Why I am testing this.
