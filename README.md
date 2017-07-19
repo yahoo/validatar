@@ -448,8 +448,7 @@ Version | Notes
 0.4.1   | Classloader and reflections library removal [#19](https://github.com/yahoo/validatar/issues/19)
 0.4.2   | Parameter Expansion in metadata [#21](https://github.com/yahoo/validatar/issues/21)
 0.4.3   | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
-0.5.0   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
-0.5.1   | Fixes Javadoc and source generation
+0.5.1   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
 
 ## Members
 
