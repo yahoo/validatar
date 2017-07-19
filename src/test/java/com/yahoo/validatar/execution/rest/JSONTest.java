@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -102,10 +103,10 @@ public class JSONTest {
     public void testJSONMapTypeConversions() {
         Query query = new Query();
         String jsonData = "{'users' : ['user1', 'user2'], 'count': [10], 'ratio': [0.14], 'numbers': [123123123123, 1.23143]," +
-                          " 'booleans': [true, false], 'mixed': [[1, 2], {'a': 1}, null, 2]}";
+                          " 'booleans': [true, false], 'mixed': [[1, 2], {'a': 1}, null, 2], 'nulled': null }";
         Map<String, List<TypedObject>> actual = json.convertToMap(jsonData, query);
 
-        Assert.assertEquals(actual.size(), 6);
+        Assert.assertEquals(actual.size(), 7);
 
         List<TypedObject> users = actual.get("users");
         Assert.assertEquals(users.get(0).type, TypeSystem.Type.STRING);
@@ -140,6 +141,9 @@ public class JSONTest {
         Assert.assertNull(mixeds.get(2));
         Assert.assertEquals(mixeds.get(3).type, TypeSystem.Type.LONG);
         Assert.assertEquals(mixeds.get(3).data, 2L);
+
+        List<TypedObject> nulled = actual.get("nulled");
+        Assert.assertEquals(nulled, Collections.emptyList());
     }
 
     @Test

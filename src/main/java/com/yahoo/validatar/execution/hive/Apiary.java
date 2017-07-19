@@ -104,7 +104,7 @@ public class Apiary implements Engine {
             result.close();
         } catch (SQLException e) {
             log.error("SQL problem with Hive query: {}\n{}\n{}", queryName, queryValue, e);
-            query.setFailure(e.toString());
+            query.setFailure(e.getMessage());
         }
     }
 

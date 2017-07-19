@@ -136,6 +136,14 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
         Helpable.printHelp("Advanced Engine Options", getPluginOptionsParser());
     }
 
+    private void run(Query query) {
+        try {
+            engines.get(query.engine).getEngine().execute(query);
+        } catch (Exception e) {
+            query.setFailure(e.toString());
+        }
+    }
+
     /**
      * Run a query and store the results in the query object.
      *
@@ -147,7 +155,7 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
             return false;
         }
         // Run each query.
-        queries.stream().forEach(query -> engines.get(query.engine).getEngine().execute(query));
+        queries.stream().forEach(this::run);
         return true;
     }
 }

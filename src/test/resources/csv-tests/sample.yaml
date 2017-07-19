@@ -1,0 +1,47 @@
+---
+name: CSV Example
+description: CSV and other delimited data
+queries:
+   - name: StringTest
+     engine: csv
+     value: |
+            A,B,C
+            foo,234.3,bar
+            baz,9,qux
+            foo,42,norf
+     metadata:
+         - key: B
+           value: DOUBLE
+   - name: FileLoadingTest
+     engine: csv
+     value: "src/test/resources/csv-tests/file.csv"
+     metadata:
+         - key: fieldB
+           value: LONG
+         - key: fieldC
+           value: DECIMAL
+   - name: CustomDelimASCII
+     engine: csv
+     value: |
+            A;B;C
+            foo;234.3;bar
+            baz;9;qux
+            foo;42;norf
+     metadata:
+         - key: delimiter
+           value: ";"
+   - name: CustomDelimUnicode
+     engine: csv
+     value: |
+            A\u0001B\u0001C
+            foo\u0001234.3\u0001bar
+            baz\u00019\u0001qux
+            foo\u000142\u0001norf
+     metadata:
+         - key: delimiter
+           value: "\u0001"
+tests:
+   - name: Testing something
+     description: Why I am testing this.
+     asserts:
+...

@@ -491,6 +491,23 @@ public class AssertorTest {
     }
 
     @Test
+    public void testMissingColumnJoin() {
+        Result a = new Result("A");
+        addColumnToResult(a, "total", TypeSystem.Type.LONG, 19L, 5L, 9L, 4L, 1200L, 90L, 120L, 9000L, 10000L);
+
+        Result b = new Result("B");
+        addColumnToResult(b, "count", TypeSystem.Type.LONG, 1L, 2L, -4L);
+
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        test.asserts = new ArrayList<>();
+        test.asserts.add("A.total >= B.count where A.foo == B.bar");
+
+        Assertor.assertAll(wrap(a, b), wrap(test));
+        Assert.assertTrue(test.failed());
+        Assert.assertTrue(test.getMessages().get(0).contains("Could not find"));
+    }
+
+    @Test
     public void testSimpleJoinAssertion() {
         Result a = new Result("A");
         addColumnToResult(a, "country", TypeSystem.Type.STRING, "us", "au", "cn", "in", "uk", "fr", "es", "de", "ru");

@@ -202,36 +202,49 @@ public interface Operations {
     default BinaryOperator<TypedObject> dispatch(BinaryOperation operation) {
         // Can assign to a return value and return it, getting rid of the unreachable default...
         Objects.requireNonNull(operation);
+        BinaryOperator<TypedObject> operator = null;
         switch (operation) {
             case ADD:
-                return this::add;
+                operator = this::add;
+                break;
             case SUBTRACT:
-                return this::subtract;
+                operator = this::subtract;
+                break;
             case MULTIPLY:
-                return this::multiply;
+                operator = this::multiply;
+                break;
             case DIVIDE:
-                return this::divide;
+                operator = this::divide;
+                break;
             case MODULUS:
-                return this::modulus;
+                operator = this::modulus;
+                break;
             case EQUAL:
-                return this::equal;
+                operator = this::equal;
+                break;
             case NOT_EQUAL:
-                return this::notEqual;
+                operator = this::notEqual;
+                break;
             case GREATER:
-                return this::greater;
+                operator = this::greater;
+                break;
             case LESS:
-                return this::less;
+                operator = this::less;
+                break;
             case GREATER_EQUAL:
-                return this::greaterEqual;
+                operator = this::greaterEqual;
+                break;
             case LESS_EQUAL:
-                return this::lessEqual;
+                operator = this::lessEqual;
+                break;
             case OR:
-                return this::or;
+                operator = this::or;
+                break;
             case AND:
-                return this::and;
-            default:
-                return null;
+                operator = this::and;
+                break;
         }
+        return operator;
     }
 
     /**
@@ -242,13 +255,15 @@ public interface Operations {
      */
     default UnaryOperator<TypedObject> dispatch(UnaryOperation operation) {
         Objects.requireNonNull(operation);
+        UnaryOperator<TypedObject> operator = null;
         switch (operation) {
             case NOT:
-                return this::not;
+                operator = this::not;
+                break;
             case CAST:
-                return this::cast;
-            default:
-                return null;
+                operator = this::cast;
+                break;
         }
+        return operator;
     }
 }

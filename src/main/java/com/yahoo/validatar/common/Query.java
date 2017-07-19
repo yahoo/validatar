@@ -7,6 +7,7 @@ package com.yahoo.validatar.common;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Query extends Executable {
     public String name;
@@ -59,5 +60,20 @@ public class Query extends Executable {
         // default Collectors.toMap doesn't handle null values
         metadata.stream().forEach(m -> map.put(m.key, m.value));
         return map;
+    }
+
+    /**
+     * Gets a key from the metadata or returns an {@link Optional#empty()} otherwise.
+     *
+     * @param metadata The {@link Metadata} of a {@link Query} viewed as a {@link Map}.
+     * @param key The key to get from the metadata.
+     * @return The {@link Optional} value of the key.
+     */
+    public static Optional<String> getKey(Map<String, String> metadata, String key) {
+        if (metadata == null) {
+            return Optional.empty();
+        }
+        String value = metadata.get(key);
+        return value == null || value.isEmpty() ? Optional.empty() : Optional.of(value);
     }
 }

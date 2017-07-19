@@ -100,6 +100,29 @@ public class EngineManagerTest extends OutputCaptor {
         }
     }
 
+    private class MockExplodingEngine implements Engine {
+        public static final String ENGINE_NAME = "EXPLODER";
+
+        @Override
+        public boolean setup(String[] arguments) {
+            return true;
+        }
+
+        @Override
+        public void printHelp() {
+        }
+
+        @Override
+        public void execute(Query query) {
+            throw new RuntimeException("Boom");
+        }
+
+        @Override
+        public String getName() {
+            return ENGINE_NAME;
+        }
+    }
+
     List<Query> queries;
     List<Engine> engines;
     EngineManager manager;
@@ -153,6 +176,19 @@ public class EngineManagerTest extends OutputCaptor {
     public void testEngineNullQueryNull() {
         manager.setEngines(null);
         Assert.assertTrue(manager.run(null));
+    }
+
+    @Test
+    public void testUnhandledBadQueryExecution() {
+        engines.add(new MockExplodingEngine());
+        manager.setEngines(engines);
+        Query bad = new Query();
+        bad.engine = MockExplodingEngine.ENGINE_NAME;
+        queries.add(bad);
+        Assert.assertTrue(manager.run(queries));
+        Assert.assertFalse(queries.get(0).failed());
+        Assert.assertTrue(queries.get(1).failed());
+        Assert.assertTrue(queries.get(1).getMessages().get(0).contains("Boom"));
     }
 
     @Test
