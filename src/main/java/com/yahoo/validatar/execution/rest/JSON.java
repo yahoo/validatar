@@ -231,7 +231,7 @@ public class JSON implements Engine {
         return null;
     }
 
-    private Map<String, List<TypedObject>> type(Map<String, List<Object>> untyped) {
+    private static Map<String, List<TypedObject>> type(Map<String, List<Object>> untyped) {
         Map<String, List<TypedObject>> typedData = new HashMap<>();
         if (untyped == null) {
             return typedData;
@@ -243,13 +243,13 @@ public class JSON implements Engine {
             typedData.put(column, typedValues);
             List<Object> values = e.getValue();
             if (values != null) {
-                values.stream().map(this::type).forEach(typedValues::add);
+                values.stream().map(JSON::type).forEach(typedValues::add);
             }
         }
         return typedData;
     }
 
-    private TypedObject type(Object object) {
+    private static TypedObject type(Object object) {
         if (object == null) {
             log.info("Value: null");
             return null;

@@ -107,8 +107,8 @@ public class Sty implements Engine {
         String queryName = query.name;
         String queryValue = query.value;
         Map<String, String> queryMetadata = query.getMetadata();
-        String execType = getKey(queryMetadata, METADATA_EXEC_TYPE_KEY).orElse(defaultExecType);
-        String alias = getKey(queryMetadata, METADATA_ALIAS_KEY).orElse(defaultOutputAlias);
+        String execType = Query.getKey(queryMetadata, METADATA_EXEC_TYPE_KEY).orElse(defaultExecType);
+        String alias = Query.getKey(queryMetadata, METADATA_ALIAS_KEY).orElse(defaultOutputAlias);
         log.info("Running {} for alias {}: {}", queryName, alias, queryValue);
         try {
             PigServer server = getPigServer(execType);
@@ -185,14 +185,6 @@ public class Sty implements Engine {
             return Collections.emptyList();
         }
         return schema.getFields().stream().map(f -> new FieldDetail(f.alias, f.type)).collect(Collectors.toList());
-    }
-
-    private Optional<String> getKey(Map<String, String> metadata, String key) {
-        if (metadata == null) {
-            return Optional.empty();
-        }
-        String value = metadata.get(key);
-        return value == null || value.isEmpty() ? Optional.empty() : Optional.of(value);
     }
 
     private Properties getProperties(OptionSet options) {

@@ -29,7 +29,6 @@ public class TypeSystem {
         LONG, DOUBLE, DECIMAL, BOOLEAN, STRING, TIMESTAMP
     }
 
-
     private static final Map<Type, Operations> OPERATIONS = new HashMap<>();
     static {
         OPERATIONS.put(Type.LONG, new Operators.LongOperator());
@@ -97,6 +96,18 @@ public class TypeSystem {
             throw new ClassCastException("Unable to perform: " + operation + " on " + object);
         }
         return result;
+    }
+
+    /**
+     * Cast an object to the given type.
+     *
+     * @param toType The {@link Type} to cast the object to.
+     * @param object The object to cast.
+     * @return The casted object.
+     */
+    public static TypedObject cast(Type toType, TypedObject object) {
+        Objects.requireNonNull(toType);
+        return OPERATIONS.get(toType).cast(object);
     }
 
     /**

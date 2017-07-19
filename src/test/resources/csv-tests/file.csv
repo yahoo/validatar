@@ -1,0 +1,6 @@
+fieldA,fieldB,fieldC,fieldD
+foo,15,34.2,bar
+baz,42,4.2,bar
+qux,0,8.4,norf
+foo,,,,,
+bar,,0.2,

@@ -52,6 +52,9 @@ public class TestHelpers {
     }
 
     public static TypedObject getTyped(TypeSystem.Type type, Object value) {
+        if (value == null) {
+            return null;
+        }
         switch (type) {
             case STRING:
                 return new TypedObject((String) value, TypeSystem.Type.STRING);
@@ -78,6 +81,19 @@ public class TestHelpers {
         return column;
     }
 
+    public static boolean isEqual(TypedObject actual, TypedObject expected) {
+        if (actual == null && expected == null) {
+            return true;
+        }
+        if (actual == null ^ expected == null) {
+            return false;
+        }
+        if (expected.type != actual.type) {
+            return false;
+        }
+        return expected.data.compareTo(actual.data) == 0;
+    }
+
     public static boolean isEqual(Column actual, Column expected) {
         if (actual == null && expected == null) {
             return true;
@@ -89,12 +105,7 @@ public class TestHelpers {
             return false;
         }
         for (int i = 0; i < expected.size(); ++i) {
-            TypedObject expectedItem = expected.get(i);
-            TypedObject actualItem = actual.get(i);
-            if (expectedItem.type != actualItem.type) {
-                return false;
-            }
-            if (expectedItem.data.compareTo(actualItem.data) != 0) {
+            if (!isEqual(actual.get(i), expected.get(i))) {
                 return false;
             }
         }
