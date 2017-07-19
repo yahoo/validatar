@@ -42,6 +42,8 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
 
     /**
      * Constructor. Default.
+     *
+     * @param arguments The String array of arguments to this constructor.
      */
     public ParseManager(String[] arguments) {
         super(MANAGED_PARSERS, CUSTOM_PARSER, CUSTOM_PARSER_DESCRIPTION);

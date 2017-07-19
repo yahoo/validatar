@@ -11,11 +11,11 @@ import static com.yahoo.validatar.common.TypeSystem.asTypedObject;
 
 /**
  * Contains the various type specific {@link Operations}.
- * <p/>
+ * <p>
  * In general, we don't want lossy casting, or strange casting like a boolean to a short etc.
  * But we will follow the basic Java widening primitive rules.
  * https://docs.oracle.com/javase/specs/jls/se7/html/jls-5.html
- * <p/>
+ * </p>
  * Exceptions:
  * Timestamp to and from Long will do a millis since epoch
  */
