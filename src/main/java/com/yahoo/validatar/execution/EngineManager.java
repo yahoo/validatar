@@ -7,6 +7,7 @@ package com.yahoo.validatar.execution;
 import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Pluggable;
 import com.yahoo.validatar.common.Query;
+import com.yahoo.validatar.execution.fixed.DSV;
 import com.yahoo.validatar.execution.hive.Apiary;
 import com.yahoo.validatar.execution.pig.Sty;
 import com.yahoo.validatar.execution.rest.JSON;
@@ -31,7 +32,7 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
     /**
      * The Engine classes to manage.
      */
-    public static final List<Class<? extends Engine>> MANAGED_ENGINES = Arrays.asList(Apiary.class, Sty.class, JSON.class);
+    public static final List<Class<? extends Engine>> MANAGED_ENGINES = Arrays.asList(Apiary.class, Sty.class, JSON.class, DSV.class);
 
     /**
      * Stores the CLI arguments.
