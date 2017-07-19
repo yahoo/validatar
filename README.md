@@ -21,12 +21,12 @@
 	* [Maven](#maven)
 	* [Gradle](#gradle)
 * [How to Run](#how-to-run)
-	* [Running Hive Tests](#running-hive-tests]
-	* [Running Pig Tests](#running-pig-tests]
+	* [Running Hive Tests](#running-hive-tests)
+	* [Running Pig Tests](#running-pig-tests)
 * [Pluggability](#pluggability)
 * [Help](#help)
 * [Contributing](#contributing)
-* [Changelog](#how-to-build)
+* [Changelog](#changelog)
 
 ## What is Validatar?
 
@@ -97,9 +97,9 @@ approx(a, b, percent) : true if a and b within percent difference (0.0 to 1.0) o
 
 #### Assertion format
 
-A Validatar assertion can optionally contain a ```where``` clause that can filter or join multiple datasets. Validatar detects the datasets used in your assertion statement and performs automatic cartesian products of them. The resulting dataset is what is used for your asserts. The where section can be used to perform a filter on this. In other words, if you have a single dataset used in your assert, then including a where lets you perform a **filter** on the dataset. If you have multiple datasets, the where clause is performing a **join** on the dataset.
+A Validatar assertion is a simple expression similar to ones in C or Java where binary operations from above can combined with parantheses etc to produce an expression that evaluates to true or false. An assertion can optionally contain a ```where``` clause that can filter or join multiple datasets. This where clause is provided after the expression. The syntax for the where clause is the same as the assert itself, so you can leverage the full power of Validatar's assertion expressions to filter and join your datasets as well. See below for [examples](#examples).
 
-The syntax for the where clause is the same as the assert itself, so you can leverage the full power of Validatar's assertion expressions to filter and join your datasets as well.
+Validatar detects the datasets used in your assertion statement and performs automatic **cartesian products** of them. The resulting dataset is what is used for your asserts. The where section can be used to perform a filter on this. In other words, if you have a single dataset used in your assert, then including a where lets you perform a **filter** on the dataset. If you have multiple datasets, the where clause is performing a **join** on the dataset.
 
 Your assertion can omit the ```where``` clause and simply assert using the operations above. For the examples below, let us pretend we had the following two queries, A and B, that were run against Hive and produced the data as below.
 
@@ -427,7 +427,7 @@ Option                                 Description
   fully qualified classes to plug in>
 ```
 
-## Contributions
+## Contributing
 
 All contributions, ideas and feedback are welcome! To run and build Validatar, you need Maven 3 and JDK (1.8.60+ for Nashorn). You can
 use the make commands in the Makefile to run tests and see coverage (need a clover license) etc.
@@ -436,19 +436,19 @@ use the make commands in the Makefile to run tests and see coverage (need a clov
 
 Version | Notes
 ------- | -----
-0.1.4 | Initial release with Hive
-0.1.5 | Typesystem, metadata support
-0.1.6 | No feature release. Source and Javadoc bundled in artifact
-0.1.7 | Multiple Hive databases across Queries
-0.1.8 | Null types in Hive results fix
-0.1.9 | Empty results handling bug fix
-0.2.0 | Internal switch to Java 8. hive-queue is no longer a setting. Use hive-setting.
-0.3.0 | Pig support added.
-0.4.0 | Rest API datasource added.
-0.4.1 | Classloader and reflections library removal [#19](https://github.com/yahoo/validatar/issues/19)
-0.4.2 | Parameter Expansion in metadata [#21](https://github.com/yahoo/validatar/issues/21)
-0.4.3 | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
-0.5.0 | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
+0.1.4   | Initial release with Hive
+0.1.5   | Typesystem, metadata support
+0.1.6   | No feature release. Source and Javadoc bundled in artifact
+0.1.7   | Multiple Hive databases across Queries
+0.1.8   | Null types in Hive results fix
+0.1.9   | Empty results handling bug fix
+0.2.0   | Internal switch to Java 8. hive-queue is no longer a setting. Use hive-setting.
+0.3.0   | Pig support added.
+0.4.0   | Rest API datasource added.
+0.4.1   | Classloader and reflections library removal [#19](https://github.com/yahoo/validatar/issues/19)
+0.4.2   | Parameter Expansion in metadata [#21](https://github.com/yahoo/validatar/issues/21)
+0.4.3   | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
+0.5.0   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
 
 ## Members
 
