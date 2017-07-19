@@ -30,7 +30,7 @@
 
 ## What is Validatar?
 
-* A functional Testing Framework for Big Data
+* A Functional Testing Framework for Big Data
 * Lets you define how to read your data and what the tests are using a simple YAML file (or folder of files)
 * Talks to various data sources like Hive, Pig, REST based endpoints
 * Reads and models data from highly variable datasources as a standard columnar or table like format
