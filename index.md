@@ -32,10 +32,10 @@
 
 * A Functional Testing Framework for Big Data
 * Lets you define how to read your data and what the tests are using a simple YAML file (or folder of files)
-* Talks to various data sources like Hive, Pig, REST based endpoints
-* Reads and models data from highly variable datasources as a standard columnar or table like format
-* Lets you write powerful assertions on this data. You can join, filter and other compare data
-* Is fully typed and preserves the types of your data
+* Talks to various data sources through Hive, Pig, or REST based endpoints
+* Reads and models data from highly variable datasources as a standard columnar (table) format
+* Lets you write powerful assertions on this data. You can join, filter and run comparisons on your data
+* Is fully typed and preserves the types of your data sources
 * Generates test reports that can be published in CI environments (currently the JUnit format is supported)
 * Is completely modular and pluggable. You can easily extend and add new datasources, input sources, output reports etc.
 
@@ -97,9 +97,9 @@ approx(a, b, percent) : true if a and b within percent difference (0.0 to 1.0) o
 
 #### Assertion format
 
-A Validatar assertion is a simple expression similar to ones in C or Java where binary operations from above can combined with parantheses etc to produce an expression that evaluates to true or false. An assertion can optionally contain a ```where``` clause that can filter or join multiple datasets. This where clause is provided after the expression. The syntax for the where clause is the same as the assert itself, so you can leverage the full power of Validatar's assertion expressions to filter and join your datasets as well. See below for [examples](#examples).
+A Validatar assertion is an expression similar to ones in C or Java where binary operations from above can combined with parantheses etc to produce an expression that evaluates to true or false. An assertion can optionally contain a ```where``` clause that can filter or join multiple datasets. This where clause is provided after the expression and its syntax is the same as the assert itself. So you can leverage the full power of Validatar's assertion expressions to filter and join your datasets as well. See below for [examples](#examples).
 
-Validatar detects the datasets used in your assertion statement and performs automatic **cartesian products** of them. The resulting dataset is what is used for your asserts. The where section can be used to perform a filter on this. In other words, if you have a single dataset used in your assert, then including a where lets you perform a **filter** on the dataset. If you have multiple datasets, the where clause is performing a **join** on the dataset.
+Validatar detects the datasets used in your assertion statement and performs automatic **cartesian products** for them. The resulting dataset is what is used for your asserts. The where section can be used to perform a filter on this resulting cartesian product. In other words, if you have a single dataset used in your assert, then including a where lets you perform a **filter** on the dataset. If you have multiple datasets, the where clause is letting you perform a **join** on the dataset.
 
 Your assertion can omit the ```where``` clause and simply assert using the operations above. For the examples below, let us pretend we had the following two queries, A and B, that were run against Hive and produced the data as below.
 
@@ -158,10 +158,10 @@ is used and the where clause is used as a way to filter the dataset to only use 
     approx(A.views, B.expected, B.threshold) where A.country == B.country && B.continent != "as"
 ```
 
-This assert uses the where clause to perform a cartesian product of A and B and picks all the rows where the country is the same (A inner join on country) and the continent is not "as". For these rows, it checks to see the value for A.views is within B.expected by the B.threshold percentage. For example, "us" will have approx(10000, 10090, 0.01) done, which is true.
+This assert uses the where clause to perform a cartesian product of A and B and picks all the rows where the country is the same (inner join on country) and the continent is not "as". For these rows, it checks to see the value for A.views is within the corresponding value in B.expected by the corresponding B.threshold percentage. For example, "us" will have approx(10000, 10090, 0.01) performed, which is true.
 
 
-The Validatar assertion grammar is written in ANTLR and can be found [here](https://github.com/yahoo/validatar/blob/master/src/main/antlr4/com/yahoo/validatar/assertion/Grammar.g4).
+The Validatar assertion grammar is written in ANTLR and can be found [here](https://github.com/yahoo/validatar/blob/master/src/main/antlr4/com/yahoo/validatar/assertion/Grammar.g4) if you're interested in the exact syntax.
 
 ### Parameter Substitution
 
@@ -173,7 +173,7 @@ Simply pass `--parameter KEY=VALUE` in the CLI and the `KEY` will be replaced wi
 
 ### Hive
 
-The query part of a Hive test is just a HiveSQL statement. We recommend that you push all the heavy lifting to the query - joins, aggregate results etc. We use Hive JDBC underneath to execute against HiveServer2 and fetch the results. We support hive settings at the execution level by passing in --hive-setting arguments to validatar.
+The query part of a Hive test is just a HiveSQL statement. We recommend that you push all the heavy lifting to the query - joins, aggregate results etc. We use Hive JDBC underneath to execute against HiveServer2 and fetch the results. We support hive settings at the execution level by passing in --hive-setting arguments to Validatar.
 
 Some mock tests can be found in [src/test/resources/sample-tests/tests.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/sample-tests/tests.yaml).
 
@@ -181,7 +181,7 @@ Some mock tests can be found in [src/test/resources/sample-tests/tests.yaml](htt
 
 The query part of a Pig test is a PigLatin script. You can register your UDFs etc as long as you register them with the full path to them at runtime. We use PigServer underneath to run the query. You can provide the alias in the script to fetch your results from (or leave it to the default). Setting the exec mode and other pig settings are supported.
 
-Validatar is currently compiled against *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code if absolutely needed.
+Validatar is currently compiled against *Pig-0.14*. Running against an older or newer version may result in issues if interfaces have changed. These are relatively minor from experience and can be fixed with relatively minor fixes to engine code if absolutely needed. Feel free to raise issues or you can always tweak the Pig engine and plug it into Validatar.
 
 Some mock tests can be found in [src/test/resources/pig-tests/sample.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/pig-tests/sample.yaml).
 
@@ -192,13 +192,13 @@ We execute the native Javascript via Nashorn. The function that takes a single a
 
 The metadata for the query is used to define the REST call. We currently support setting the method (defaults to GET), the body (if POST), timeout, retry and custom headers.
 
-This execution engine exists essentially a catch-all for any other type of Big-Data datasource that has a REST interface but is not natively in Validatar.
+This execution engine exists essentially a catch-all for any other type of Big Data datasource that has a REST interface but is not natively supported in Validatar. But if you feel like it should be in Validatar, feel free to create an issue and we'll look into supporting it.
 
 Some mock tests and examples can be found in [src/test/resources/rest-tests/sample.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/rest-tests/sample.yaml).
 
 ### CSV (and other delimited text data)
 
-This execution engine lets you load static data from a file or by defining it in your test YAML file. This is provided to make it easy for to load expected data to run assertions against your actual data. For instance, in the [examples shown above](#examples), Query B with the thresholds for the various countries could be defined as a static dataset and Query A could actually be the result of a query on your Big Data that you are validating.
+This execution engine lets you load static data from a file or by defining it in your test YAML file. This is provided to make it easy for to load expected data to run assertions against your actual data. For instance, in the [examples shown above](#examples), Query B with the thresholds for the various countries could be defined as a static dataset and Query A could actually be the result of a query on your Big Data that you are validating. 
 
 Some mock tests and examples can be found in [src/test/resources/csv-tests/sample.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/csv-tests/sample.yaml).
 
@@ -206,7 +206,7 @@ Some mock tests and examples can be found in [src/test/resources/csv-tests/sampl
 
 ### Direct Download
 
-Validatar is available on JCenter/Bintray. You can download the artifacts directly from [JCenter](http://jcenter.bintray.com/com/yahoo/validatar/validatar/)
+Validatar is available on JCenter/Bintray. You can download the artifacts (you will need the jar-with-dependencies artifact to run Validatar) directly from [JCenter](http://jcenter.bintray.com/com/yahoo/validatar/validatar/)
 
 The JARs should be sufficient for usage but if you need to depend on Validatar source directly. You will need to point your Maven or other build tools to JCenter.
 
@@ -249,7 +249,7 @@ compile 'com.yahoo.validatar:validatar:${validatar.version}'
 
 ## How to Run
 
-For Hadoop based engines, it is recommended you run Validatar with ```hadoop jar``` since that sets up your classpaths for you. Otherwise, you can launch validatar with ```java -cp /PATH/TO/JAR com.yahoo.validatar.App ...```
+For Hadoop based engines like Hive or Pig, it is recommended you run Validatar with ```hadoop jar``` since that sets up most of the classpath for you. Otherwise, you can launch validatar with ```java -cp /PATH/TO/JARS com.yahoo.validatar.App ...```, where ```com.yahoo.validatar.App``` is the main class.
 
 Use ```hadoop jar validatar-jar-with-dependencies.jar com.yahoo.validatar.App --help``` (or -h) for Help
 
@@ -270,7 +270,7 @@ Do not add it if your queries use the
 ... FROM DB.TABLE WHERE ...
 ```
 
-format. Instead, you should leave it out and have ALL your queries specify the database.
+format. Instead, you should leave it out and have **ALL** your queries specify the database.
 
 ### Running Pig Tests
 
@@ -284,7 +284,7 @@ Running REST tests require no other dependencies and can be launched with Java i
 ## Pluggability
 
 Engines, report generators and test suite parsers are all pluggable. You can implement your own extending the appropriate
-interfaces and pass them in to validatar to load at run time. If you wished to have a report generated and posted to a
+interfaces and pass them in to validatar to load at run time by placing it in the classpath. If you wished to have a report generated and posted to a
 web service, you could do that! Or vice versa to read test suites off of a webservice or a queue somewhere. Refer to
 the options below to see how to pass in the custom implementations.
 
@@ -456,3 +456,4 @@ Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
 
 ## Contributors
+
