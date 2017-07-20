@@ -30,6 +30,16 @@ public class JUnitFormatter implements Formatter {
 
     public static final String JUNIT = "junit";
 
+    public static final String TESTSUITES_TAG = "testsuites";
+    public static final String TESTSUITE_TAG = "testsuite";
+    public static final String TESTCASE_TAG = "testcase";
+    public static final String FAILED_TAG = "failed";
+    public static final String SKIPPED_TAG = "skipped";
+    public static final String TESTS_ATTRIBUTE = "tests";
+    public static final String NAME_ATTRIBUTE = "name";
+
+    public static final String NEWLINE = "\n";
+
     private final OptionParser parser = new OptionParser() {
         {
             acceptsAll(singletonList(REPORT_FILE), "File to store the test reports.")
@@ -55,29 +65,31 @@ public class JUnitFormatter implements Formatter {
     public void writeReport(List<TestSuite> testSuites) throws IOException {
         Document document = DocumentHelper.createDocument();
 
-        Element testSuitesRoot = document.addElement("testsuites");
+        Element testSuitesRoot = document.addElement(TESTSUITES_TAG);
 
         // Output for each test suite
         for (TestSuite testSuite : testSuites) {
-            Element testSuiteRoot = testSuitesRoot.addElement("testsuite")
-                                     .addAttribute("tests", Integer.toString(testSuite.queries.size() + testSuite.tests.size()))
-                                     .addAttribute("name", testSuite.name);
+            Element testSuiteRoot = testSuitesRoot.addElement(TESTSUITE_TAG);
+            testSuiteRoot.addAttribute(TESTS_ATTRIBUTE, Integer.toString(testSuite.queries.size() + testSuite.tests.size()));
+            testSuiteRoot.addAttribute(NAME_ATTRIBUTE, testSuite.name);
 
             for (Query query : testSuite.queries) {
-                Element queryNode = testSuiteRoot.addElement("testcase")
-                                     .addAttribute("name", query.name);
+                Element queryNode = testSuiteRoot.addElement(TESTCASE_TAG).addAttribute(NAME_ATTRIBUTE, query.name);
                 if (query.failed()) {
-                    String failureMessage = StringUtils.join(query.getMessages(), ", ");
-                    queryNode.addElement("failed").addCDATA(failureMessage);
+                    String failureMessage = StringUtils.join(query.getMessages(), NEWLINE);
+                    queryNode.addElement(FAILED_TAG).addCDATA(failureMessage);
                 }
             }
             for (Test test : testSuite.tests) {
-                Element testNode = testSuiteRoot.addElement("testcase").addAttribute("name", test.name);
+                Element testNode = testSuiteRoot.addElement(TESTCASE_TAG).addAttribute(NAME_ATTRIBUTE, test.name);
                 if (test.failed()) {
-                    String failMessages = StringUtils.join(test.getMessages(), "\n");
-                    String message = "\nDescription: " + test.description +
-                                     "\nMessages: " + failMessages + "\n";
-                    testNode.addElement("failed").addCDATA(message);
+                    Element target = testNode;
+                    if (test.getWarnOnly()) {
+                        testNode.addElement(SKIPPED_TAG);
+                    } else {
+                        target = testNode.addElement(FAILED_TAG);
+                    }
+                    target.addCDATA(NEWLINE + test.description + NEWLINE + StringUtils.join(test.getMessages(), NEWLINE));
                 }
             }
         }
@@ -97,5 +109,4 @@ public class JUnitFormatter implements Formatter {
     public String getName() {
         return JUNIT;
     }
-
 }

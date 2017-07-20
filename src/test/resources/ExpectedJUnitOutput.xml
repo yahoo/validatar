@@ -14,16 +14,21 @@
     <testcase name="Checking alpha"/>
     <testcase name="Checking beta">
       <failed><![CDATA[
-Description: Long description of the second query
-Messages: Sample fail message
-]]></failed>
+Long description of the second query
+Sample fail message]]></failed>
     </testcase>
   </testsuite>
   <testsuite tests="6" name="Validatar Example">
     <testcase name="PL"/>
     <testcase name="XY"/>
     <testcase name="TEST"/>
-    <testcase name="Pageview and logged in"/>
+    <testcase name="Pageview and logged in">
+      <skipped/><![CDATA[
+Pageview and logged in events are present, and correct relationships.
+Another multiline 
+fail 
+message]]>
+    </testcase>
     <testcase name="Second query"/>
     <testcase name="Third query"/>
   </testsuite>

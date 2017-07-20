@@ -137,24 +137,24 @@ public class AppTest {
     }
 
     @Test
-    public void testMain() throws IOException {
+    public void testRun() throws IOException {
         redirectToDevNull();
 
-        App.main(new String[0]);
+        App.run(new String[0]);
 
         String[] abbreviated = {"--h", "--test-suite", "src/test/resources/sample-tests"};
-        App.main(abbreviated);
+        App.run(abbreviated);
         Assert.assertFalse(new File("target/AppTest-testMainHelpPrinting.xml").exists());
 
         String[] nonAbbreviated = {"--help", "--test-suite", "src/test/resources/sample-tests"};
-        App.main(nonAbbreviated);
+        App.run(nonAbbreviated);
         Assert.assertFalse(new File("target/AppTest-testMainHelpPrinting.xml").exists());
 
         String[] args = {"--report-file", "target/AppTest-testMainHelpPrinting.xml",
                          "--test-suite", "src/test/resources/sample-tests",
                          "--hive-driver", "org.h2.Driver",
                          "--hive-jdbc", "jdbc:h2:mem:"};
-        App.main(args);
+        App.run(args);
         Assert.assertFalse(new File("target/AppTest-testMainHelpPrinting.xml").exists());
 
         redirectToStandard();

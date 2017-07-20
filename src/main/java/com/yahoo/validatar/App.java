@@ -50,6 +50,11 @@ public class App {
                 .required()
                 .ofType(File.class)
                 .describedAs("Test suite file/folder");
+            acceptsAll(singletonList(TEST_SUITE), "File or folder that contains the test suite file(s).")
+                    .withRequiredArg()
+                    .required()
+                    .ofType(File.class)
+                    .describedAs("Test suite file/folder");
             acceptsAll(asList(HELP_ABBREVIATED, HELP), "Shows help message.");
             allowsUnrecognizedOptions();
         }
@@ -58,7 +63,7 @@ public class App {
     /**
      * Split parameters for string replacement.
      *
-     * @param options       Option set
+     * @param options Option set
      * @param parameterName Option parameter to split
      * @return Map of parameters and replacement strings
      */
@@ -91,15 +96,16 @@ public class App {
     /**
      * Run the testSuite and parameters with the given Parse, Engine and Format Managers.
      *
-     * @param testSuite     The {@link java.io.File} where the TestSuite(s) are.
-     * @param parameters    An optional {@link java.util.Map} of parameters to their values to expand.
-     * @param parseManager  A {@link com.yahoo.validatar.parse.ParseManager} to use.
-     * @param engineManager A {@link com.yahoo.validatar.execution.EngineManager} to use.
-     * @param formatManager A {@link com.yahoo.validatar.report.FormatManager} to use.
-     * @throws java.io.IOException if any.
+     * @param testSuite The {@link File} where the TestSuite(s) are.
+     * @param parameters An optional {@link Map} of parameters to their values to expand.
+     * @param parseManager A {@link ParseManager} to use.
+     * @param engineManager A {@link EngineManager} to use.
+     * @param formatManager A {@link FormatManager} to use.
+     * @return A boolean denoting whether all {@link Query} or {@link Test} passed.
+     * @throws IOException if any.
      */
-    public static void run(File testSuite, Map<String, String> parameters, ParseManager parseManager,
-                           EngineManager engineManager, FormatManager formatManager) throws IOException {
+    public static boolean run(File testSuite, Map<String, String> parameters, ParseManager parseManager,
+                              EngineManager engineManager, FormatManager formatManager) throws IOException {
         // Load the test suite file(s)
         log.info("Parsing test files...");
         List<TestSuite> suites = parseManager.load(testSuite);
@@ -114,7 +120,7 @@ public class App {
         log.info("Running queries...");
         if (!engineManager.run(queries)) {
             log.error("Error running queries. Failing...");
-            return;
+            return false;
         }
 
         // Get the non-null query results
@@ -132,17 +138,19 @@ public class App {
         // Write reports
         log.info("Writing reports...");
         formatManager.writeReport(suites);
-
         log.info("Done!");
+
+        return tests.stream().allMatch(Test::passed) && queries.stream().noneMatch(Query::failed);
     }
 
     /**
-     * Main.
+     * Runs Validatar with the given args.
      *
-     * @param args The input arguments.
-     * @throws java.io.IOException if any.
+     * @param args The String arguments to Validatar.
+     * @return A boolean denoting whether all tests or queries passed.
+     * @throws IOException if any.
      */
-    public static void main(String[] args) throws IOException  {
+    public static boolean run(String[] args) throws IOException {
         // Parse CLI args
         OptionSet options = parse(args);
 
@@ -156,9 +164,20 @@ public class App {
             parseManager.printHelp();
             engineManager.printHelp();
             formatManager.printHelp();
-            return;
+            return true;
         }
         Map<String, String> parameterMap = splitParameters(options, PARAMETER);
-        run((File) options.valueOf(TEST_SUITE), parameterMap, parseManager, engineManager, formatManager);
+
+        return run((File) options.valueOf(TEST_SUITE), parameterMap, parseManager, engineManager, formatManager);
+    }
+
+    /**
+     * Main.
+     *
+     * @param args The input arguments.
+     * @throws IOException if any.
+     */
+    public static void main(String[] args) throws IOException  {
+        System.exit(run(args) ? 0 : 1);
     }
 }
