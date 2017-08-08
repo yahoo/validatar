@@ -8,6 +8,7 @@ import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.parse.ParseManager;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.util.NodeComparator;
 import org.testng.Assert;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 public class JUnitFormatterTest {
     @Test
-    public void testWriteReport() throws IOException, org.dom4j.DocumentException {
+    public void testWriteReport() throws IOException, DocumentException {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("DATE", "20140807");
 
@@ -38,9 +39,13 @@ public class JUnitFormatterTest {
         Query failingQuery = simpleExamples.queries.get(2);
         failingQuery.setFailure("Query had a typo");
         com.yahoo.validatar.common.Test test = simpleExamples.tests.get(1);
-
         test.setFailed();
         test.addMessage("Sample fail message");
+
+        TestSuite validatarExamples = testSuites.stream().filter(s -> "Validatar Example".equals(s.name)).findFirst().get();
+        test = validatarExamples.tests.get(0);
+        test.setFailed();
+        test.addMessage("Another multiline \nfail \nmessage");
 
         // Generate the test report file
         String[] args = {"--report-file", "target/JUnitOutputTest.xml"};

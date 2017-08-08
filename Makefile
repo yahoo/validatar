@@ -7,7 +7,7 @@ clean:
 	mvn clean
 
 test:
-	mvn clean verify
+	mvn clean verify javadoc:javadoc
 
 jar:
 	mvn clean package

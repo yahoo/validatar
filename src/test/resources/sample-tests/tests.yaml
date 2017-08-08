@@ -20,6 +20,7 @@ queries:
 tests:
    - name: Pageview and logged in
      description: Pageview and logged in events are present, and correct relationships.
+     warnOnly: true
      asserts:
         - PL.pv_count > 10000
         - PL.logged_in_count < PL>pv_count
