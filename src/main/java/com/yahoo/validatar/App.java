@@ -50,11 +50,6 @@ public class App {
                 .required()
                 .ofType(File.class)
                 .describedAs("Test suite file/folder");
-            acceptsAll(singletonList(TEST_SUITE), "File or folder that contains the test suite file(s).")
-                    .withRequiredArg()
-                    .required()
-                    .ofType(File.class)
-                    .describedAs("Test suite file/folder");
             acceptsAll(asList(HELP_ABBREVIATED, HELP), "Shows help message.");
             allowsUnrecognizedOptions();
         }

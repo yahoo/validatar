@@ -6,7 +6,6 @@ package com.yahoo.validatar.common;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
 import java.io.FileNotFoundException;
 
 import static com.yahoo.validatar.TestHelpers.getTestSuiteFrom;
