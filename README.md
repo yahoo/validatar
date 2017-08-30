@@ -73,6 +73,8 @@ tests:
 
 Queries must have unique names. This name is used as a namespace for all the values returned from the query. In the above example, if the name of the query was "Analytics" and it stored a column called "count", then you would be able to use this in your test asserts as "Analytics.count".
 
+If you want a test in the tests section to warn only instead of failing, you can set the optional key ```warnOnly``` to ```true```. See [here](https://github.com/yahoo/validatar/blob/master/src/test/resources/sample-tests/tests.yaml) for an example.
+
 Validatar can run a single test file or a folder of test files. Use the --help option to see more details or refer to the Help section below.
 
 ### Assertions
@@ -198,7 +200,7 @@ Some mock tests and examples can be found in [src/test/resources/rest-tests/samp
 
 ### CSV (and other delimited text data)
 
-This execution engine lets you load static data from a file or by defining it in your test YAML file. This is provided to make it easy for to load expected data to run assertions against your actual data. For instance, in the [examples shown above](#examples), Query B with the thresholds for the various countries could be defined as a static dataset and Query A could actually be the result of a query on your Big Data that you are validating. 
+This execution engine lets you load static data from a file or by defining it in your test YAML file. This is provided to make it easy for to load expected data to run assertions against your actual data. For instance, in the [examples shown above](#examples), Query B with the thresholds for the various countries could be defined as a static dataset and Query A could actually be the result of a query on your Big Data that you are validating.
 
 Some mock tests and examples can be found in [src/test/resources/csv-tests/sample.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/csv-tests/sample.yaml).
 
@@ -449,6 +451,7 @@ Version | Notes
 0.4.2   | Parameter Expansion in metadata [#21](https://github.com/yahoo/validatar/issues/21)
 0.4.3   | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
 0.5.1   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
+0.5.2   | Validatar exits with an exit code of 1 if are failures. Added a warnOnly parameter for tests. JUnit reporter now uses CDATA in XML for additional information.
 
 ## Members
 
