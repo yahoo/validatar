@@ -451,7 +451,7 @@ Version | Notes
 0.4.2   | Parameter Expansion in metadata [#21](https://github.com/yahoo/validatar/issues/21)
 0.4.3   | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
 0.5.1   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
-0.5.2   | Validatar exits with an exit code of 1 if are failures. Added a warnOnly parameter for tests. JUnit reporter now uses CDATA in XML for additional information.
+0.5.2   | Validatar exits with an exit code of 1 if there are failures. Added a warnOnly parameter for tests. JUnit reporter now uses CDATA in XML for additional information.
 
 ## Members
 
