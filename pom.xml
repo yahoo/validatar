@@ -324,6 +324,16 @@
           <artifactId>httpclient</artifactId>
           <version>4.5.1</version>
       </dependency>
+      <dependency>
+          <groupId>org.jtwig</groupId>
+          <artifactId>jtwig-core</artifactId>
+          <version>5.86.1.RELEASE</version>
+      </dependency>
+      <dependency>
+          <groupId>org.simplejavamail</groupId>
+          <artifactId>simple-java-mail</artifactId>
+          <version>4.4.5</version>
+      </dependency>
 
       <dependency>
           <groupId>org.reflections</groupId>
