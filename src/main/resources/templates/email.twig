@@ -263,15 +263,9 @@
                             <tr>
                                 <td>{{ query.name }}</td>
                                 <td>
-                                    {% if (query.getMessages().size() == 1) %}
-                                        {{ query.getMessages()[0] }}
-                                    {% elseif (query.getMessages().size() > 1) %}
-                                        <ul>
-                                            {% for message in query.getMessages() %}
-                                                <li>{{ message }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endif %}
+                                    {% for message in query.getMessages() %}
+                                        <pre>{{ message }}</pre>
+                                    {% endfor %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -292,15 +286,9 @@
                                     {% if (testCase.getWarnOnly()) %}
                                         <p class="orange"><b>SKIPPED</b></p>
                                     {% endif %}
-                                    {% if (testCase.getMessages().size() == 1) %}
-                                        {{ testCase.getMessages()[0] }}
-                                    {% elseif (testCase.getMessages().size() > 1) %}
-                                        <ul>
-                                            {% for message in testCase.getMessages() %}
-                                                <li>{{ message }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endif %}
+                                    {% for message in testCase.getMessages() %}
+                                        <pre>{{ message }}</pre>
+                                    {% endfor %}
                                 </td>
                             </tr>
                         {% endfor %}

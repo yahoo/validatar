@@ -18,7 +18,7 @@ public interface Formatter extends Helpable {
      * Setups the engine using the input parameters.
      *
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
-     * @return true if setup was successful.
+     * @return true iff setup was successful.
      */
     boolean setup(String[] arguments);
 

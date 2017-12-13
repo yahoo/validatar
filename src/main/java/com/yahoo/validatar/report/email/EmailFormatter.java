@@ -186,7 +186,7 @@ public class EmailFormatter implements Formatter {
 
     /**
      * {@inheritDoc}
-     * <br/>
+     * <p>
      * Render the report HTML using Jtwig and send the result
      * to the recipient emails.
      */
@@ -220,8 +220,19 @@ public class EmailFormatter implements Formatter {
         Email reportEmail = reportEmailBuilder.build();
         ServerConfig mailServerConfig = new ServerConfig(smtpHost, smtpPort);
         Mailer reportMailer = new Mailer(mailServerConfig, TransportStrategy.SMTP_TLS);
-        reportMailer.sendMail(reportEmail);
+        sendEmail(reportMailer, reportEmail);
         log.info("Finishing sending report to recipients");
+    }
+
+    /**
+     * Method uses the provided mailer to
+     * send the email report.
+     *
+     * @param mailer mailer to use
+     * @param email  report email
+     */
+    protected void sendEmail(Mailer mailer, Email email) {
+        mailer.sendMail(email);
     }
 
     @Override
