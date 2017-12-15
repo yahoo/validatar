@@ -11,7 +11,6 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class TestSuiteModelTest {
-
     @Test
     public void testConstructorCountsPassedQueriesAndTests() {
         TestSuite ts = new TestSuite();
@@ -33,5 +32,4 @@ public class TestSuiteModelTest {
         assertEquals(3, model.queryPassed);
         assertEquals(2, model.testPassed);
     }
-
 }

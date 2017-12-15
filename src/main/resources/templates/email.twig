@@ -211,7 +211,7 @@
             <tbody>
             {% for test in testList %}
                 {% set passedQuery = test.queryPassed == test.queryTotal %}
-                {% set passedTest = test.testPassed == test.testTotal %}
+                {% set passedTest = (test.testPassed + test.testWarn) == test.testTotal %}
                 <tr>
                     <td>
                         <a href="#test-{{ loop.index }}">{{ test.name }}</a>
@@ -228,6 +228,9 @@
                     <td>
                         <b class="{% if (passedTest) %}green{% else %}red{% endif %}">{{ test.testPassed }}</b>
                         <small>/ {{ test.testTotal }}</small>
+                        {% if (test.testWarn > 0) %}
+                            <br/><small>(<b class="orange">{{ test.testWarn }}</b> skipped)</small>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -237,7 +240,7 @@
     <br/>
     {% for test in testList %}
         {% set passedQuery = test.queryPassed == test.queryTotal %}
-        {% set passedTest = test.testPassed == test.testTotal %}
+        {% set passedTest = (test.testPassed + test.testWarn) == test.testTotal %}
         <div class="panel panel-default">
             <div id="test-{{ loop.index }}" class="panel-heading">
                 {{ test.name }}
@@ -253,6 +256,9 @@
                 <br/>
                 <b class="{% if (passedTest) %}green{% else %}red{% endif %}">{{ test.testPassed }}</b>
                 / {{ test.testTotal }} Tests
+                {% if (test.testWarn > 0) %}
+                    <br/>(<b class="orange">{{ test.testWarn }}</b> skipped)
+                {% endif %}
             </div>
             {% if (not passedQuery or not passedTest) %}
                 <table class="table">
@@ -269,7 +275,7 @@
                                 <td>{{ query.name }}</td>
                                 <td>
                                     {% for message in query.getMessages() %}
-                                        <pre>{{ message }}</pre>
+                                        <pre>{{ message|escape }}</pre>
                                     {% endfor %}
                                 </td>
                             </tr>
@@ -284,15 +290,23 @@
                         </tr>
                         </thead>
                         <tbody>
+                        {% for testCase in test.warnTests %}
+                            <tr>
+                                <td>{{ testCase.name }}</td>
+                                <td>
+                                    <p class="orange"><b>SKIPPED</b></p>
+                                    {% for message in testCase.getMessages() %}
+                                        <pre>{{ message|escape }}</pre>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
                         {% for testCase in test.failedTests %}
                             <tr>
                                 <td>{{ testCase.name }}</td>
                                 <td>
-                                    {% if (testCase.getWarnOnly()) %}
-                                        <p class="orange"><b>SKIPPED</b></p>
-                                    {% endif %}
                                     {% for message in testCase.getMessages() %}
-                                        <pre>{{ message }}</pre>
+                                        <pre>{{ message|escape }}</pre>
                                     {% endfor %}
                                 </td>
                             </tr>

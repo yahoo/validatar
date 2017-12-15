@@ -54,8 +54,7 @@ public class EmailFormatter implements Formatter {
                     .required();
             accepts(EMAIL_SENDER_NAME, "Name of sender displayed to report recipients")
                     .withRequiredArg()
-                    .defaultsTo("Validatar")
-                    .required();
+                    .defaultsTo("Validatar");
             accepts(EMAIL_FROM, "Email shown to recipients as 'from'")
                     .withRequiredArg()
                     .required();
@@ -135,21 +134,19 @@ public class EmailFormatter implements Formatter {
             testList.add(testSuiteModel);
         }
         JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/email.twig");
-        JtwigModel model = JtwigModel
-                .newModel()
-                .with("error", hasError)
-                .with("testList", testList);
+        JtwigModel model = JtwigModel.newModel()
+                                     .with("error", hasError)
+                                     .with("testList", testList);
         String reportHtml = template.render(model);
-        EmailBuilder reportEmailBuilder = new EmailBuilder()
-                .from(senderName, fromEmail)
-                .replyTo(senderName, replyTo)
-                .subject("Validatar Report – " + (hasError ? "Test Errors" : "Tests Passed"))
-                .addHeader("X-Priority", 2)
-                .textHTML(reportHtml);
+        EmailBuilder emailBuilder = new EmailBuilder().from(senderName, fromEmail)
+                                                      .replyTo(senderName, replyTo)
+                                                      .subject("Validatar Report – " + (hasError ? "Test Errors" : "Tests Passed"))
+                                                      .addHeader("X-Priority", 2)
+                                                      .textHTML(reportHtml);
         for (String recipientEmail : recipientEmails) {
-            reportEmailBuilder.to(recipientEmail);
+            emailBuilder.to(recipientEmail);
         }
-        Email reportEmail = reportEmailBuilder.build();
+        Email reportEmail = emailBuilder.build();
         ServerConfig mailServerConfig = new ServerConfig(smtpHost, smtpPort);
         Mailer reportMailer = new Mailer(mailServerConfig, TransportStrategy.SMTP_TLS);
         sendEmail(reportMailer, reportEmail);

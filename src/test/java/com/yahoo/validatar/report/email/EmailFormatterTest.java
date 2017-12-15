@@ -1,5 +1,6 @@
 package com.yahoo.validatar.report.email;
 
+import com.yahoo.validatar.OutputCaptor;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
 import org.simplejavamail.email.Email;
@@ -8,6 +9,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,23 +24,23 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
 public class EmailFormatterTest {
-    private static <T> T get(Object tgt, String name, Class<T> cls) {
+    private static <T> T get(Object target, String name, Class<T> clazz) {
         try {
-            Field f = tgt.getClass().getDeclaredField(name);
+            Field f = target.getClass().getDeclaredField(name);
             f.setAccessible(true);
-            Object o = f.get(tgt);
-            return cls.cast(o);
+            Object o = f.get(target);
+            return clazz.cast(o);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void set(EmailFormatter tgt, String name, Object val) {
+    private static void set(EmailFormatter target, String name, Object value) {
         Class<?> cls = EmailFormatter.class;
         try {
             Field f = cls.getDeclaredField(name);
             f.setAccessible(true);
-            f.set(tgt, val);
+            f.set(target, value);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -69,6 +71,10 @@ public class EmailFormatterTest {
     @Test
     public void testWriteReport() throws IOException {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        com.yahoo.validatar.common.Test skipped = new com.yahoo.validatar.common.Test();
+        skipped.name = "SkippedTest";
+        skipped.warnOnly = true;
+        skipped.addMessage("SkippedTestMessage");
         Query query = new Query();
         TestSuite ts = new TestSuite();
         ts.name = "testSuiteName1";
@@ -81,7 +87,7 @@ public class EmailFormatterTest {
         query.addMessage("queryMessage");
         query.setFailed();
         ts.queries = Collections.singletonList(query);
-        ts.tests = Collections.singletonList(test);
+        ts.tests = Arrays.asList(test, skipped);
         EmailFormatter formatter = mock(EmailFormatter.class);
         doCallRealMethod().when(formatter).writeReport(any());
         set(formatter, "recipientEmails", Collections.singletonList("email@email.com"));
@@ -94,8 +100,8 @@ public class EmailFormatterTest {
                 Email email = (Email) iom.getArguments()[1];
                 String html = email.getTextHTML();
                 String[] containsAllOf = {
-                    "testSuiteName1", "testName1", "queryName1", "testMessage1",
-                    "testMessage2", "testMessage3", "queryMessage"
+                    "testSuiteName1", "testName1", "queryName1", "testMessage1", "SkippedTestMessage",
+                    "testMessage2", "testMessage3", "queryMessage", "SKIPPED", "SkippedTest"
                 };
                 for (String str : containsAllOf) {
                     assertTrue(html.contains(str));
@@ -146,10 +152,13 @@ public class EmailFormatterTest {
     public void testGetName() {
         EmailFormatter formatter = new EmailFormatter();
         assertEquals(EmailFormatter.EMAIL_FORMATTER, formatter.getName());
+        OutputCaptor.redirectToDevNull();
         try {
             formatter.printHelp();
         } catch (Exception e) {
+            OutputCaptor.redirectToStandard();
             fail();
         }
+        OutputCaptor.redirectToStandard();
     }
 }

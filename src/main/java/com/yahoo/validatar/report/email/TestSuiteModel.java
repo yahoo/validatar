@@ -32,6 +32,10 @@ public class TestSuiteModel {
      * Total number of tests.
      */
     public final int testTotal;
+    /**
+     * Number of warned tests.
+     */
+    public final int testWarn;
 
     /**
      * List of failed queries.
@@ -41,6 +45,10 @@ public class TestSuiteModel {
      * List of failed tests.
      */
     public final List<Test> failedTests;
+    /**
+     * List of warn tests.
+     */
+    public final List<Test> warnTests;
 
     /**
      * Create a {@code TestSuiteModel} from a {@code TestSuite}.
@@ -52,6 +60,7 @@ public class TestSuiteModel {
     protected TestSuiteModel(TestSuite testSuite) {
         failedQueries = new LinkedList<>();
         failedTests = new LinkedList<>();
+        warnTests = new LinkedList<>();
         this.name = testSuite.name;
         int passCount = 0;
         for (Query query : testSuite.queries) {
@@ -63,15 +72,20 @@ public class TestSuiteModel {
         }
         this.queryPassed = passCount;
         this.queryTotal = testSuite.queries.size();
+        int warnCount = 0;
         passCount = 0;
         for (Test test : testSuite.tests) {
-            if (test.failed()) {
+            if (!test.passed()) {
                 failedTests.add(test);
+            } else if (test.getWarnOnly()) {
+                warnTests.add(test);
+                warnCount++;
             } else {
                 passCount++;
             }
         }
         this.testPassed = passCount;
+        this.testWarn = warnCount;
         this.testTotal = testSuite.tests.size();
     }
 
@@ -79,6 +93,6 @@ public class TestSuiteModel {
      * @return True if all queries and tests passed.
      */
     protected boolean allPassed() {
-        return queryPassed == queryTotal && testPassed == testTotal;
+        return queryPassed == queryTotal && (testPassed + testWarn) == testTotal;
     }
 }
