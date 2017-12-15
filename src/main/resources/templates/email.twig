@@ -241,6 +241,7 @@
     </div>
     <br/>
     {% for test in testList %}
+        {% set testWarnings = test.testWarn > 0 %}
         {% set passedQuery = test.queryPassed == test.queryTotal %}
         {% set passedTest = (test.testPassed + test.testWarn) == test.testTotal %}
         <div class="panel panel-default">
@@ -264,7 +265,7 @@
                 <b class="orange">{{ test.testWarn }}</b> skipped,
                 <b class="red">{{ testFailed }}</b> failed)
             </div>
-            {% if (not passedQuery or not passedTest) %}
+            {% if (not passedQuery or not passedTest or testWarnings) %}
                 <table class="table">
                     {% if (not passedQuery) %}
                         <thead>
@@ -286,7 +287,7 @@
                         {% endfor %}
                         </tbody>
                     {% endif %}
-                    {% if (not passedTest) %}
+                    {% if (not passedTest or testWarnings) %}
                         <thead>
                         <tr>
                             <th>Test Name</th>
