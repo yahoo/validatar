@@ -228,9 +228,11 @@
                     <td>
                         <b class="{% if (passedTest) %}green{% else %}red{% endif %}">{{ test.testPassed }}</b>
                         <small>/ {{ test.testTotal }}</small>
-                        {% if (test.testWarn > 0) %}
-                            <br/><small>(<b class="orange">{{ test.testWarn }}</b> skipped)</small>
-                        {% endif %}
+                        <br/>
+                        {% set testFailed = test.testTotal - test.testPassed - test.testWarn %}
+                        (<b class="green">{{ test.testPassed }}</b> passed,
+                        <b class="orange">{{ test.testWarn }}</b> skipped,
+                        <b class="red">{{ testFailed }}</b> failed)
                     </td>
                 </tr>
             {% endfor %}
@@ -256,9 +258,11 @@
                 <br/>
                 <b class="{% if (passedTest) %}green{% else %}red{% endif %}">{{ test.testPassed }}</b>
                 / {{ test.testTotal }} Tests
-                {% if (test.testWarn > 0) %}
-                    <br/>(<b class="orange">{{ test.testWarn }}</b> skipped)
-                {% endif %}
+                <br/>
+                {% set testFailed = test.testTotal - test.testPassed - test.testWarn %}
+                (<b class="green">{{ test.testPassed }}</b> passed,
+                <b class="orange">{{ test.testWarn }}</b> skipped,
+                <b class="red">{{ testFailed }}</b> failed)
             </div>
             {% if (not passedQuery or not passedTest) %}
                 <table class="table">
