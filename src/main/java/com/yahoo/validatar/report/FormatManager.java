@@ -7,6 +7,7 @@ package com.yahoo.validatar.report;
 import com.yahoo.validatar.common.Helpable;
 import com.yahoo.validatar.common.Pluggable;
 import com.yahoo.validatar.common.TestSuite;
+import com.yahoo.validatar.report.email.EmailFormatter;
 import com.yahoo.validatar.report.junit.JUnitFormatter;
 import joptsimple.OptionParser;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,9 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
     /**
      * The Parser classes to manage.
      */
-    public static final List<Class<? extends Formatter>> MANAGED_FORMATTERS = Arrays.asList(JUnitFormatter.class);
+    public static final List<Class<? extends Formatter>> MANAGED_FORMATTERS = Arrays.asList(
+        JUnitFormatter.class, EmailFormatter.class
+    );
     public static final String REPORT_FORMAT = "report-format";
 
     private Map<String, Formatter> availableFormatters;

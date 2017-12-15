@@ -427,6 +427,19 @@ Option                                 Description
 ------                                 -----------
 --custom-formatter <Additional custom  Additional custom formatter to load.
   fully qualified classes to plug in>
+
+
+Email report options:
+Option (* = required)             Description                           
+---------------------             -----------                           
+* --email-from                    Email shown to recipients as 'from'   
+* --email-recipients              Comma-separated list of emails to send
+  <Report recipients' emails>     reports                             
+* --email-reply-to                Email to which replies will be sent   
+--email-sender-name               Name of sender displayed to report    
+                                    recipients (default: Validatar)     
+* --email-smtp-host               Email SMTP host name                  
+* --email-smtp-port               Email SMTP port  
 ```
 
 ## Contributing
