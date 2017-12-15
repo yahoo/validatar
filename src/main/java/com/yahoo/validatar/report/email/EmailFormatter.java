@@ -1,10 +1,9 @@
 package com.yahoo.validatar.report.email;
 
 import com.yahoo.validatar.common.Helpable;
-import com.yahoo.validatar.common.Query;
-import com.yahoo.validatar.common.Test;
 import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.report.Formatter;
+import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.simplejavamail.mailer.config.TransportStrategy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -28,120 +26,48 @@ import java.util.List;
  */
 @Slf4j
 public class EmailFormatter implements Formatter {
+    public static final String EMAIL_FORMATTER = "email";
+
+    protected static final String EMAIL_RECIPIENTS = "email-recipients";
+    protected static final String EMAIL_SENDER_NAME = "email-sender-name";
+    protected static final String EMAIL_FROM = "email-from";
+    protected static final String EMAIL_REPLY_TO = "email-reply-to";
+    protected static final String EMAIL_SMTP_HOST = "email-smtp-host";
+    protected static final String EMAIL_SMTP_PORT = "email-smtp-port";
 
     /**
-     * This class holds the necessary information for rendering
-     * the Validatar report using Jtwig.
-     */
-    protected static class TestSuiteModel {
-        /**
-         * Test suite name.
-         */
-        public final String name;
-        /**
-         * Number of passed queries.
-         */
-        public final int queryPassed;
-        /**
-         * Total number of queries.
-         */
-        public final int queryTotal;
-        /**
-         * Number of passed tests.
-         */
-        public final int testPassed;
-        /**
-         * Total number of tests.
-         */
-        public final int testTotal;
-
-        /**
-         * List of failed queries.
-         */
-        public final List<Query> failedQueries;
-        /**
-         * List of failed tests.
-         */
-        public final List<Test> failedTests;
-
-        /**
-         * Create a {@code TestSuiteModel} from a {@code TestSuite}.
-         * The constructor will pull the required information from
-         * the given test suite.
-         *
-         * @param testSuite the test suite object to model
-         */
-        protected TestSuiteModel(TestSuite testSuite) {
-            failedQueries = new LinkedList<>();
-            failedTests = new LinkedList<>();
-            this.name = testSuite.name;
-            int passCount = 0;
-            for (Query query : testSuite.queries) {
-                if (query.failed()) {
-                    failedQueries.add(query);
-                } else {
-                    passCount++;
-                }
-            }
-            this.queryPassed = passCount;
-            this.queryTotal = testSuite.queries.size();
-            passCount = 0;
-            for (Test test : testSuite.tests) {
-                if (test.failed()) {
-                    failedTests.add(test);
-                } else {
-                    passCount++;
-                }
-            }
-            this.testPassed = passCount;
-            this.testTotal = testSuite.tests.size();
-        }
-
-        /**
-         * @return true if all queries and tests passed
-         */
-        protected boolean allPassed() {
-            return queryPassed == queryTotal && testPassed == testTotal;
-        }
-    }
-
-    private static final String EMAIL_FORMATTER = "email";
-
-    private static final String RECIPIENT_EMAILS = "recipient-emails";
-    private static final String SENDER_NAME = "sender-name";
-    private static final String FROM_EMAIL = "from-email";
-    private static final String REPLY_TO = "reply-to";
-    private static final String SMTP_HOST = "smtp-host";
-    private static final String SMTP_PORT = "smtp-port";
-
-    /**
-     * Option parser for this class. Caller should provide
-     * the following arguments:
+     * Option parser for this class. Caller should provide the following arguments:
      * <ul>
-     *     <li>--recipient-emails | list of emails to send reports</li>
-     *     <li>--sender-name | name of the report email sender (default 'Validatar'</li>
-     *     <li>--from-email | email to show as the sender</li>
-     *     <li>--reply-to | email to which replies are sent</li>
-     *     <li>--smtp-host | SMTP server host</li>
-     *     <li>--smtp-port | SMTP server port</li>
+     * <li>--email-recipients | list of emails to send reports</li>
+     * <li>--email-sender-name | name of the report email sender (default 'Validatar'</li>
+     * <li>--email-from | email to show as the sender</li>
+     * <li>--email-reply-to | email to which replies are sent</li>
+     * <li>--email-smtp-host | SMTP server host</li>
+     * <li>--email-smtp-port | SMTP server port</li>
      * </ul>
      */
     private static final OptionParser PARSER = new OptionParser() {
         {
-            accepts(RECIPIENT_EMAILS, "Comma-separated list of emails to send reports")
+            accepts(EMAIL_RECIPIENTS, "Comma-separated list of emails to send reports")
                     .withRequiredArg()
-                    .describedAs("Report recipients' emails");
-            accepts(SENDER_NAME, "Name of sender displayed to report recipients")
+                    .describedAs("Report recipients' emails")
+                    .required();
+            accepts(EMAIL_SENDER_NAME, "Name of sender displayed to report recipients")
                     .withRequiredArg()
-                    .defaultsTo("Validatar");
-            accepts(FROM_EMAIL, "Email shown to recipients as 'from'")
-                    .withRequiredArg();
-            accepts(REPLY_TO, "Email to which replies will be sent")
-                    .withRequiredArg();
-            accepts(SMTP_HOST, "Email SMTP host name")
-                    .withRequiredArg();
-            accepts(SMTP_PORT, "Email SMTP port")
-                    .withRequiredArg();
+                    .defaultsTo("Validatar")
+                    .required();
+            accepts(EMAIL_FROM, "Email shown to recipients as 'from'")
+                    .withRequiredArg()
+                    .required();
+            accepts(EMAIL_REPLY_TO, "Email to which replies will be sent")
+                    .withRequiredArg()
+                    .required();
+            accepts(EMAIL_SMTP_HOST, "Email SMTP host name")
+                    .withRequiredArg()
+                    .required();
+            accepts(EMAIL_SMTP_PORT, "Email SMTP port")
+                    .withRequiredArg()
+                    .required();
             allowsUnrecognizedOptions();
         }
     };
@@ -174,21 +100,26 @@ public class EmailFormatter implements Formatter {
     @Override
     @SuppressWarnings("unchecked")
     public boolean setup(String[] arguments) {
-        OptionSet options = PARSER.parse(arguments);
-        senderName = (String) options.valueOf(SENDER_NAME);
-        fromEmail = (String) options.valueOf(FROM_EMAIL);
-        replyTo = (String) options.valueOf(REPLY_TO);
-        smtpHost = (String) options.valueOf(SMTP_HOST);
-        smtpPort = Integer.parseInt((String) options.valueOf(SMTP_PORT));
-        recipientEmails = (List<String>) options.valuesOf(RECIPIENT_EMAILS);
+        OptionSet options;
+        try {
+            options = PARSER.parse(arguments);
+        } catch (OptionException e) {
+            log.error("EmailFormatter is missing required arguments", e);
+            return false;
+        }
+        senderName = (String) options.valueOf(EMAIL_SENDER_NAME);
+        fromEmail = (String) options.valueOf(EMAIL_FROM);
+        replyTo = (String) options.valueOf(EMAIL_REPLY_TO);
+        smtpHost = (String) options.valueOf(EMAIL_SMTP_HOST);
+        smtpPort = Integer.parseInt((String) options.valueOf(EMAIL_SMTP_PORT));
+        recipientEmails = (List<String>) options.valuesOf(EMAIL_RECIPIENTS);
         return true;
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Render the report HTML using Jtwig and send the result
-     * to the recipient emails.
+     * Render the report HTML using Jtwig and send the result to the recipient emails.
      */
     @Override
     public void writeReport(List<TestSuite> testSuites) throws IOException {
@@ -204,7 +135,8 @@ public class EmailFormatter implements Formatter {
             testList.add(testSuiteModel);
         }
         JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/email.twig");
-        JtwigModel model = JtwigModel.newModel()
+        JtwigModel model = JtwigModel
+                .newModel()
                 .with("error", hasError)
                 .with("testList", testList);
         String reportHtml = template.render(model);
@@ -221,12 +153,11 @@ public class EmailFormatter implements Formatter {
         ServerConfig mailServerConfig = new ServerConfig(smtpHost, smtpPort);
         Mailer reportMailer = new Mailer(mailServerConfig, TransportStrategy.SMTP_TLS);
         sendEmail(reportMailer, reportEmail);
-        log.info("Finishing sending report to recipients");
+        log.info("Finished sending report to recipients");
     }
 
     /**
-     * Method uses the provided mailer to
-     * send the email report.
+     * Method uses the provided mailer to send the email report.
      *
      * @param mailer mailer to use
      * @param email  report email

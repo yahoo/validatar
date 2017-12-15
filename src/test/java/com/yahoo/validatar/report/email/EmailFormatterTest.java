@@ -3,6 +3,7 @@ package com.yahoo.validatar.report.email;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
 import org.simplejavamail.email.Email;
+import org.simplejavamail.mailer.Mailer;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -11,15 +12,16 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 
 public class EmailFormatterTest {
-
     private static <T> T get(Object tgt, String name, Class<T> cls) {
         try {
             Field f = tgt.getClass().getDeclaredField(name);
@@ -45,12 +47,12 @@ public class EmailFormatterTest {
     @Test
     public void testSetup() {
         String[] args = {
-            "--recipient-emails", "email@email.com",
-            "--sender-name", "Validatar",
-            "--from-email", "validatar@validatar.com",
-            "--reply-to", "validatar@validatar.com",
-            "--smtp-host", "host.host.com",
-            "--smtp-port", "25"
+            "--" + EmailFormatter.EMAIL_RECIPIENTS, "email@email.com",
+            "--" + EmailFormatter.EMAIL_SENDER_NAME, "Validatar",
+            "--" + EmailFormatter.EMAIL_FROM, "validatar@validatar.com",
+            "--" + EmailFormatter.EMAIL_REPLY_TO, "validatar@validatar.com",
+            "--" + EmailFormatter.EMAIL_SMTP_HOST, "host.host.com",
+            "--" + EmailFormatter.EMAIL_SMTP_PORT, "25"
         };
         EmailFormatter formatter = new EmailFormatter();
         formatter.setup(args);
@@ -105,4 +107,49 @@ public class EmailFormatterTest {
         verify(formatter).sendEmail(any(), any());
     }
 
+    @Test
+    public void testSetupReturnsFailMissingParams() {
+        EmailFormatter formatter = new EmailFormatter();
+        assertFalse(formatter.setup(new String[]{}));
+    }
+
+    @Test
+    public void testWriteReportEmptyTestSuites() throws IOException {
+        EmailFormatter formatter = mock(EmailFormatter.class);
+        doCallRealMethod().when(formatter).writeReport(any());
+        set(formatter, "recipientEmails", Collections.singletonList("email@email.com"));
+        set(formatter, "senderName", "Validatar");
+        set(formatter, "fromEmail", "from@mail.com");
+        set(formatter, "replyTo", "reply@mail.com");
+        set(formatter, "smtpHost", "host.host.com");
+        set(formatter, "smtpPort", 25);
+        doAnswer(iom -> {
+                Email email = (Email) iom.getArguments()[1];
+                String html = email.getTextHTML();
+                assertTrue(html.contains("Nice!"));
+                return null;
+            }
+        ).when(formatter).sendEmail(any(), any());
+        formatter.writeReport(null);
+    }
+
+    @Test
+    public void testSendEmail() {
+        Mailer mailer = mock(Mailer.class);
+        Email email = mock(Email.class);
+        EmailFormatter formatter = new EmailFormatter();
+        formatter.sendEmail(mailer, email);
+        verify(mailer).sendMail(email);
+    }
+
+    @Test
+    public void testGetName() {
+        EmailFormatter formatter = new EmailFormatter();
+        assertEquals(EmailFormatter.EMAIL_FORMATTER, formatter.getName());
+        try {
+            formatter.printHelp();
+        } catch (Exception e) {
+            fail();
+        }
+    }
 }
