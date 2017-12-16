@@ -10,6 +10,7 @@
 	* [Assertions](#assertions)
 		* [Assertion Format](#assertion-format)
 		* [Examples](#examples)
+	* [Report Generation](#report-generation)
 	* [Parameter Substitution](#parameter-substitution)
 * [Execution Engines](#execution-engines)
 	* [Hive](#hive)
@@ -297,7 +298,7 @@ Engines, report format generators and test suite parsers are all pluggable. You 
 | ------ | ---------------------- |
 | Parser | [Parser.java](https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/parse/Parser.java) |
 | Engine | [Engine.java](https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/execution/Engine.java) |
-| Formatter | [Formatter.java] (https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/report/Formatter.java) |
+| Formatter | [Formatter.java](https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/report/Formatter.java) |
 
 ## Help
 
@@ -472,7 +473,7 @@ Version | Notes
 0.4.3   | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
 0.5.1   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
 0.5.2   | Validatar exits with an exit code of 1 if there are failures. Added a warnOnly parameter for tests. JUnit reporter now uses CDATA in XML for additional information.
-0.5.3   | Added an Email reporter that sends an HTML formatted email test report contributed by [Mogball]((https://github.com/mogball).
+0.5.3   | Added an Email reporter that sends an HTML formatted email test report contributed by [Mogball](https://github.com/mogball).
 
 ## Members
 
