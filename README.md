@@ -36,7 +36,7 @@
 * Reads and models data from highly variable datasources as a standard columnar (table) format
 * Lets you write powerful assertions on this data. You can join, filter and run comparisons on your data
 * Is fully typed and preserves the types of your data sources
-* Generates test reports that can be published in CI environments (currently the JUnit format is supported)
+* Generates test reports that can be published in various environments or emailed (currently the JUnit XML format or emailing reports is supported)
 * Is completely modular and pluggable. You can easily extend and add new datasources, input sources, output reports etc.
 
 The data sources we currently support:
@@ -165,6 +165,12 @@ This assert uses the where clause to perform a cartesian product of A and B and 
 
 The Validatar assertion grammar is written in ANTLR and can be found [here](https://github.com/yahoo/validatar/blob/master/src/main/antlr4/com/yahoo/validatar/assertion/Grammar.g4) if you're interested in the exact syntax.
 
+### Report Generation
+
+Validatar by default uses the JUnit XML report format to write your test results in a JUnit XML file that you can publish. If you have a SMTP server, you can also generate a pretty HTML E-Mail report to mail out to a list of recipients.
+
+![Report E-Mail](https://user-images.githubusercontent.com/1041753/34065062-2ad8586c-e1b3-11e7-82d6-875427c4cd2d.png)
+
 ### Parameter Substitution
 
 You may want queries, asserts or query metadata to use a specific date column, or some other changing parameter. For this, we have a parameter substitution feature.
@@ -285,14 +291,17 @@ Running REST tests require no other dependencies and can be launched with Java i
 
 ## Pluggability
 
-Engines, report generators and test suite parsers are all pluggable. You can implement your own extending the appropriate
-interfaces and pass them in to validatar to load at run time by placing it in the classpath. If you wished to have a report generated and posted to a
-web service, you could do that! Or vice versa to read test suites off of a webservice or a queue somewhere. Refer to
-the options below to see how to pass in the custom implementations.
+Engines, report format generators and test suite parsers are all pluggable. You can implement your own extending the appropriate interfaces below and pass them in to Validatar to load at run time by placing it in the classpath. If you wished to have a report generated and posted to a web service, you could do that! Or vice versa to read test suites off of a webservice or a queue somewhere. Refer to the options below to see how to pass in the custom implementations using the ```custom-engine```, ```custom-parser```, ```custom-formatter``` options.
+
+| Module | Interface to implement |
+| ------ | ---------------------- |
+| Parser | [Parser.java](https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/parse/Parser.java) |
+| Engine | [Engine.java](https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/execution/Engine.java) |
+| Formatter | [Formatter.java] (https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/report/Formatter.java) |
 
 ## Help
 
-Feel free to reach out to us if you run into issues. You are welcome to open any issues. Pull requests welcome!
+Feel free to reach out to us if you run into issues. You are welcome to open any issues. Pull requests are welcome!
 
 We list the complete help output from Validatar for reference here:
 
@@ -420,6 +429,17 @@ Option                       Description
 ------                       -----------
 --report-file <Report file>  File to store the test reports.
                                (default: report.xml)
+Email report options:
+Option (* = required)             Description
+---------------------             -----------
+* --email-from                    Email shown to recipients as 'from'
+* --email-recipients              Comma-separated list of emails to send
+  <Report recipients' emails>     reports
+* --email-reply-to                Email to which replies will be sent
+--email-sender-name               Name of sender displayed to report
+                                    recipients (default: Validatar)
+* --email-smtp-host               Email SMTP host name
+* --email-smtp-port               Email SMTP port
 
 
 Advanced Reporting Options:
@@ -427,19 +447,6 @@ Option                                 Description
 ------                                 -----------
 --custom-formatter <Additional custom  Additional custom formatter to load.
   fully qualified classes to plug in>
-
-
-Email report options:
-Option (* = required)             Description                           
----------------------             -----------                           
-* --email-from                    Email shown to recipients as 'from'   
-* --email-recipients              Comma-separated list of emails to send
-  <Report recipients' emails>     reports                             
-* --email-reply-to                Email to which replies will be sent   
---email-sender-name               Name of sender displayed to report    
-                                    recipients (default: Validatar)     
-* --email-smtp-host               Email SMTP host name                  
-* --email-smtp-port               Email SMTP port  
 ```
 
 ## Contributing
@@ -465,6 +472,7 @@ Version | Notes
 0.4.3   | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
 0.5.1   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
 0.5.2   | Validatar exits with an exit code of 1 if there are failures. Added a warnOnly parameter for tests. JUnit reporter now uses CDATA in XML for additional information.
+0.5.3   | Added an Email reporter that sends an HTML formatted email test report contributed by [Mogball]((https://github.com/mogball).
 
 ## Members
 
@@ -472,4 +480,6 @@ Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
 
 ## Contributors
+
+[Mogball](https://github.com/mogball) - Email Reporter [0.5.3]
 
