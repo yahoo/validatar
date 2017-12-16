@@ -210,23 +210,23 @@
             </thead>
             <tbody>
             {% for test in testList %}
-                {% set passedQuery = test.queryPassed == test.queryTotal %}
-                {% set passedTest = (test.testPassed + test.testWarn) == test.testTotal %}
+                {% set queryPasses = test.queryPassed == test.queryTotal %}
+                {% set testPasses = (test.testPassed + test.testWarn) == test.testTotal %}
                 <tr>
                     <td>
                         <a href="#test-{{ loop.index }}">{{ test.name }}</a>
-                        {% if (passedQuery and passedTest) %}
+                        {% if (queryPasses and testPasses) %}
                             <span class="icon green">&#10003;</span>
                         {% else %}
                             <span class="icon red">&#10007;</span>
                         {% endif %}
                     </td>
                     <td>
-                        <b class="{% if (passedQuery) %}green{% else %}red{% endif %}">{{ test.queryPassed }}</b>
+                        <b class="{% if (queryPasses) %}green{% else %}red{% endif %}">{{ test.queryPassed }}</b>
                         <small>/ {{ test.queryTotal }}</small>
                     </td>
                     <td>
-                        <b class="{% if (passedTest) %}green{% else %}red{% endif %}">{{ test.testPassed }}</b>
+                        <b class="{% if (testPasses) %}green{% else %}red{% endif %}">{{ test.testPassed }}</b>
                         <small>/ {{ test.testTotal }}</small>
                         <br/>
                         {% set testFailed = test.testTotal - test.testPassed - test.testWarn %}
@@ -241,8 +241,9 @@
     </div>
     <br/>
     {% for test in testList %}
-        {% set passedQuery = test.queryPassed == test.queryTotal %}
-        {% set passedTest = (test.testPassed + test.testWarn) == test.testTotal %}
+        {% set testWarnings = test.testWarn > 0 %}
+        {% set queryPasses = test.queryPassed == test.queryTotal %}
+        {% set testPasses = (test.testPassed + test.testWarn) == test.testTotal %}
         <div class="panel panel-default">
             <div id="test-{{ loop.index }}" class="panel-heading">
                 {{ test.name }}
@@ -253,10 +254,10 @@
                 </a>
             </div>
             <div class="panel-body">
-                <b class="{% if (passedQuery) %}green{% else %}red{% endif %}">{{ test.queryPassed }}</b>
+                <b class="{% if (queryPasses) %}green{% else %}red{% endif %}">{{ test.queryPassed }}</b>
                 / {{ test.queryTotal }} Queries
                 <br/>
-                <b class="{% if (passedTest) %}green{% else %}red{% endif %}">{{ test.testPassed }}</b>
+                <b class="{% if (testPasses) %}green{% else %}red{% endif %}">{{ test.testPassed }}</b>
                 / {{ test.testTotal }} Tests
                 <br/>
                 {% set testFailed = test.testTotal - test.testPassed - test.testWarn %}
@@ -264,9 +265,9 @@
                 <b class="orange">{{ test.testWarn }}</b> skipped,
                 <b class="red">{{ testFailed }}</b> failed)
             </div>
-            {% if (not passedQuery or not passedTest) %}
+            {% if (not queryPasses or not testPasses or testWarnings) %}
                 <table class="table">
-                    {% if (not passedQuery) %}
+                    {% if (not queryPasses) %}
                         <thead>
                         <tr>
                             <th>Query Name</th>
@@ -286,7 +287,7 @@
                         {% endfor %}
                         </tbody>
                     {% endif %}
-                    {% if (not passedTest) %}
+                    {% if (not testPasses or testWarnings) %}
                         <thead>
                         <tr>
                             <th>Test Name</th>

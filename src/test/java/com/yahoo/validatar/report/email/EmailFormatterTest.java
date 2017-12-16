@@ -69,7 +69,7 @@ public class EmailFormatterTest {
     }
 
     @Test
-    public void testWriteReport() throws IOException {
+    public void testWriteReportShowsFailures() throws IOException {
         com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
         com.yahoo.validatar.common.Test skipped = new com.yahoo.validatar.common.Test();
         skipped.name = "SkippedTest";
@@ -105,6 +105,55 @@ public class EmailFormatterTest {
                 };
                 for (String str : containsAllOf) {
                     assertTrue(html.contains(str));
+                }
+                return null;
+            }
+        ).when(formatter).sendEmail(any(), any());
+        formatter.writeReport(Collections.singletonList(ts));
+        verify(formatter).sendEmail(any(), any());
+    }
+
+    @Test
+    public void testWriteReportPassesAndShowsMessagesWhenOnlyWarnings() throws IOException {
+        com.yahoo.validatar.common.Test test = new com.yahoo.validatar.common.Test();
+        com.yahoo.validatar.common.Test skipped = new com.yahoo.validatar.common.Test();
+        skipped.name = "SkippedTest";
+        skipped.warnOnly = true;
+        skipped.addMessage("SkippedTestMessage");
+        Query query = new Query();
+        TestSuite ts = new TestSuite();
+        ts.name = "testSuiteName1";
+        test.name = "testName1";
+        query.name = "queryName1";
+        test.addMessage("testMessage1");
+        test.addMessage("testMessage2");
+        test.addMessage("testMessage3");
+        query.addMessage("queryMessage");
+        ts.queries = Collections.singletonList(query);
+        ts.tests = Arrays.asList(test, skipped);
+        EmailFormatter formatter = mock(EmailFormatter.class);
+        doCallRealMethod().when(formatter).writeReport(any());
+        set(formatter, "recipientEmails", Collections.singletonList("email@email.com"));
+        set(formatter, "senderName", "Validatar");
+        set(formatter, "fromEmail", "from@mail.com");
+        set(formatter, "replyTo", "reply@mail.com");
+        set(formatter, "smtpHost", "host.host.com");
+        set(formatter, "smtpPort", 25);
+        doAnswer(iom -> {
+                Email email = (Email) iom.getArguments()[1];
+                String html = email.getTextHTML();
+                String[] containsAllOf = {
+                    "SkippedTest", "SkippedTestMessage", "testSuiteName1"
+                };
+                String[] containsNoneOf = {
+                    "testMessage1", "testMessage2", "testMessage3", "queryMessage",
+                    "testName1", "queryName1"
+                };
+                for (String str : containsAllOf) {
+                    assertTrue(html.contains(str));
+                }
+                for (String str : containsNoneOf) {
+                    assertFalse(html.contains(str));
                 }
                 return null;
             }
