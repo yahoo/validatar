@@ -84,7 +84,7 @@ public class JUnitFormatter implements Formatter {
                 Element testNode = testSuiteRoot.addElement(TESTCASE_TAG).addAttribute(NAME_ATTRIBUTE, test.name);
                 if (test.failed()) {
                     Element target = testNode;
-                    if (test.getWarnOnly()) {
+                    if (test.isWarnOnly()) {
                         testNode.addElement(SKIPPED_TAG);
                     } else {
                         target = testNode.addElement(FAILED_TAG);

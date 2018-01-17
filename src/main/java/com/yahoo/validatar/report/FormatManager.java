@@ -10,6 +10,7 @@ import com.yahoo.validatar.common.TestSuite;
 import com.yahoo.validatar.report.email.EmailFormatter;
 import com.yahoo.validatar.report.junit.JUnitFormatter;
 import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -35,10 +36,13 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
         JUnitFormatter.class, EmailFormatter.class
     );
     public static final String REPORT_FORMAT = "report-format";
+    public static final String REPORT_ONLY_ON_FAILURE = "report-on-failure-only";
 
     private Map<String, Formatter> availableFormatters;
     private Formatter formatterToUse = null;
+    private boolean onlyOnFailure = false;
 
+    public static final String JUNIT = "junit";
     // Leaving it here for now. If new formatters that require more complex options are needed,
     // it can be moved to inside the respective formatters.
     private static final OptionParser PARSER = new OptionParser() {
@@ -46,7 +50,13 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
             acceptsAll(singletonList(REPORT_FORMAT), "Which report format to use.")
                 .withRequiredArg()
                 .describedAs("Report format")
-                .defaultsTo("junit");
+                .defaultsTo(JUNIT);
+            acceptsAll(singletonList(REPORT_ONLY_ON_FAILURE), "Should the reporter be only run on failure.")
+                .withRequiredArg()
+                .describedAs("Report on failure")
+                .ofType(Boolean.class)
+                .defaultsTo(false);
+
             allowsUnrecognizedOptions();
         }
     };
@@ -65,7 +75,9 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
             log.info("Setup formatter {}", formatter.getName());
         }
 
-        String name = (String) PARSER.parse(arguments).valueOf(REPORT_FORMAT);
+        OptionSet parser = PARSER.parse(arguments);
+        onlyOnFailure = (Boolean) parser.valueOf(REPORT_ONLY_ON_FAILURE);
+        String name = (String) parser.valueOf(REPORT_FORMAT);
         setupFormatter(name, arguments);
     }
 
@@ -98,12 +110,17 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
     }
 
     /**
-     * Write out a list of TestSuites.
+     * Write out a list of TestSuites unless this was configured to write out only on failures.
      *
      * @param testSuites List of test suites.
      * @throws java.io.IOException if any.
      */
     public void writeReport(List<TestSuite> testSuites) throws IOException {
+        // Do nothing if we wanted to write out only on failures and we had no failures.
+        if (onlyOnFailure && testSuites.stream().noneMatch(TestSuite::hasFailures)) {
+            log.warn("Reports should be generated only on failure. Skipping report since there were no failures.");
+            return;
+        }
         formatterToUse.writeReport(testSuites);
     }
 
