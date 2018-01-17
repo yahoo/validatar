@@ -77,7 +77,7 @@ public class TestSuiteModel {
         for (Test test : testSuite.tests) {
             if (!test.passed()) {
                 failedTests.add(test);
-            } else if (test.getWarnOnly()) {
+            } else if (test.isWarnOnly()) {
                 warnTests.add(test);
                 warnCount++;
             } else {

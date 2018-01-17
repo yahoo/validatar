@@ -163,6 +163,7 @@ is used and the where clause is used as a way to filter the dataset to only use 
 
 This assert uses the where clause to perform a cartesian product of A and B and picks all the rows where the country is the same (inner join on country) and the continent is not "as". For these rows, it checks to see the value for A.views is within the corresponding value in B.expected by the corresponding B.threshold percentage. For example, "us" will have approx(10000, 10090, 0.01) performed, which is true.
 
+You can find this failing test suite if you are interested in playing around with it here ([src/test/resources/csv-tests/tests.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/csv-tests/tests.yaml).
 
 The Validatar assertion grammar is written in ANTLR and can be found [here](https://github.com/yahoo/validatar/blob/master/src/main/antlr4/com/yahoo/validatar/assertion/Grammar.g4) if you're interested in the exact syntax.
 
@@ -171,6 +172,8 @@ The Validatar assertion grammar is written in ANTLR and can be found [here](http
 Validatar by default uses the JUnit XML report format to write your test results in a JUnit XML file that you can publish. If you have a SMTP server, you can also generate a pretty HTML E-Mail report to mail out to a list of recipients.
 
 ![Report E-Mail](https://user-images.githubusercontent.com/1041753/34065062-2ad8586c-e1b3-11e7-82d6-875427c4cd2d.png)
+
+If you want to only generate a report if there were failures in running your queries or tests (including tests that were set to warn only), pass the ```report-on-failure-only true``` flag when launching Validatar.
 
 ### Parameter Substitution
 
@@ -417,12 +420,13 @@ Option                                 Description
 --custom-engine <Additional custom     Additional custom engine to load.
   fully qualified classes to plug in>
 
-
 Reporting options:
-Option                           Description
-------                           -----------
---report-format <Report format>  Which report format to use. (default:
-                                   junit)
+Option                              Description
+------                              -----------
+--report-format <Report format>     Which report format to use. (default:
+                                      junit)
+--report-on-failure-only <Boolean:  Should the reporter be only run on
+  Report on failure>                  failure. (default: false)
 
 
 Junit report options:
@@ -474,6 +478,7 @@ Version | Notes
 0.5.1   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
 0.5.2   | Validatar exits with an exit code of 1 if there are failures. Added a warnOnly parameter for tests. JUnit reporter now uses CDATA in XML for additional information.
 0.5.3   | Added an Email reporter that sends an HTML formatted email test report contributed by [Mogball](https://github.com/mogball).
+0.5.4   | Added a flag ```--report-on-failure-only``` to only generate reports if there were failures in tests (including warnOnly) or queries
 
 ## Members
 

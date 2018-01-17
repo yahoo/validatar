@@ -13,7 +13,7 @@ public class Test extends Executable {
     public String description;
     public List<String> asserts;
     @Getter
-    public Boolean warnOnly = false;
+    public boolean warnOnly = false;
 
     /**
      * Did this test pass. A test passes if it only warns.

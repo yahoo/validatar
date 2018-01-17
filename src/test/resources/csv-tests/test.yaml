@@ -1,0 +1,50 @@
+---
+name: Click and View Thresholds
+description: Test a bunch of click and view metrics for regions with joins
+queries:
+   - name: A
+     engine: csv
+     value: |
+            date,country,views,clicks
+            20170101,us,10000,124
+            20170101,uk,4340,14
+            20170101,fr,4520,0
+            20170101,cn,99999,1024
+            20170101,eg,100,24
+            20170102,us,9900,328
+            20170102,uk,2340,13
+            20170102,fr,4313,20
+            20170102,cn,97345,2034
+            20170102,eg,100,24
+            20170102,sa,0,2
+     metadata:
+         - key: views
+           value: LONG
+         - key: clicks
+           value: LONG
+   - name: B
+     engine: csv
+     value: |
+            country,continent,threshold,expected
+            us,na,0.01,10090
+            uk,eu,0.1,4100
+            fr,eu,0.0,4500
+            cn,as,0.05,100000
+            eg,af,0.15,110
+            sa,af,0.1,10
+            au,au,0.2,5
+     metadata:
+         - key: threshold
+           value: DOUBLE
+         - key: expected
+           value: LONG
+tests:
+   - name: All clicks and views should be non-negative
+     description: Basic integrity check
+     asserts:
+         - A.clicks >= 0 && A.views >= 0
+   - name: Views are within threshold for non-Asian countries
+     description: The views for each day is within the margin of error threshold for all countries not in Asia
+     asserts:
+         - approx(A.views, B.expected, B.threshold) where A.country == B.country && B.continent != "as"
+...

@@ -4,6 +4,7 @@
  */
 package com.yahoo.validatar.report;
 
+import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -87,5 +88,70 @@ public class FormatManagerTest {
         manager.setupFormatter("MockFormat", args);
         manager.writeReport(null);
         Assert.assertTrue(formatter.wroteReport);
+    }
+
+    @Test
+    public void testWriteReportOnlyOnFailureForFailingQueriesAndTests() throws IOException {
+        String[] args = {"--report-on-failure-only", "true"};
+        MockFormatter formatter = new MockFormatter();
+        FormatManager manager = new FormatManager(args);
+        manager.setAvailableFormatters(Collections.singletonMap("MockFormat", formatter));
+        manager.setupFormatter("MockFormat", args);
+        TestSuite suite = new TestSuite();
+
+        Assert.assertFalse(formatter.wroteReport);
+
+        com.yahoo.validatar.common.Test failingTest = new com.yahoo.validatar.common.Test();
+        failingTest.setFailed();
+        Query failingQuery = new Query();
+        failingQuery.setFailed();
+        suite.queries = Collections.singletonList(failingQuery);
+        suite.tests = Collections.singletonList(failingTest);
+        manager.writeReport(Collections.singletonList(suite));
+        Assert.assertTrue(formatter.wroteReport);
+    }
+
+    @Test
+    public void testWriteReportOnlyOnFailureForWarnOnlyTests() throws IOException {
+        String[] args = {"--report-on-failure-only", "true"};
+        MockFormatter formatter = new MockFormatter();
+        FormatManager manager = new FormatManager(args);
+        manager.setAvailableFormatters(Collections.singletonMap("MockFormat", formatter));
+        manager.setupFormatter("MockFormat", args);
+        TestSuite suite = new TestSuite();
+
+        Assert.assertFalse(formatter.wroteReport);
+
+        com.yahoo.validatar.common.Test warnOnlyTest = new com.yahoo.validatar.common.Test();
+        warnOnlyTest.warnOnly = true;
+        warnOnlyTest.setFailed();
+        suite.queries = null;
+        suite.tests = Collections.singletonList(warnOnlyTest);
+        manager.writeReport(Collections.singletonList(suite));
+        Assert.assertTrue(formatter.wroteReport);
+    }
+
+    @Test
+    public void testWriteReportOnlyOnFailureForPassingQueriesAndTests() throws IOException {
+        String[] args = {"--report-on-failure-only", "true"};
+        MockFormatter formatter = new MockFormatter();
+        FormatManager manager = new FormatManager(args);
+        manager.setAvailableFormatters(Collections.singletonMap("MockFormat", formatter));
+        manager.setupFormatter("MockFormat", args);
+        TestSuite suite = new TestSuite();
+
+        Assert.assertFalse(formatter.wroteReport);
+
+        Query passingQuery = new Query();
+        suite.queries = Collections.singletonList(passingQuery);
+        suite.tests = null;
+        manager.writeReport(Collections.singletonList(suite));
+        Assert.assertFalse(formatter.wroteReport);
+
+        com.yahoo.validatar.common.Test passingTest = new com.yahoo.validatar.common.Test();
+        suite.tests = Collections.singletonList(passingTest);
+        manager.writeReport(Collections.singletonList(suite));
+        Assert.assertFalse(formatter.wroteReport);
+
     }
 }
