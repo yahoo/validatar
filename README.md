@@ -163,7 +163,7 @@ is used and the where clause is used as a way to filter the dataset to only use 
 
 This assert uses the where clause to perform a cartesian product of A and B and picks all the rows where the country is the same (inner join on country) and the continent is not "as". For these rows, it checks to see the value for A.views is within the corresponding value in B.expected by the corresponding B.threshold percentage. For example, "us" will have approx(10000, 10090, 0.01) performed, which is true.
 
-You can find this failing test suite if you are interested in playing around with it here ([src/test/resources/csv-tests/tests.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/csv-tests/tests.yaml).
+You can find this failing test suite if you are interested in playing around with it here ([src/test/resources/csv-tests/test.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/csv-tests/test.yaml).
 
 The Validatar assertion grammar is written in ANTLR and can be found [here](https://github.com/yahoo/validatar/blob/master/src/main/antlr4/com/yahoo/validatar/assertion/Grammar.g4) if you're interested in the exact syntax.
 
