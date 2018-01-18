@@ -111,7 +111,6 @@
                 </executions>
             </plugin>
 
-            <!-- Need to shade dom4j. Pig clashes with it -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -127,13 +126,20 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
                             <relocations>
+                                <!-- Pig clashes with dom4j-->
                                 <relocation>
                                     <pattern>org.dom4j</pattern>
                                     <shadedPattern>org.shaded.dom4j</shadedPattern>
                                 </relocation>
+                                <!-- Clashes with a bunch of hadoop dependencies-->
                                 <relocation>
                                     <pattern>org.apache.http</pattern>
                                     <shadedPattern>org.shaded.apache.http</shadedPattern>
+                                </relocation>
+                                <!-- Parboiled dependency from jtwig clashes with asm on hadoop-->
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>org.shaded.objectweb.asm</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
