@@ -479,6 +479,7 @@ Version | Notes
 0.5.2   | Validatar exits with an exit code of 1 if there are failures. Added a warnOnly parameter for tests. JUnit reporter now uses CDATA in XML for additional information.
 0.5.3   | Added an Email reporter that sends an HTML formatted email test report contributed by [Mogball](https://github.com/mogball).
 0.5.4   | Added a flag ```--report-on-failure-only``` to only generate reports if there were failures in tests (including warnOnly) or queries
+0.5.5   | Shaded ```org.objectweb.asm``` to not clash with asm in Hadoop environments
 
 ## Members
 
