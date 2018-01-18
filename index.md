@@ -10,6 +10,7 @@
 	* [Assertions](#assertions)
 		* [Assertion Format](#assertion-format)
 		* [Examples](#examples)
+	* [Report Generation](#report-generation)
 	* [Parameter Substitution](#parameter-substitution)
 * [Execution Engines](#execution-engines)
 	* [Hive](#hive)
@@ -36,7 +37,7 @@
 * Reads and models data from highly variable datasources as a standard columnar (table) format
 * Lets you write powerful assertions on this data. You can join, filter and run comparisons on your data
 * Is fully typed and preserves the types of your data sources
-* Generates test reports that can be published in CI environments (currently the JUnit format is supported)
+* Generates test reports that can be published in various environments or emailed (currently the JUnit XML format or emailing reports is supported)
 * Is completely modular and pluggable. You can easily extend and add new datasources, input sources, output reports etc.
 
 The data sources we currently support:
@@ -162,8 +163,17 @@ is used and the where clause is used as a way to filter the dataset to only use 
 
 This assert uses the where clause to perform a cartesian product of A and B and picks all the rows where the country is the same (inner join on country) and the continent is not "as". For these rows, it checks to see the value for A.views is within the corresponding value in B.expected by the corresponding B.threshold percentage. For example, "us" will have approx(10000, 10090, 0.01) performed, which is true.
 
+You can find this failing test suite if you are interested in playing around with it here ([src/test/resources/csv-tests/test.yaml](https://github.com/yahoo/validatar/blob/master/src/test/resources/csv-tests/test.yaml).
 
 The Validatar assertion grammar is written in ANTLR and can be found [here](https://github.com/yahoo/validatar/blob/master/src/main/antlr4/com/yahoo/validatar/assertion/Grammar.g4) if you're interested in the exact syntax.
+
+### Report Generation
+
+Validatar by default uses the JUnit XML report format to write your test results in a JUnit XML file that you can publish. If you have a SMTP server, you can also generate a pretty HTML E-Mail report to mail out to a list of recipients.
+
+![Report E-Mail](https://user-images.githubusercontent.com/1041753/34065062-2ad8586c-e1b3-11e7-82d6-875427c4cd2d.png)
+
+If you want to only generate a report if there were failures in running your queries or tests (including tests that were set to warn only), pass the ```report-on-failure-only true``` flag when launching Validatar.
 
 ### Parameter Substitution
 
@@ -285,14 +295,17 @@ Running REST tests require no other dependencies and can be launched with Java i
 
 ## Pluggability
 
-Engines, report generators and test suite parsers are all pluggable. You can implement your own extending the appropriate
-interfaces and pass them in to validatar to load at run time by placing it in the classpath. If you wished to have a report generated and posted to a
-web service, you could do that! Or vice versa to read test suites off of a webservice or a queue somewhere. Refer to
-the options below to see how to pass in the custom implementations.
+Engines, report format generators and test suite parsers are all pluggable. You can implement your own extending the appropriate interfaces below and pass them in to Validatar to load at run time by placing it in the classpath. If you wished to have a report generated and posted to a web service, you could do that! Or vice versa to read test suites off of a webservice or a queue somewhere. Refer to the options below to see how to pass in the custom implementations using the ```custom-engine```, ```custom-parser```, ```custom-formatter``` options.
+
+| Module | Interface to implement |
+| ------ | ---------------------- |
+| Parser | [Parser.java](https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/parse/Parser.java) |
+| Engine | [Engine.java](https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/execution/Engine.java) |
+| Formatter | [Formatter.java](https://github.com/yahoo/validatar/blob/master/src/main/java/com/yahoo/validatar/report/Formatter.java) |
 
 ## Help
 
-Feel free to reach out to us if you run into issues. You are welcome to open any issues. Pull requests welcome!
+Feel free to reach out to us if you run into issues. You are welcome to open any issues. Pull requests are welcome!
 
 We list the complete help output from Validatar for reference here:
 
@@ -407,12 +420,13 @@ Option                                 Description
 --custom-engine <Additional custom     Additional custom engine to load.
   fully qualified classes to plug in>
 
-
 Reporting options:
-Option                           Description
-------                           -----------
---report-format <Report format>  Which report format to use. (default:
-                                   junit)
+Option                              Description
+------                              -----------
+--report-format <Report format>     Which report format to use. (default:
+                                      junit)
+--report-on-failure-only <Boolean:  Should the reporter be only run on
+  Report on failure>                  failure. (default: false)
 
 
 Junit report options:
@@ -420,6 +434,17 @@ Option                       Description
 ------                       -----------
 --report-file <Report file>  File to store the test reports.
                                (default: report.xml)
+Email report options:
+Option (* = required)             Description
+---------------------             -----------
+* --email-from                    Email shown to recipients as 'from'
+* --email-recipients              Comma-separated list of emails to send
+  <Report recipients' emails>     reports
+* --email-reply-to                Email to which replies will be sent
+--email-sender-name               Name of sender displayed to report
+                                    recipients (default: Validatar)
+* --email-smtp-host               Email SMTP host name
+* --email-smtp-port               Email SMTP port
 
 
 Advanced Reporting Options:
@@ -452,6 +477,8 @@ Version | Notes
 0.4.3   | Parameter Expansion in asserts [#24](https://github.com/yahoo/validatar/issues/24). Hive NULL type bug fix.
 0.5.1   | Vector support, join and filter clauses using where [#26](https://github.com/yahoo/validatar/issues/26). CSV static datasource from file or String [#27](https://github.com/yahoo/validatar/issues/27).
 0.5.2   | Validatar exits with an exit code of 1 if there are failures. Added a warnOnly parameter for tests. JUnit reporter now uses CDATA in XML for additional information.
+0.5.3   | Added an Email reporter that sends an HTML formatted email test report contributed by [Mogball](https://github.com/mogball).
+0.5.4   | Added a flag ```--report-on-failure-only``` to only generate reports if there were failures in tests (including warnOnly) or queries
 
 ## Members
 
@@ -459,3 +486,5 @@ Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
 
 ## Contributors
+
+[Mogball](https://github.com/mogball) - Email Reporter [0.5.3]
