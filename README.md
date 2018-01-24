@@ -66,7 +66,7 @@ queries:
    ...
 tests:
    - name: String describing the Test name
-     description: String descrbing the Test
+     description: String describing the Test
      asserts:
         - A String assertion statement referencing data from the queries. See below for exact details on Validatar assert statements.
    ...
@@ -169,7 +169,7 @@ The Validatar assertion grammar is written in ANTLR and can be found [here](http
 
 ### Report Generation
 
-Validatar by default uses the JUnit XML report format to write your test results in a JUnit XML file that you can publish. If you have a SMTP server, you can also generate a pretty HTML E-Mail report to mail out to a list of recipients.
+Validatar by default uses the JUnit XML report format to write your test results in a JUnit XML file that you can publish. If you have a SMTP server, you can also generate a pretty HTML E-Mail report to mail out to a list of recipients by changing the ```report-format``` setting to ```--report-format email```. 
 
 ![Report E-Mail](https://user-images.githubusercontent.com/1041753/34065062-2ad8586c-e1b3-11e7-82d6-875427c4cd2d.png)
 
