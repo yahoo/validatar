@@ -130,7 +130,7 @@ public class Column implements Iterable<TypedObject> {
      * @return The copied column.
      */
     public Column copy() {
-        return this.stream().collect(Column::new, (c, t) -> c.add(new TypedObject(t.data, t.type)), Column::add);
+        return this.stream().collect(Column::new, (c, t) -> c.add(t == null ? null : new TypedObject(t.data, t.type)), Column::add);
     }
 
     /**

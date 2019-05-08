@@ -237,4 +237,23 @@ public class ResultTest {
 
         Assert.assertTrue(isEqual(actual, expected));
     }
+
+    @Test
+    public void testGettingRowsSafely() {
+        Result result = new Result("A");
+        result.addColumn("a", asColumn(Type.LONG, 1L, 4L, 10L, 20L, 1L));
+        result.addColumn("b", asColumn(Type.BOOLEAN, true, null, false));
+
+        Map<String, TypedObject> rowTwo = result.getRowSafe(1);
+        Assert.assertEquals(rowTwo.get("A.a").data, 4L);
+        Assert.assertEquals(rowTwo.get("A.b").data, Result.NULL);
+
+        Map<String, TypedObject> rowFive = result.getRowSafe(4);
+        Assert.assertEquals(rowFive.get("A.a").data, 1L);
+        Assert.assertEquals(rowFive.get("A.b").data, Result.EMPTY_RESULT);
+
+        Map<String, TypedObject> rowTen = result.getRowSafe(9);
+        Assert.assertEquals(rowTen.get("A.a").data, Result.EMPTY_RESULT);
+        Assert.assertEquals(rowTen.get("A.b").data, Result.EMPTY_RESULT);
+    }
 }

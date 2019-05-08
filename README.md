@@ -480,6 +480,7 @@ Version | Notes
 0.5.3   | Added an Email reporter that sends an HTML formatted email test report contributed by [Mogball](https://github.com/mogball).
 0.5.4   | Added a flag ```--report-on-failure-only``` to only generate reports if there were failures in tests (including warnOnly) or queries
 0.5.5   | Shaded ```org.objectweb.asm``` to not clash with asm in Hadoop environments
+0.5.6   | Fixed a bug with pretty-printing results with nulls
 
 ## Members
 

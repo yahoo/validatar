@@ -81,6 +81,7 @@ public class ColumnTest {
         Column column = new Column();
         column.add(new TypedObject(42L, Type.LONG));
         column.add(new TypedObject(84L, Type.LONG));
+        column.add((TypedObject) null);
 
         Column copy = column.copy();
 
@@ -88,6 +89,7 @@ public class ColumnTest {
         Assert.assertEquals(column.get(1).data, 84L);
         Assert.assertEquals(copy.get(1).type, Type.LONG);
         Assert.assertEquals(copy.get(1).data, 84L);
+        Assert.assertNull(copy.get(2));
 
         Assert.assertFalse(column.get(1) == copy.get(1));
     }
