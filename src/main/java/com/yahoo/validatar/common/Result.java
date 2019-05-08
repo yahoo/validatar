@@ -34,6 +34,7 @@ public class Result {
     public static final String COMMA = ",";
     public static final String FORMAT_NEWLINE = "%n";
     public static final String EMPTY_RESULT = "";
+    public static final String NULL = "null";
     private final Map<String, Column> columns;
     private String namespace = "";
 
@@ -205,7 +206,7 @@ public class Result {
      */
     public Map<String, TypedObject> getRow(int row) {
         Map<String, TypedObject> value = new HashMap<>();
-        columns.entrySet().stream().forEach(e -> value.put(e.getKey(), e.getValue().get(row)));
+        columns.entrySet().forEach(e -> value.put(e.getKey(), e.getValue().get(row)));
         return value;
     }
 
@@ -221,7 +222,14 @@ public class Result {
         Map<String, TypedObject> value = new HashMap<>();
         for (Map.Entry<String, Column> column : columns.entrySet()) {
             Column columnEntry = column.getValue();
-            value.put(column.getKey(), columnEntry.size() > row ? columnEntry.get(row) : TypeSystem.asTypedObject(""));
+            TypedObject entry;
+            if (row < columnEntry.size()) {
+                entry = columnEntry.get(row);
+                entry = entry == null ? TypeSystem.asTypedObject(NULL) : entry;
+            } else {
+                entry = TypeSystem.asTypedObject(EMPTY_RESULT);
+            }
+            value.put(column.getKey(), entry);
         }
         return value;
     }
