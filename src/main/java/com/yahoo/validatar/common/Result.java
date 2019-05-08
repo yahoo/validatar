@@ -235,8 +235,7 @@ public class Result {
     }
 
     private String namespace(String name) {
-        if (namespace == null || namespace.isEmpty()) return name;
-        else return namespace + SEPARATOR + name;
+        return namespace == null || namespace.isEmpty() ? name : namespace + SEPARATOR + name;
     }
 
     /**
