@@ -77,11 +77,6 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
         OptionSet parser = PARSER.parse(arguments);
         onlyOnFailure = (Boolean) parser.valueOf(REPORT_ONLY_ON_FAILURE);
         List<String> names = (List<String>) parser.valuesOf(REPORT_FORMAT);
-        if (names == null || names.isEmpty()) {
-            log.error("You must provide at least one report formatter to write your reports using");
-            printHelp();
-            throw new RuntimeException("Missing at least one report formatter to write reports using");
-        }
         names.forEach(name -> setupFormatter(name, arguments));
     }
 
