@@ -423,7 +423,7 @@ Option                                 Description
 Reporting options:
 Option                              Description
 ------                              -----------
---report-format <Report format>     Which report format to use. (default:
+--report-format <Report formats>     Which report formats to use. (default:
                                       junit)
 --report-on-failure-only <Boolean:  Should the reporter be only run on
   Report on failure>                  failure. (default: false)
@@ -438,14 +438,16 @@ Email report options:
 Option (* = required)             Description
 ---------------------             -----------
 * --email-from                    Email shown to recipients as 'from'
-* --email-recipients              Comma-separated list of emails to send
-  <Report recipients' emails>     reports
+* --email-recipient, --email-     Comma-separated or multi-option emails
+  recipients <Report recipients'    to send reports
+  emails>
 * --email-reply-to                Email to which replies will be sent
 --email-sender-name               Name of sender displayed to report
                                     recipients (default: Validatar)
 * --email-smtp-host               Email SMTP host name
 * --email-smtp-port               Email SMTP port
-
+--email-subject-prefix            Prefix for the subject of the email
+                                    (default: [VALIDATAR] Test Status - )
 
 Advanced Reporting Options:
 Option                                 Description
@@ -481,7 +483,7 @@ Version | Notes
 0.5.4   | Added a flag ```--report-on-failure-only``` to only generate reports if there were failures in tests (including warnOnly) or queries
 0.5.5   | Shaded ```org.objectweb.asm``` to not clash with asm in Hadoop environments
 0.5.6   | Fixed a bug with pretty-printing results with nulls
-0.6.0   | Better reporting (show data with only the assertion columns with the assertion result column, columns now in sorted order). Can now write multiple reports per invocation (specify more than one report formatter using --report-format)
+0.6.0   | Better reporting (show data with only the assertion columns with the assertion result column, columns now in sorted order, EMail Subject Prefix). Can now write multiple reports per invocation (specify more than one report formatter using --report-format)
 
 ## Members
 
