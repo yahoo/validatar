@@ -481,6 +481,7 @@ Version | Notes
 0.5.4   | Added a flag ```--report-on-failure-only``` to only generate reports if there were failures in tests (including warnOnly) or queries
 0.5.5   | Shaded ```org.objectweb.asm``` to not clash with asm in Hadoop environments
 0.5.6   | Fixed a bug with pretty-printing results with nulls
+0.6.0   | Better reporting (show data with only the assertion columns with the assertion result column, columns now in sorted order). Can now write multiple reports per invocation (specify more than one report formatter using --report-format)
 
 ## Members
 

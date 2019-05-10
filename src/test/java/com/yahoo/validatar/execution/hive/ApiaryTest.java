@@ -20,7 +20,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
-import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
@@ -88,7 +87,7 @@ public class ApiaryTest {
         Statement mocked = mock(Statement.class);
         OptionParser parser = new OptionParser() {
             {
-                acceptsAll(singletonList("hive-setting"), "").withRequiredArg();
+                accepts("hive-setting", "").withRequiredArg();
             }
         };
 

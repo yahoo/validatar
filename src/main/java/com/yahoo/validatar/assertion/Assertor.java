@@ -13,9 +13,11 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class Assertor {
+    public static final String RESULT_COLUMN = "";
     /**
      * Takes a Results object and a List of Test, performs the assertions and updates the Tests with the results.
      *
@@ -51,16 +53,24 @@ public class Assertor {
             Column result = expression.evaluate();
 
             if (hasFailures(result)) {
+                Set<String> columnsSeen = visitor.getSeenIdentifiers();
+                Result joined = visitor.getJoinedResult();
+                Result releventData = Result.copy(joined, columnsSeen);
+                releventData.addQualifiedColumn(RESULT_COLUMN, result);
+
                 String assertionMessage = "Assertion " + assertion + " was false";
                 String resultsMessage = "Result had false values: " + result;
-                String columnsMessage = "Examined columns: " + visitor.getSeenIdentifiers();
-                String dataMessage = "Data used: \n" + visitor.getJoinedResult().prettyPrint();
+                String columnsMessage = "Examined columns: " + columnsSeen;
+                String relevantColumnsMessage = "Relevant column data used: \n" + releventData.prettyPrint();
+                String dataMessage = "All Result data used: \n" + joined.prettyPrint();
+
                 test.setFailed();
                 test.addMessage(assertionMessage);
                 test.addMessage(resultsMessage);
                 test.addMessage(columnsMessage);
                 test.addMessage(dataMessage);
-                log.info("{}\n{}\n{}\n{}\n", assertionMessage, resultsMessage, columnsMessage, dataMessage);
+                test.addMessage(relevantColumnsMessage);
+                log.info("{}\n{}\n{}\n{}\n{}\n", assertionMessage, resultsMessage, columnsMessage, dataMessage, relevantColumnsMessage);
             }
         } catch (Exception e) {
             test.setFailed();

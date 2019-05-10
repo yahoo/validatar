@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Collections.singletonList;
-
 /**
  * A class that can be extended to load or plugin additional classes to a type. For example, extending this
  * class in an package that loads engines could let it allow loading additional engines at runtime from arguments.
@@ -41,9 +39,9 @@ public class Pluggable<T> {
         Objects.requireNonNull(defaults);
         pluginOptionsParser = new OptionParser() {
             {
-                acceptsAll(singletonList(key), description)
-                        .withRequiredArg()
-                        .describedAs("Additional custom fully qualified classes to plug in");
+                accepts(key, description)
+                    .withRequiredArg()
+                    .describedAs("Additional custom fully qualified classes to plug in");
                 allowsUnrecognizedOptions();
             }
         };

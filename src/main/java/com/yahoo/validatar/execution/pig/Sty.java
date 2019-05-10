@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.singletonList;
-
 @Slf4j
 public class Sty implements Engine {
     public static final String PIG_EXEC_TYPE = "pig-exec-type";
@@ -63,18 +61,15 @@ public class Sty implements Engine {
 
     private final OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList(PIG_EXEC_TYPE), "The exec-type for Pig to use.  This is the " +
-                                                       "-x argument used when running Pig. Ex: local, mr, tez etc. ")
+            accepts(PIG_EXEC_TYPE, "The exec-type for Pig to use (the -x argument used when running Pig. Ex: local, mr, tez)")
                 .withRequiredArg()
                 .describedAs("Pig execution type")
                 .defaultsTo(DEFAULT_EXEC_TYPE);
-            acceptsAll(singletonList(PIG_OUTPUT_ALIAS), "The default name of the alias where the result is." +
-                                                          "This should contain the data that will be collected")
+            accepts(PIG_OUTPUT_ALIAS, "The default name of the alias where the result is. This should contain the data that will be collected")
                 .withRequiredArg()
                 .describedAs("Pig default output alias")
                 .defaultsTo(DEFAULT_OUTPUT_ALIAS);
-            acceptsAll(singletonList(PIG_SETTING), "Settings and their values. The -D params that would " +
-                                                   "have been sent to Pig. Ex: 'mapreduce.job.acl-view-job=*'")
+            accepts(PIG_SETTING, "Settings and their values. The -D params that would have been sent to Pig. Ex: 'mapreduce.job.acl-view-job=*'")
                 .withRequiredArg()
                 .describedAs("Pig generic settings to use.");
             allowsUnrecognizedOptions();
