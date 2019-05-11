@@ -276,11 +276,11 @@ public class Result {
         // Add a platform specific newline
         format += FORMAT_NEWLINE;
 
-        String[] columnNames = columnSet.toArray(new String[numberOfColumns]);
-        Comparable[] values = new Comparable[numberOfColumns];
+        String[] columnNames = columnSet.stream().sorted().toArray(String[]::new);
+        Object[] values = new Comparable[numberOfColumns];
 
         // Add header
-        formatter.format(format, columns.keySet().toArray());
+        formatter.format(format, (Object[]) columnNames);
         for (int i = 0; i < numberOfRows(); ++i) {
             Map<String, TypedObject> row = getRowSafe(i);
             for (int j = 0; j < numberOfColumns; ++j) {
@@ -302,6 +302,21 @@ public class Result {
         Result copy = new Result();
         for (Map.Entry<String, Column> column : result.getColumns().entrySet()) {
             copy.addColumn(column.getKey(), column.getValue().copy());
+        }
+        return copy;
+    }
+
+    /**
+     * Creates a copy of the result with only the columns specified.
+     *
+     * @param result The {@link Result} to copy.
+     * @param columnsToCopy A {@link Set} of column names (qualified) to copy.
+     * @return A copy of the original with only the columns provided.
+     */
+    public static Result copy(Result result, Set<String> columnsToCopy) {
+        Result copy = new Result();
+        for (String column : columnsToCopy) {
+            copy.addColumn(column, result.getQualifiedColumn(column).copy());
         }
         return copy;
     }

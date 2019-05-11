@@ -22,8 +22,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
-
 @Slf4j
 public class JUnitFormatter implements Formatter {
     public static final String REPORT_FILE = "report-file";
@@ -42,7 +40,7 @@ public class JUnitFormatter implements Formatter {
 
     private final OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList(REPORT_FILE), "File to store the test reports.")
+            accepts(REPORT_FILE, "File to store the test reports.")
                 .withRequiredArg()
                 .describedAs("Report file")
                 .defaultsTo("report.xml");

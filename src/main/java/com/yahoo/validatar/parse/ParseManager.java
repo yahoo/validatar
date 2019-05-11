@@ -15,8 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class ParseManager extends Pluggable<Parser> implements FileLoadable, Hel
     /**
      * The Parser classes to manage.
      */
-    public static final List<Class<? extends Parser>> MANAGED_PARSERS = Arrays.asList(YAML.class);
+    public static final List<Class<? extends Parser>> MANAGED_PARSERS = Collections.singletonList(YAML.class);
 
     public static final Pattern REGEX = Pattern.compile("\\$\\{(.*?)\\}");
 

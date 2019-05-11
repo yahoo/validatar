@@ -22,23 +22,22 @@ import java.util.Map;
 
 import static com.yahoo.validatar.OutputCaptor.redirectToDevNull;
 import static com.yahoo.validatar.OutputCaptor.redirectToStandard;
-import static java.util.Collections.singletonList;
 
 public class AppTest {
     private class MemoryDB extends Apiary {
         private final OptionParser parser = new OptionParser() {
             {
-                acceptsAll(singletonList("hive-driver"), "Fully qualified package name to the hive driver.")
+                accepts("hive-driver", "Fully qualified package name to the hive driver.")
                     .withRequiredArg()
                     .describedAs("Hive driver");
-                acceptsAll(singletonList("hive-jdbc"), "JDBC string to the HiveServer. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
+                accepts("hive-jdbc", "JDBC string to the HiveServer. Ex: 'jdbc:hive2://HIVE_SERVER:PORT/DATABASENAME' ")
                     .withRequiredArg()
                     .describedAs("Hive JDBC connector.");
-                acceptsAll(singletonList("hive-username"), "Hive server username.")
+                accepts("hive-username", "Hive server username.")
                     .withRequiredArg()
                     .describedAs("Hive server username.")
                     .defaultsTo("anon");
-                acceptsAll(singletonList("hive-password"), "Hive server password.")
+                accepts("hive-password", "Hive server password.")
                     .withRequiredArg()
                     .describedAs("Hive server password.")
                     .defaultsTo("anon");

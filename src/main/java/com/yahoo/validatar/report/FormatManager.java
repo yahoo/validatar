@@ -11,15 +11,16 @@ import com.yahoo.validatar.report.email.EmailFormatter;
 import com.yahoo.validatar.report.junit.JUnitFormatter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import lombok.AccessLevel;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Collections.singletonList;
 
 /**
  * Manages the writing of test reports.
@@ -27,19 +28,16 @@ import static java.util.Collections.singletonList;
 @Slf4j
 public class FormatManager extends Pluggable<Formatter> implements Helpable {
     public static final String CUSTOM_FORMATTER = "custom-formatter";
-    public static final String CUSTOM_FORMATTER_DESCRIPTION = "Additional custom formatter to load.";
+    public static final String CUSTOM_FORMATTER_DESCRIPTION = "Additional custom formatters to load.";
 
-    /**
-     * The Parser classes to manage.
-     */
-    public static final List<Class<? extends Formatter>> MANAGED_FORMATTERS = Arrays.asList(
-        JUnitFormatter.class, EmailFormatter.class
-    );
+    public static final List<Class<? extends Formatter>> MANAGED_FORMATTERS = Arrays.asList(JUnitFormatter.class, EmailFormatter.class);
     public static final String REPORT_FORMAT = "report-format";
     public static final String REPORT_ONLY_ON_FAILURE = "report-on-failure-only";
 
+    @Setter(AccessLevel.PACKAGE)
     private Map<String, Formatter> availableFormatters;
-    private Formatter formatterToUse = null;
+    @Setter(AccessLevel.PACKAGE)
+    private List<Formatter> formattersToUse = new ArrayList<>();
     private boolean onlyOnFailure = false;
 
     public static final String JUNIT = "junit";
@@ -47,11 +45,11 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
     // it can be moved to inside the respective formatters.
     private static final OptionParser PARSER = new OptionParser() {
         {
-            acceptsAll(singletonList(REPORT_FORMAT), "Which report format to use.")
+            accepts(REPORT_FORMAT, "Which report formats to use.")
                 .withRequiredArg()
-                .describedAs("Report format")
+                .describedAs("Report formats")
                 .defaultsTo(JUNIT);
-            acceptsAll(singletonList(REPORT_ONLY_ON_FAILURE), "Should the reporter be only run on failure.")
+            accepts(REPORT_ONLY_ON_FAILURE, "Should the reporter be only run on failure.")
                 .withRequiredArg()
                 .describedAs("Report on failure")
                 .ofType(Boolean.class)
@@ -66,6 +64,7 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
      *
      * @param arguments An array of parameters of the form [--param1 value1 --param2 value2...]
      */
+    @SuppressWarnings("unchecked")
     public FormatManager(String[] arguments) {
         super(MANAGED_FORMATTERS, CUSTOM_FORMATTER, CUSTOM_FORMATTER_DESCRIPTION);
 
@@ -77,8 +76,8 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
 
         OptionSet parser = PARSER.parse(arguments);
         onlyOnFailure = (Boolean) parser.valueOf(REPORT_ONLY_ON_FAILURE);
-        String name = (String) parser.valueOf(REPORT_FORMAT);
-        setupFormatter(name, arguments);
+        List<String> names = (List<String>) parser.valuesOf(REPORT_FORMAT);
+        names.forEach(name -> setupFormatter(name, arguments));
     }
 
     /**
@@ -87,26 +86,20 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
      * @param name The name of the formatter to setup
      */
     void setupFormatter(String name, String[] arguments) {
-        formatterToUse = availableFormatters.get(name);
+        Formatter formatterToUse = availableFormatters.get(name);
 
         if (formatterToUse == null) {
             printHelp();
-            throw new NullPointerException("Could not find a formatter to use");
+            log.error("Could not find the formatter {}", formatterToUse);
+            throw new NullPointerException("Could not find the formatter to use");
         }
 
         if (!formatterToUse.setup(arguments)) {
             formatterToUse.printHelp();
+            log.error("Could not initialize the formatter {}", formatterToUse);
             throw new RuntimeException("Could not initialize the requested formatter");
         }
-    }
-
-    /**
-     * For testing purposes only. Explicitly set the formatters.
-     *
-     * @param formatters The map of names to formatters to use.
-     */
-    protected void setAvailableFormatters(Map<String, Formatter> formatters) {
-        availableFormatters = formatters;
+        formattersToUse.add(formatterToUse);
     }
 
     /**
@@ -115,19 +108,22 @@ public class FormatManager extends Pluggable<Formatter> implements Helpable {
      * @param testSuites List of test suites.
      * @throws java.io.IOException if any.
      */
-    public void writeReport(List<TestSuite> testSuites) throws IOException {
+    public void writeReports(List<TestSuite> testSuites) throws IOException {
         // Do nothing if we wanted to write out only on failures and we had no failures.
         if (onlyOnFailure && testSuites.stream().noneMatch(TestSuite::hasFailures)) {
-            log.warn("Reports should be generated only on failure. Skipping report since there were no failures.");
+            log.warn("Reports should be generated only on failure. Skipping reports since there were no failures.");
             return;
         }
-        formatterToUse.writeReport(testSuites);
+        for (Formatter formatter : formattersToUse) {
+            log.info("Writing report using {}...", formatter.getName());
+            formatter.writeReport(testSuites);
+        }
     }
 
     @Override
     public void printHelp() {
         Helpable.printHelp("Reporting options", PARSER);
-        availableFormatters.values().stream().forEach(Formatter::printHelp);
+        availableFormatters.values().forEach(Formatter::printHelp);
         Helpable.printHelp("Advanced Reporting Options", getPluginOptionsParser());
     }
 }

@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 @Slf4j
 public class JSON implements Engine {
@@ -80,17 +79,17 @@ public class JSON implements Engine {
 
     private final OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList(TIMEOUT_KEY), "The default time to wait for each HTTP request")
+            accepts(TIMEOUT_KEY, "The default time to wait for each HTTP request")
                 .withRequiredArg()
                 .describedAs("REST Query timeout")
                 .ofType(Integer.class)
                 .defaultsTo(DEFAULT_TIMEOUT_MS);
-            acceptsAll(singletonList(RETRY_KEY), "The default number of times to retry each HTTP request")
+            accepts(RETRY_KEY, "The default number of times to retry each HTTP request")
                 .withRequiredArg()
                 .describedAs("REST Query retry limit")
                 .ofType(Integer.class)
                 .defaultsTo(DEFAULT_RETRIES);
-            acceptsAll(singletonList(FUNCTION_NAME_KEY), "The name of the Javascript function used in all queries")
+            accepts(FUNCTION_NAME_KEY, "The name of the Javascript function used in all queries")
                 .withRequiredArg()
                 .describedAs("REST Javascript method name")
                 .defaultsTo(DEFAULT_FUNCTION_NAME);

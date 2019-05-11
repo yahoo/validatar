@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,8 +86,9 @@ public class FormatManagerTest {
         FormatManager manager = new FormatManager(args);
         MockFormatter formatter = new MockFormatter();
         manager.setAvailableFormatters(Collections.singletonMap("MockFormat", formatter));
+        manager.setFormattersToUse(new ArrayList<>());
         manager.setupFormatter("MockFormat", args);
-        manager.writeReport(null);
+        manager.writeReports(null);
         Assert.assertTrue(formatter.wroteReport);
     }
 
@@ -96,6 +98,7 @@ public class FormatManagerTest {
         MockFormatter formatter = new MockFormatter();
         FormatManager manager = new FormatManager(args);
         manager.setAvailableFormatters(Collections.singletonMap("MockFormat", formatter));
+        manager.setFormattersToUse(new ArrayList<>());
         manager.setupFormatter("MockFormat", args);
         TestSuite suite = new TestSuite();
 
@@ -107,7 +110,7 @@ public class FormatManagerTest {
         failingQuery.setFailed();
         suite.queries = Collections.singletonList(failingQuery);
         suite.tests = Collections.singletonList(failingTest);
-        manager.writeReport(Collections.singletonList(suite));
+        manager.writeReports(Collections.singletonList(suite));
         Assert.assertTrue(formatter.wroteReport);
     }
 
@@ -117,6 +120,7 @@ public class FormatManagerTest {
         MockFormatter formatter = new MockFormatter();
         FormatManager manager = new FormatManager(args);
         manager.setAvailableFormatters(Collections.singletonMap("MockFormat", formatter));
+        manager.setFormattersToUse(new ArrayList<>());
         manager.setupFormatter("MockFormat", args);
         TestSuite suite = new TestSuite();
 
@@ -127,7 +131,7 @@ public class FormatManagerTest {
         warnOnlyTest.setFailed();
         suite.queries = null;
         suite.tests = Collections.singletonList(warnOnlyTest);
-        manager.writeReport(Collections.singletonList(suite));
+        manager.writeReports(Collections.singletonList(suite));
         Assert.assertTrue(formatter.wroteReport);
     }
 
@@ -145,12 +149,12 @@ public class FormatManagerTest {
         Query passingQuery = new Query();
         suite.queries = Collections.singletonList(passingQuery);
         suite.tests = null;
-        manager.writeReport(Collections.singletonList(suite));
+        manager.writeReports(Collections.singletonList(suite));
         Assert.assertFalse(formatter.wroteReport);
 
         com.yahoo.validatar.common.Test passingTest = new com.yahoo.validatar.common.Test();
         suite.tests = Collections.singletonList(passingTest);
-        manager.writeReport(Collections.singletonList(suite));
+        manager.writeReports(Collections.singletonList(suite));
         Assert.assertFalse(formatter.wroteReport);
 
     }

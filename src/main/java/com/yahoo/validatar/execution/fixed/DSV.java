@@ -25,8 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Collections.singletonList;
-
 @Slf4j
 public class DSV implements Engine {
     public static final String ENGINE_NAME = "csv";
@@ -41,8 +39,7 @@ public class DSV implements Engine {
 
     private final OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList(CSV_DELIMITER), "The delimiter to use while parsing fields within a record. " +
-                                                     "Defaults to ',' or CSV")
+            accepts(CSV_DELIMITER, "The delimiter to use while parsing fields within a record. Defaults to ',' or CSV")
                     .withRequiredArg()
                     .describedAs("The field delimiter")
                     .defaultsTo(DEFAULT_DELIMITER);

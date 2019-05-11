@@ -20,41 +20,37 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 /**
- * This formatter renders the report as an HTML report
- * and mails it to specified recipients.
+ * This formatter renders the report as an HTML report and mails it to specified recipients.
  */
 @Slf4j
 public class EmailFormatter implements Formatter {
     public static final String EMAIL_FORMATTER = "email";
 
+    protected static final String EMAIL_RECIPIENT = "email-recipient";
     protected static final String EMAIL_RECIPIENTS = "email-recipients";
     protected static final String EMAIL_SENDER_NAME = "email-sender-name";
+    protected static final String EMAIL_SUBJECT_PREFIX = "email-subject-prefix";
     protected static final String EMAIL_FROM = "email-from";
     protected static final String EMAIL_REPLY_TO = "email-reply-to";
     protected static final String EMAIL_SMTP_HOST = "email-smtp-host";
     protected static final String EMAIL_SMTP_PORT = "email-smtp-port";
 
-    /**
-     * Option parser for this class. Caller should provide the following arguments:
-     * <ul>
-     * <li>--email-recipients | list of emails to send reports</li>
-     * <li>--email-sender-name | name of the report email sender (default 'Validatar'</li>
-     * <li>--email-from | email to show as the sender</li>
-     * <li>--email-reply-to | email to which replies are sent</li>
-     * <li>--email-smtp-host | SMTP server host</li>
-     * <li>--email-smtp-port | SMTP server port</li>
-     * </ul>
-     */
     private static final OptionParser PARSER = new OptionParser() {
         {
-            accepts(EMAIL_RECIPIENTS, "Comma-separated list of emails to send reports")
+            acceptsAll(asList(EMAIL_RECIPIENT, EMAIL_RECIPIENTS), "Comma-separated or multi-option emails to send reports")
                     .withRequiredArg()
+                    .required()
                     .describedAs("Report recipients' emails")
-                    .required();
+                    .withValuesSeparatedBy(COMMA);
             accepts(EMAIL_SENDER_NAME, "Name of sender displayed to report recipients")
                     .withRequiredArg()
                     .defaultsTo("Validatar");
+            accepts(EMAIL_SUBJECT_PREFIX, "Prefix for the subject of the email")
+                    .withRequiredArg()
+                    .defaultsTo("[VALIDATAR] Test Status - ");
             accepts(EMAIL_FROM, "Email shown to recipients as 'from'")
                     .withRequiredArg()
                     .required();
@@ -71,29 +67,24 @@ public class EmailFormatter implements Formatter {
         }
     };
 
-    /**
-     * List of recipient emails for Validatar reports.
-     */
+    private static final String TWIG_TEMPLATE = "templates/email.twig";
+    private static final String TWIG_ERROR_PARAM = "error";
+    private static final String TWIG_TEST_LIST_PARAM = "testList";
+
+    private static final String COMMA = ",";
+
+    private static final String SUBJECT_FAILURE_SUFFIX = "Errored";
+    private static final String SUBJECT_SUCCESS_SUFFIX = "Passed";
+
+    private static final String X_PRIORITY = "X-Priority";
+    private static final int PRIORITY = 2;
+
     private List<String> recipientEmails;
-    /**
-     * Sender name to display to report recipients.
-     */
     private String senderName;
-    /**
-     * From email to display to report recipients.
-     */
+    private String subjectPrefix;
     private String fromEmail;
-    /**
-     * Email to which report email replies are sent.
-     */
     private String replyTo;
-    /**
-     * SMTP server host.
-     */
     private String smtpHost;
-    /**
-     * SMTP server port.
-     */
     private int smtpPort;
 
     @Override
@@ -107,6 +98,7 @@ public class EmailFormatter implements Formatter {
             return false;
         }
         senderName = (String) options.valueOf(EMAIL_SENDER_NAME);
+        subjectPrefix = (String) options.valueOf(EMAIL_SUBJECT_PREFIX);
         fromEmail = (String) options.valueOf(EMAIL_FROM);
         replyTo = (String) options.valueOf(EMAIL_REPLY_TO);
         smtpHost = (String) options.valueOf(EMAIL_SMTP_HOST);
@@ -133,17 +125,18 @@ public class EmailFormatter implements Formatter {
             hasError = hasError || !testSuiteModel.allPassed();
             testList.add(testSuiteModel);
         }
-        JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/email.twig");
+        JtwigTemplate template = JtwigTemplate.classpathTemplate(TWIG_TEMPLATE);
         JtwigModel model = JtwigModel.newModel()
-                                     .with("error", hasError)
-                                     .with("testList", testList);
+                                     .with(TWIG_ERROR_PARAM, hasError)
+                                     .with(TWIG_TEST_LIST_PARAM, testList);
         String reportHtml = template.render(model);
-        EmailBuilder emailBuilder = new EmailBuilder().from(senderName, fromEmail)
-                                                      .replyTo(senderName, replyTo)
-                                                      .subject("Validatar Report – " + (hasError ? "Test Errors" : "Tests Passed"))
-                                                      .addHeader("X-Priority", 2)
-                                                      .textHTML(reportHtml);
+        EmailBuilder emailBuilder =
+            new EmailBuilder().from(senderName, fromEmail)
+                    .replyTo(senderName, replyTo)
+                    .subject(subjectPrefix + (hasError ? SUBJECT_FAILURE_SUFFIX : SUBJECT_SUCCESS_SUFFIX))
+                    .addHeader(X_PRIORITY, PRIORITY) .textHTML(reportHtml);
         for (String recipientEmail : recipientEmails) {
+            log.info("Emailing {}", recipientEmail);
             emailBuilder.to(recipientEmail);
         }
         Email reportEmail = emailBuilder.build();

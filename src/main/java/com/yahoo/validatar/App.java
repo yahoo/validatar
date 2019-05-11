@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 @Slf4j
 public class App {
@@ -42,10 +41,10 @@ public class App {
      */
     public static final OptionParser PARSER = new OptionParser() {
         {
-            acceptsAll(singletonList(PARAMETER), "Parameter to replace all '${VAR}' in the query string. Ex: --parameter DATE=2014-07-24")
+            accepts(PARAMETER, "Parameter to replace all '${VAR}' in the query string. Ex: --parameter DATE=2014-07-24")
                 .withRequiredArg()
                 .describedAs("Parameter");
-            acceptsAll(singletonList(TEST_SUITE), "File or folder that contains the test suite file(s).")
+            accepts(TEST_SUITE, "File or folder that contains the test suite file(s).")
                 .withRequiredArg()
                 .required()
                 .ofType(File.class)
@@ -132,7 +131,7 @@ public class App {
 
         // Write reports
         log.info("Writing reports...");
-        formatManager.writeReport(suites);
+        formatManager.writeReports(suites);
         log.info("Done!");
 
         return tests.stream().allMatch(Test::passed) && queries.stream().noneMatch(Query::failed);

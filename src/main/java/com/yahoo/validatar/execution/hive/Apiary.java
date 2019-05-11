@@ -23,8 +23,6 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
-
 @Slf4j
 public class Apiary implements Engine {
     public static final String HIVE_JDBC = "hive-jdbc";
@@ -42,25 +40,25 @@ public class Apiary implements Engine {
 
     private final OptionParser parser = new OptionParser() {
         {
-            acceptsAll(singletonList(HIVE_JDBC), "JDBC string to the HiveServer2 with an optional database. " +
+            accepts(HIVE_JDBC, "JDBC string to the HiveServer2 with an optional database. " +
                                                  "If the database is provided, the queries must NOT have one. " +
                                                  "Ex: 'jdbc:hive2://HIVE_SERVER:PORT/[DATABASE_FOR_ALL_QUERIES]' ")
                 .withRequiredArg()
                 .required()
                 .describedAs("Hive JDBC connector");
-            acceptsAll(singletonList(HIVE_DRIVER), "Fully qualified package name to the hive driver.")
+            accepts(HIVE_DRIVER, "Fully qualified package name to the hive driver.")
                 .withRequiredArg()
                 .describedAs("Hive driver")
                 .defaultsTo(DRIVER_NAME);
-            acceptsAll(singletonList(HIVE_USERNAME), "Hive server username.")
+            accepts(HIVE_USERNAME, "Hive server username.")
                 .withRequiredArg()
                 .describedAs("Hive server username")
                 .defaultsTo("anon");
-            acceptsAll(singletonList(HIVE_PASSWORD), "Hive server password.")
+            accepts(HIVE_PASSWORD, "Hive server password.")
                 .withRequiredArg()
                 .describedAs("Hive server password")
                 .defaultsTo("anon");
-            acceptsAll(singletonList(HIVE_SETTING), "Settings and their values. Ex: 'hive.execution.engine=mr'")
+            accepts(HIVE_SETTING, "Settings and their values. Ex: 'hive.execution.engine=mr'")
                 .withRequiredArg()
                 .describedAs("Hive generic settings to use.");
             allowsUnrecognizedOptions();
