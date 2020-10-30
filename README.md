@@ -1,6 +1,6 @@
 # Validatar
 
-[![Build Status](https://travis-ci.org/yahoo/validatar.svg?branch=master)](https://travis-ci.org/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
+[![Build Status](https://travis-ci.com/yahoo/validatar.svg?branch=master)](https://travis-ci.com/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Download](https://api.bintray.com/packages/yahoo/maven/validatar/images/download.svg)](https://bintray.com/yahoo/maven/validatar/_latestVersion)
 
 ## Table of Contents
 
@@ -169,7 +169,7 @@ The Validatar assertion grammar is written in ANTLR and can be found [here](http
 
 ### Report Generation
 
-Validatar by default uses the JUnit XML report format to write your test results in a JUnit XML file that you can publish. If you have a SMTP server, you can also generate a pretty HTML E-Mail report to mail out to a list of recipients by changing the ```report-format``` setting to ```--report-format email```. 
+Validatar by default uses the JUnit XML report format to write your test results in a JUnit XML file that you can publish. If you have a SMTP server, you can also generate a pretty HTML E-Mail report to mail out to a list of recipients by changing the ```report-format``` setting to ```--report-format email```.
 
 ![Report E-Mail](https://user-images.githubusercontent.com/1041753/34065062-2ad8586c-e1b3-11e7-82d6-875427c4cd2d.png)
 
