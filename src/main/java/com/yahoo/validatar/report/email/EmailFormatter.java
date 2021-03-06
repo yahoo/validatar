@@ -29,14 +29,17 @@ import static java.util.Arrays.asList;
 public class EmailFormatter implements Formatter {
     public static final String EMAIL_FORMATTER = "email";
 
-    protected static final String EMAIL_RECIPIENT = "email-recipient";
-    protected static final String EMAIL_RECIPIENTS = "email-recipients";
-    protected static final String EMAIL_SENDER_NAME = "email-sender-name";
-    protected static final String EMAIL_SUBJECT_PREFIX = "email-subject-prefix";
-    protected static final String EMAIL_FROM = "email-from";
-    protected static final String EMAIL_REPLY_TO = "email-reply-to";
-    protected static final String EMAIL_SMTP_HOST = "email-smtp-host";
-    protected static final String EMAIL_SMTP_PORT = "email-smtp-port";
+    public static final String EMAIL_RECIPIENT = "email-recipient";
+    public static final String EMAIL_RECIPIENTS = "email-recipients";
+    public static final String EMAIL_SENDER_NAME = "email-sender-name";
+    public static final String EMAIL_SUBJECT_PREFIX = "email-subject-prefix";
+    public static final String EMAIL_FROM = "email-from";
+    public static final String EMAIL_REPLY_TO = "email-reply-to";
+    public static final String EMAIL_SMTP_HOST = "email-smtp-host";
+    public static final String EMAIL_SMTP_PORT = "email-smtp-port";
+    public static final String EMAIL_SMTP_STRATEGY = "email-smtp-strategy";
+
+    private static final String DEFAULT_STRATEGY = "SMTP_TLS";
 
     private static final OptionParser PARSER = new OptionParser() {
         {
@@ -63,6 +66,9 @@ public class EmailFormatter implements Formatter {
             accepts(EMAIL_SMTP_PORT, "Email SMTP port")
                     .withRequiredArg()
                     .required();
+            accepts(EMAIL_SMTP_STRATEGY, "Email SMTP transport strategy - SMTP_PLAIN, SMTP_TLS, SMTP_SSL")
+                    .withRequiredArg()
+                    .defaultsTo(DEFAULT_STRATEGY);
             allowsUnrecognizedOptions();
         }
     };
@@ -86,6 +92,7 @@ public class EmailFormatter implements Formatter {
     private String replyTo;
     private String smtpHost;
     private int smtpPort;
+    private TransportStrategy strategy;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -104,6 +111,7 @@ public class EmailFormatter implements Formatter {
         smtpHost = (String) options.valueOf(EMAIL_SMTP_HOST);
         smtpPort = Integer.parseInt((String) options.valueOf(EMAIL_SMTP_PORT));
         recipientEmails = (List<String>) options.valuesOf(EMAIL_RECIPIENTS);
+        strategy = TransportStrategy.valueOf((String) options.valueOf(EMAIL_SMTP_STRATEGY));
         return true;
     }
 
@@ -141,7 +149,7 @@ public class EmailFormatter implements Formatter {
         }
         Email reportEmail = emailBuilder.build();
         ServerConfig mailServerConfig = new ServerConfig(smtpHost, smtpPort);
-        Mailer reportMailer = new Mailer(mailServerConfig, TransportStrategy.SMTP_TLS);
+        Mailer reportMailer = new Mailer(mailServerConfig, strategy);
         sendEmail(reportMailer, reportEmail);
         log.info("Finished sending report to recipients");
     }
