@@ -5,6 +5,7 @@ import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TestSuite;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.mailer.Mailer;
+import org.simplejavamail.mailer.config.TransportStrategy;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -54,7 +55,8 @@ public class EmailFormatterTest {
             "--" + EmailFormatter.EMAIL_FROM, "validatar@validatar.com",
             "--" + EmailFormatter.EMAIL_REPLY_TO, "validatar@validatar.com",
             "--" + EmailFormatter.EMAIL_SMTP_HOST, "host.host.com",
-            "--" + EmailFormatter.EMAIL_SMTP_PORT, "25"
+            "--" + EmailFormatter.EMAIL_SMTP_PORT, "25",
+            "--" + EmailFormatter.EMAIL_SMTP_STRATEGY, "SMTP_PLAIN"
         };
         EmailFormatter formatter = new EmailFormatter();
         formatter.setup(args);
@@ -66,6 +68,7 @@ public class EmailFormatterTest {
         assertEquals("validatar@validatar.com", get(formatter, "replyTo", String.class));
         assertEquals("host.host.com", get(formatter, "smtpHost", String.class));
         assertEquals((Integer) 25, get(formatter, "smtpPort", Integer.class));
+        assertEquals(TransportStrategy.SMTP_PLAIN, get(formatter, "strategy", TransportStrategy.class));
     }
 
     @Test
