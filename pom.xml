@@ -7,7 +7,7 @@
     <version>0.6.3-SNAPSHOT</version>
     <name>validatar</name>
     <description>
-        Validatar is functional testing framework for Big Data
+        Validatar is a functional testing framework for Big Data
     </description>
     <url>https://github.com/yahoo/validatar</url>
 
