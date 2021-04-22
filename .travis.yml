@@ -4,13 +4,16 @@ jdk:
 dist: bionic
 install: true
 before_install:
-  - openssl aes-256-cbc -K $encrypted_8f2a81d544cc_key -iv $encrypted_8f2a81d544cc_iv -in travis/pubring.gpg.enc -out travis/pubring.gpg -d
-  - openssl aes-256-cbc -K $encrypted_5c292d804727_key -iv $encrypted_5c292d804727_iv -in travis/secring.gpg.enc -out travis/secring.gpg -d
+- openssl aes-256-cbc -K $encrypted_8f2a81d544cc_key -iv $encrypted_8f2a81d544cc_iv
+  -in travis/pubring.gpg.enc -out travis/pubring.gpg -d
+- openssl aes-256-cbc -K $encrypted_5c292d804727_key -iv $encrypted_5c292d804727_iv
+  -in travis/secring.gpg.enc -out travis/secring.gpg -d
 script:
 - mvn verify
 after_success:
 - mvn coveralls:report
-- test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" != "" &&  mvn deploy --settings travis/settings.xml -DskipTests=true -Possrh -Prelease
+- test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" != "" &&  mvn deploy
+  --settings travis/settings.xml -DskipTests=true -Possrh -Prelease
 cache:
   directories:
   - "~/.m2"
@@ -23,4 +26,4 @@ env:
   - GPG_EXECUTABLE=gpg
   - secure: tEAhZEvKMwUOOCMZqmP8kbYQZ4xf1vfMmMPtIFqJ6UzfDdq2wJyPy2oWRCp3baA+ZzT3wxmEX9bahHBvqJr8gqUBPZyuBRtEADfiudeOdm3XoFziGsr1dUzmYsqo0t8XRHHrzhbMKGbH5BDz7RZ7bNhaEBkRpxc9dcH8VkUeLpumnjsbzATiQJrLWfylAB2Bpqogo6/UY+tKp7ct+rys/J+uBWedx5eRFwdT7arhEwZO+rMTQtzdGT/E/EdLtmXQGhSKnLYVWiX5tXoeLdzFsD5biTkO3FJ7+2nctRMbvcOp+2Nu2K3S5xdz5jFcpGvUUtS3U1yNMHJvgGi2jh4Am4n6gJ1GH7UUCfWcbkI0a90SrZlSQd32rQp+j7jOPql94xbN+Dw3utSYl1bJiW42FC9p0wQOhkwatEe/IPKlD/RuN7XbxRCzJyIy98Bb9S8MBSxRDRdKd6sMazNhob28c5/3pk/3qkPkaI8CdegJwdgN0vv35uyW/ZRMC3yAhc+ynDCAO5T0P0EuwEBkCSIeqnTzDwgBnU5lxOJMtv4BbVtHCx52M0OSOUMJClkVnqajYPPY1AEzyNSK+Nl9rOoTN+JZOtCkHY3dLj0OWnhKrmFjJewN+gFH8+JCOOGdbTIvsyz+VnDmqoiiXDz4W29lQGtNtxgTVNBmBr2aidK7foc=
   - secure: BLHoo10MMirG/pbin2LwDB3QMJ59foDljni9HI+D7Kp2fgfBOcoBi2XmFFrGw7iudjo1Xx5hvwUy63v0pKjLMoPCG/3Kt7K0xRQld59jPUgCt+zmFszAUdykvc+UYnlWhWKtFgVLmSjWG+R4muoLEJbX5IA1Qn176TvBYPAznV6cyZwudxRMM5w4I3OWYao3YvlGvO64CtTnAw+Ha9s9bS8RfgwR/hQ8Lw3mUApMThKHk6jaf1Ow6vB8deFhJSdjTvoGzq/KUKBlc375/e0+6Qk2lnMs2yvjV5PiLLaGcedB2I8aKyuiSJdU87+41X5xxYz7zTIEy2W7IrRoMTZqKK8rQNrDf6n44ol8EYUpkcRBVHKqgxw522114g7msdLqkfmEUX9LpPUn5tPu1jzvb6xmf/HCbLXlcd06OBCLOCreLRe3xdv0Iwzg/Hej/njBOcCnDMTb/3RfLOXTgr0JHBsSepRqBRBI7HuIU7wIETuuRjoESnV6XUw5NeJJ8VOOKgbQ131MHE/s5wskIYR2NmrNxv/jfPwCyl7aJB68rpAtxAhGmSmgLumKLeoTGuSu0ueZxrm/uov6Y4VERnuLHJoGew7EssQSCJbbTf0orIs44is2suSID2R7o7SgW78RStnzPSJ78Kx7KJ1YTdC/C3UQa8FA1bWJj+dfaZQcPtA=
-  - secure: LKD1Ci9exXxaEOevxAY59PMH/ShTWSOEY12oSmTC7HPutLqOtdlQp4byjuJ7NNz/XuKOeRVIQ/Jza/HMaLGtDlfdRtQUwqA/6E+Mxh+KcACtiM4yRhoGvsgCbzwC+8LSegmrqQjEO6NYaFziRc/mgjjrqkZix4W+jBKPMQ79UWyWLBAdrbVjkursMSVsbuls+jczs5RSj+JnWZkjhbFYGSVBK9dJ+bhBRc0GFzvdR+JG4N2tcAhUh/rMyFMqX2Ur8iNbZo+0qeSk+IRZsdPYDWQaFWt098dZsQZW2QqJrdxQkzH9qf2Fo6BLPYqJ5Jri6o394se2Rq1zASAVjutGg2UtjSwgF0abLuO77VYcZcMtDw+jp7Tbf7VSnEwJuhifCzwZyhM7oWucaOr9LUY9RyHWMVNq0OWLT2uyJzZ0YALYefv7H5gn96Gmwy/nCIdkXm8OCjqXzf2B/Got2/T5IipdVusB1YN78xeYcYfmWrd5uAK2doyxWTx5xGHUVBaYmj1WefYXyiTAMWTocQ0QbDZL+bYBJTCiORCRq0M8J58hUGKrnCP7ZpG68V8dHZUpnDFUXZXZx+A3ShjRDUBaaIP2OB3Bv0y08IsDikij4noRg/f3LWArzwP0E0BHd96643girK9I3JB4yHioaIP+V5Qf+m6nVVLPI1V7Di6lrFY=
+  - secure: VNNqTnQg7cH1Rb4B2/znDhL7+DD9N/udNns/0VH83b3exc2V1CufWs4zH/Ildc1xednyqOUAwYTUxMedmTW06d1q6+7J67iUjeFdZB27oycqkcDQheoUWoYUrdWgS/aDCS2j8dnLRGbQZiDSYy9sOA2PKWoxX22XnEclzoFzMIfBToVquv8kPPqPQPoCsXjvDfxRABOMnNik1hCsehT//gQIpJy0c6uKidVsCJYHZ8XZCJ81WjxdRN7zu0srgADI3qVTFly88KWcF3gHoxjWph96q+YGhRyEmTGT+kBakiVQUDscgrXn3542w//J2KsHr+atETBLL3bUi1Z9qWTbjCttrs+SzXiEXrWpAVRN7Cwc0Y9jgvw+oZjzxTdwXq6Mzjaggrv/MMLVMJcHfEj6xoUighzHzRdNfqJhbhSY+E6W3zw3PnDz2438H/ZM24k7eNR6YGm51UUjUXksCsfm88IiREUhNmhmAu75ABVUUJHSVneS9FYETcUUVCWshp8m6CQ9W6xe4UK6r79mTKrXPT+e6QHcrMy0YDVXW/nkV1L3Ml9hY+LoQ3j5w0u/H3zV4x4sWUk/PQ+8v0wCl+z2BDVM9loAsH+/IlAItc1QudmbcGYCUgxkIq/+Ph6DSdSRCed7//it+SF3pwzhG0YyzmRNpZlyFtF7JbPz2pbahho=
