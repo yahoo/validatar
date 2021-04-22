@@ -1,6 +1,6 @@
 # Validatar
 
-[![Build Status](https://travis-ci.com/yahoo/validatar.svg?branch=master)](https://travis-ci.com/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) 
+[![Build Status](https://travis-ci.com/yahoo/validatar.svg?branch=master)](https://travis-ci.com/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yahoo.bullet/validatar/) 
 
 ## Table of Contents
 
