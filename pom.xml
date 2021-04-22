@@ -4,7 +4,7 @@
     <groupId>com.yahoo.validatar</groupId>
     <artifactId>validatar</artifactId>
     <packaging>jar</packaging>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.6.2-SNAPSHOT</version>
     <name>validatar</name>
     <description>
         Validatar is functional testing framework for Big Data
@@ -57,7 +57,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>deploy</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
@@ -75,10 +75,10 @@
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <phase>deploy</phase>
-                       <goals>
+                        <phase>package</phase>
+                        <goals>
                             <goal>jar</goal>
-                        </goals>
+                         </goals>
                     </execution>
                 </executions>
             </plugin>
