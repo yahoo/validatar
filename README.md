@@ -1,6 +1,6 @@
 # Validatar
 
-[![Build Status](https://travis-ci.com/yahoo/validatar.svg?branch=master)](https://travis-ci.com/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yahoo.bullet/validatar/) 
+[![Build Status](https://travis-ci.com/yahoo/validatar.svg?branch=master)](https://travis-ci.com/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yahoo.bullet/validatar/)
 
 ## Table of Contents
 
@@ -435,21 +435,21 @@ Option                       Description
 --report-file <Report file>  File to store the test reports.
                                (default: report.xml)
 Email report options:
-Option (* = required)             Description                            
----------------------             -----------                            
-* --email-from                    Email shown to recipients as 'from'    
-* --email-recipient, --email-     Comma-separated or multi-option emails 
-  recipients <Report recipients'    to send reports                      
-  emails>                                                                
-* --email-reply-to                Email to which replies will be sent    
---email-sender-name               Name of sender displayed to report     
-                                    recipients (default: Validatar)      
-* --email-smtp-host               Email SMTP host name                   
-* --email-smtp-port               Email SMTP port                        
---email-smtp-strategy             Email SMTP transport strategy -        
-                                    SMTP_PLAIN, SMTP_TLS, SMTP_SSL       
-                                    (default: SMTP_TLS)                  
---email-subject-prefix            Prefix for the subject of the email    
+Option (* = required)             Description
+---------------------             -----------
+* --email-from                    Email shown to recipients as 'from'
+* --email-recipient, --email-     Comma-separated or multi-option emails
+  recipients <Report recipients'    to send reports
+  emails>
+* --email-reply-to                Email to which replies will be sent
+--email-sender-name               Name of sender displayed to report
+                                    recipients (default: Validatar)
+* --email-smtp-host               Email SMTP host name
+* --email-smtp-port               Email SMTP port
+--email-smtp-strategy             Email SMTP transport strategy -
+                                    SMTP_PLAIN, SMTP_TLS, SMTP_SSL
+                                    (default: SMTP_TLS)
+--email-subject-prefix            Prefix for the subject of the email
                                     (default: [VALIDATAR] Test Status - ))
 
 Advanced Reporting Options:
@@ -488,6 +488,7 @@ Version | Notes
 0.5.6   | Fixed a bug with pretty-printing results with nulls
 0.6.0   | Better reporting (show data with only the assertion columns with the assertion result column, columns now in sorted order, EMail Subject Prefix). Can now write multiple reports per invocation (specify more than one report formatter using --report-format)
 0.6.1   | Added a flag to configure the Email reporter SMTP strategy. Use ```--email-smtp-strategy``` to pass in ```SMTP_PLAIN```, ```SMTP_TLS``` or ```SMTP_SSL```.
+0.6.2   | Bintray EOL. First rerelease of 0.6.1 on Maven Central instead
 
 ## Members
 
