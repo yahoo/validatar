@@ -1,6 +1,8 @@
 # Validatar
 
-[![Build Status](https://travis-ci.com/yahoo/validatar.svg?branch=master)](https://travis-ci.com/yahoo/validatar) [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yahoo.bullet/validatar/)
+[![Build Status](https://cd.screwdriver.cd/pipelines/7218/badge)](https://cd.screwdriver.cd/pipelines/7218)
+[![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yahoo.bullet/validatar/)
 
 ## Table of Contents
 
@@ -489,6 +491,7 @@ Version | Notes
 0.6.0   | Better reporting (show data with only the assertion columns with the assertion result column, columns now in sorted order, EMail Subject Prefix). Can now write multiple reports per invocation (specify more than one report formatter using --report-format)
 0.6.1   | Added a flag to configure the Email reporter SMTP strategy. Use ```--email-smtp-strategy``` to pass in ```SMTP_PLAIN```, ```SMTP_TLS``` or ```SMTP_SSL```.
 0.6.2   | Bintray EOL. First rerelease of 0.6.1 on Maven Central instead
+0.6.3   | Screwdriver migration. First rerelease of 0.6.1 using Screwdriver instead of Travis.
 
 ## Members
 
