@@ -2,7 +2,7 @@
 
 [![Build Status](https://cd.screwdriver.cd/pipelines/7218/badge)](https://cd.screwdriver.cd/pipelines/7218)
 [![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yahoo.bullet/validatar/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/)
 
 ## Table of Contents
 
