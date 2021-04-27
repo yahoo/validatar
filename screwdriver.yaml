@@ -17,7 +17,7 @@ jobs:
     requires: [~tag:/^validatar-\d+\.\d+\.\d+/]
     secrets:
       - SONATYPE_USERNAME
-      - SONATYPE_TOKEN
+      - SONATYPE_PASSWORD
       - GPG_PASSPHRASE
       - GPG_ENCPHRASE
     steps:
