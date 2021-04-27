@@ -14,10 +14,10 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <gpg.executable>${env.GPG_EXECUTABLE}</gpg.executable>
+        <gpg.executable>gpg</gpg.executable>
         <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
         <gpg.defaultKeyring>false</gpg.defaultKeyring>
-        <gpg.homedir>${env.TRAVIS_BUILD_DIR}/travis</gpg.homedir>
+        <gpg.homedir>${env.SD_SOURCE_DIR}/screwdriver</gpg.homedir>
         <gpg.publickeyring>pubring.gpg</gpg.publickeyring>
         <gpg.secretkeyring>secring.gpg</gpg.secretkeyring>
       </properties>

@@ -1,0 +1,24 @@
+cache:
+  pipeline: ["~/.m2"]
+
+shared:
+  image: maven:3.6.3-jdk-8
+
+jobs:
+  main:
+    requires: [~pr, ~commit]
+    secrets:
+      - COVERALLS_TOKEN
+    steps:
+      - build: mvn -B clean verify
+      - coverage: mvn coveralls:report
+
+  release:
+    requires: [~tag:/^validatar-\d+\.\d+\.\d+/]
+    secrets:
+      - SONATYPE_USERNAME
+      - SONATYPE_TOKEN
+      - GPG_PASSPHRASE
+      - GPG_ENCPHRASE
+    steps:
+      - publish: screwdriver/release.sh
