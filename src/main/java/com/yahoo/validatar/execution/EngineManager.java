@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 /**
@@ -155,7 +156,26 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
             return false;
         }
         // Run each query.
-        queries.stream().forEach(this::run);
+        //queries.stream().forEach(this::run);
+
+        log.info("Creating a ForkJoinPool with size {}", queries.size());
+
+        ForkJoinPool forkJoinPool = new ForkJoinPool(queries.size());
+        try {
+            forkJoinPool.submit(() -> queries.parallelStream().forEach(this::run)).get();
+        } catch (Exception e) {
+            log.error("Caught exception", e);
+        }
+        forkJoinPool.shutdown();
+
+
+
+
+
+
+
+
+
         return true;
     }
 }
