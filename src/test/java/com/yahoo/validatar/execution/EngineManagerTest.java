@@ -255,4 +255,45 @@ public class EngineManagerTest extends OutputCaptor {
         Assert.assertEquals((String) actual.get("Foo.b").get(0).data, (String) expected.get("Foo.b").get(0).data);
         Assert.assertEquals((String) actual.get("Foo.b").get(1).data, (String) expected.get("Foo.b").get(1).data);
     }
+
+    @Test
+    public void testParallelRun() {
+        query.engine = MockRunningEngine.ENGINE_NAME;
+        query.name = "Foo";
+
+        String[] args = {"--parallel", "true"};
+        manager = new EngineManager(args);
+        manager.setEngines(engines);
+
+        Assert.assertTrue(manager.run(queries));
+
+        Map<String, List<TypedObject>> expected = new HashMap<>();
+        List<TypedObject> columns = new ArrayList<>();
+        columns.add(new TypedObject("42", TypeSystem.Type.STRING));
+        expected.put("Foo.a", columns);
+        columns = new ArrayList<>();
+        columns.add(new TypedObject("42", TypeSystem.Type.STRING));
+        columns.add(new TypedObject("52", TypeSystem.Type.STRING));
+        expected.put("Foo.b", columns);
+
+        Map<String, Column> actual = query.getResult().getColumns();
+
+        Assert.assertEquals(actual.size(), 2);
+        Assert.assertEquals(expected.size(), 2);
+        Assert.assertEquals(actual.get("Foo.a").size(), 1);
+        Assert.assertEquals(expected.get("Foo.a").size(), 1);
+        Assert.assertEquals((String) actual.get("Foo.a").get(0).data, (String) expected.get("Foo.a").get(0).data);
+        Assert.assertEquals(actual.get("Foo.b").size(), 2);
+        Assert.assertEquals(expected.get("Foo.b").size(), 2);
+        Assert.assertEquals((String) actual.get("Foo.b").get(0).data, (String) expected.get("Foo.b").get(0).data);
+        Assert.assertEquals((String) actual.get("Foo.b").get(1).data, (String) expected.get("Foo.b").get(1).data);
+    }
+
+    @Test
+    public void testConstructor() {
+        String[] args = {"--parallel", "true", "--thread-pool-size", "10"};
+        manager = new EngineManager(args);
+        Assert.assertTrue(manager.parallel);
+        Assert.assertEquals(manager.threadPoolSize, 10);
+    }
 }

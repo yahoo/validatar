@@ -12,19 +12,13 @@ import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -154,29 +148,7 @@ public class JSON implements Engine {
     public void execute(Query query) {
         Map<String, String> metadata = query.getMetadata();
         Objects.requireNonNull(metadata);
-        //String data = makeRequest(createClient(metadata), createRequest(metadata), query);
-
-
-        int timeout = Integer.valueOf(metadata.getOrDefault(METADATA_TIMEOUT_KEY, String.valueOf(defaultTimeout)));
-        String url = metadata.get(URL_KEY);
-        String body = metadata.getOrDefault(BODY_KEY, EMPTY_BODY);
-        OkHttpClient client = new OkHttpClient.Builder().readTimeout(timeout, TimeUnit.MILLISECONDS).callTimeout(timeout, TimeUnit.MILLISECONDS).pingInterval(15000, TimeUnit.MILLISECONDS).build();
-        RequestBody requestBody = RequestBody.create(body, MediaType.parse("text/plain; charset=utf-8"));
-        Request request = new Request.Builder().url(url).post(requestBody).build();
-        String data = null;
-        try (Response response = client.newCall(request).execute()) {
-            data = response.body().string();
-        } catch (IOException e) {
-            log.error("Could not execute request", e);
-            query.setFailure("Could not execute request");
-            query.addMessage(e.toString());
-        } catch (NullPointerException e) {
-            log.error("Received no response", e);
-            query.setFailure("Received no response");
-            query.addMessage(e.toString());
-        }
-
-
+        String data = makeRequest(createClient(metadata), createRequest(metadata), query);
         String function = metadata.getOrDefault(METADATA_FUNCTION_NAME_KEY, String.valueOf(defaultFunction));
         String columnarData = convertToColumnarJSON(data, function, query);
         Map<String, List<TypedObject>> typedData = convertToMap(columnarData, query);
@@ -246,9 +218,10 @@ public class JSON implements Engine {
      * @param query The Query object being run.
      * @return The String response of the call, null if exception (query is failed).
      */
-    String makeRequest(CloseableHttpClient client, HttpUriRequest request, Query query) {
-        try (CloseableHttpResponse response = client.execute(request)) {
+    String makeRequest(HttpClient client, HttpUriRequest request, Query query) {
+        try {
             log.info("{}ing to {} with headers {}", request.getMethod(), request.getURI(), request.getAllHeaders());
+            HttpResponse response = client.execute(request);
             StatusLine line = response.getStatusLine();
             log.info("Received {}: {} with headers {}", line.getStatusCode(), line.getReasonPhrase(), response.getAllHeaders());
             String data = EntityUtils.toString(response.getEntity());
@@ -314,20 +287,16 @@ public class JSON implements Engine {
      * @param metadata The map containing the configuration for this client.
      * @return The created HttpClient object.
      */
-    private CloseableHttpClient createClient(Map<String, String> metadata) {
+    private HttpClient createClient(Map<String, String> metadata) {
         int timeout = Integer.valueOf(metadata.getOrDefault(METADATA_TIMEOUT_KEY, String.valueOf(defaultTimeout)));
         int retries = Integer.valueOf(metadata.getOrDefault(METADATA_RETRY_KEY, String.valueOf(defaultRetries)));
         RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout)
                                                      .setConnectionRequestTimeout(timeout)
                                                      .setSocketTimeout(timeout)
                                                      .build();
-        SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(30000)
-                                                         .setSoKeepAlive(true)
-                                                         .setTcpNoDelay(true)
-                                                         .build();
         return HttpClientBuilder.create()
                                 .setDefaultRequestConfig(config)
-                                .setDefaultSocketConfig(socketConfig)
+                                .setConnectionTimeToLive(timeout, TimeUnit.MILLISECONDS)
                                 .setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false))
                                 .build();
     }

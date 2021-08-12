@@ -11,6 +11,8 @@ import com.yahoo.validatar.execution.fixed.DSV;
 import com.yahoo.validatar.execution.hive.Apiary;
 import com.yahoo.validatar.execution.pig.Sty;
 import com.yahoo.validatar.execution.rest.JSON;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -28,6 +30,30 @@ import java.util.stream.Collectors;
 public class EngineManager extends Pluggable<Engine> implements Helpable {
     public static final String CUSTOM_ENGINE = "custom-engine";
     public static final String CUSTOM_ENGINE_DESCRIPTION = "Additional custom engine to load.";
+
+
+    public static final String PARALLEL = "parallel";
+    public static final String THREAD_POOL_SIZE = "thread-pool-size";
+
+    protected boolean parallel;
+    protected int threadPoolSize;
+
+    private static final OptionParser PARSER = new OptionParser() {
+        {
+            accepts(PARALLEL, "Whether or not queries should run in parallel.")
+                    .withRequiredArg()
+                    .describedAs("Parallel option")
+                    .ofType(Boolean.class)
+                    .defaultsTo(false);
+            accepts(THREAD_POOL_SIZE, "The number of queries that can run in parallel.")
+                    .withRequiredArg()
+                    .describedAs("Thread pool size")
+                    .ofType(Integer.class)
+                    .defaultsTo(0);
+            allowsUnrecognizedOptions();
+        }
+    };
+
 
     /**
      * The Engine classes to manage.
@@ -86,6 +112,10 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
             engines.put(engine.getName(), new WorkingEngine(engine));
             log.info("Added engine {} to list of engines.", engine.getName());
         }
+
+        OptionSet parser = PARSER.parse(arguments);
+        parallel = (Boolean) parser.valueOf(PARALLEL);
+        threadPoolSize = (Integer) parser.valueOf(THREAD_POOL_SIZE);
     }
 
     /**
@@ -155,27 +185,21 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
         if (!startEngines(queries)) {
             return false;
         }
+
         // Run each query.
-        //queries.stream().forEach(this::run);
-
-        log.info("Creating a ForkJoinPool with size {}", queries.size());
-
-        ForkJoinPool forkJoinPool = new ForkJoinPool(queries.size());
-        try {
-            forkJoinPool.submit(() -> queries.parallelStream().forEach(this::run)).get();
-        } catch (Exception e) {
-            log.error("Caught exception", e);
+        if (!parallel) {
+            queries.forEach(this::run);
+        } else {
+            int poolSize = threadPoolSize > 0 ? threadPoolSize : queries.size();
+            log.info("Creating a ForkJoinPool with size {}", poolSize);
+            ForkJoinPool forkJoinPool = new ForkJoinPool(poolSize);
+            try {
+                forkJoinPool.submit(() -> queries.parallelStream().forEach(this::run)).get();
+            } catch (Exception e) {
+                log.error("Caught exception", e);
+            }
+            forkJoinPool.shutdown();
         }
-        forkJoinPool.shutdown();
-
-
-
-
-
-
-
-
-
         return true;
     }
 }
