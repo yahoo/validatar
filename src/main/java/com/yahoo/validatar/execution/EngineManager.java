@@ -30,30 +30,29 @@ import java.util.stream.Collectors;
 public class EngineManager extends Pluggable<Engine> implements Helpable {
     public static final String CUSTOM_ENGINE = "custom-engine";
     public static final String CUSTOM_ENGINE_DESCRIPTION = "Additional custom engine to load.";
+    public static final String QUERY_PARALLEL_ENABLE = "query-parallel-enable";
+    public static final String QUERY_PARALLEL_MAX = "query-parallel-max";
+    private static final int QUERY_PARALLEL_MIN = 1;
 
-
-    public static final String PARALLEL = "parallel";
-    public static final String THREAD_POOL_SIZE = "thread-pool-size";
-
-    protected boolean parallel;
-    protected int threadPoolSize;
+    protected boolean queryParallelEnable;
+    protected int queryParallelMax;
 
     private static final OptionParser PARSER = new OptionParser() {
         {
-            accepts(PARALLEL, "Whether or not queries should run in parallel.")
+            accepts(QUERY_PARALLEL_ENABLE, "Whether or not queries should run in parallel.")
                     .withRequiredArg()
-                    .describedAs("Parallel option")
+                    .describedAs("Query parallelism option")
                     .ofType(Boolean.class)
                     .defaultsTo(false);
-            accepts(THREAD_POOL_SIZE, "The number of queries that can run in parallel.")
+            accepts(QUERY_PARALLEL_MAX, "The max number of queries that will run concurrently. If non-positive or " +
+                                        "unspecified, all queries will run at once.")
                     .withRequiredArg()
-                    .describedAs("Thread pool size")
+                    .describedAs("Max query parallelism")
                     .ofType(Integer.class)
                     .defaultsTo(0);
             allowsUnrecognizedOptions();
         }
     };
-
 
     /**
      * The Engine classes to manage.
@@ -114,8 +113,8 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
         }
 
         OptionSet parser = PARSER.parse(arguments);
-        parallel = (Boolean) parser.valueOf(PARALLEL);
-        threadPoolSize = (Integer) parser.valueOf(THREAD_POOL_SIZE);
+        queryParallelEnable = (Boolean) parser.valueOf(QUERY_PARALLEL_ENABLE);
+        queryParallelMax = (Integer) parser.valueOf(QUERY_PARALLEL_MAX);
     }
 
     /**
@@ -138,8 +137,7 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
         List<Query> all = queries == null ? Collections.emptyList() : queries;
         // Queries -> engine name Set -> start engine -> verify all started
         return all.stream().map(q -> q.engine).collect(Collectors.toSet())
-               .stream().map(this::startEngine)
-               .allMatch(b -> b);
+               .stream().allMatch(this::startEngine);
     }
 
     private boolean startEngine(String engine) {
@@ -163,6 +161,7 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
 
     @Override
     public void printHelp() {
+        Helpable.printHelp("Engine Options", PARSER);
         engines.values().stream().map(WorkingEngine::getEngine).forEach(Engine::printHelp);
         Helpable.printHelp("Advanced Engine Options", getPluginOptionsParser());
     }
@@ -185,12 +184,11 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
         if (!startEngines(queries)) {
             return false;
         }
-
         // Run each query.
-        if (!parallel) {
+        if (!queryParallelEnable) {
             queries.forEach(this::run);
         } else {
-            int poolSize = threadPoolSize > 0 ? threadPoolSize : queries.size();
+            int poolSize = Math.max(queryParallelMax > 0 ? queryParallelMax : queries.size(), QUERY_PARALLEL_MIN);
             log.info("Creating a ForkJoinPool with size {}", poolSize);
             ForkJoinPool forkJoinPool = new ForkJoinPool(poolSize);
             try {

@@ -261,7 +261,7 @@ public class EngineManagerTest extends OutputCaptor {
         query.engine = MockRunningEngine.ENGINE_NAME;
         query.name = "Foo";
 
-        String[] args = {"--parallel", "true"};
+        String[] args = {"--query-parallel-enable", "true"};
         manager = new EngineManager(args);
         manager.setEngines(engines);
 
@@ -291,9 +291,9 @@ public class EngineManagerTest extends OutputCaptor {
 
     @Test
     public void testConstructor() {
-        String[] args = {"--parallel", "true", "--thread-pool-size", "10"};
+        String[] args = {"--query-parallel-enable", "true", "--query-parallel-max", "10"};
         manager = new EngineManager(args);
-        Assert.assertTrue(manager.parallel);
-        Assert.assertEquals(manager.threadPoolSize, 10);
+        Assert.assertTrue(manager.queryParallelEnable);
+        Assert.assertEquals(manager.queryParallelMax, 10);
     }
 }
