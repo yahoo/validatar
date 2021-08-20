@@ -21,7 +21,6 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 
 import javax.script.Invocable;
@@ -76,13 +75,6 @@ public class JSON implements Engine {
     private String defaultFunction = DEFAULT_FUNCTION_NAME;
 
     private ScriptEngine evaluator;
-
-    private static final PoolingHttpClientConnectionManager MANAGER = new PoolingHttpClientConnectionManager();
-
-    static {
-        MANAGER.setMaxTotal(200);
-        MANAGER.setDefaultMaxPerRoute(200);
-    }
 
     private static final String JSON_TO_MAP_FORMAT = "Java.asJSONCompatible(%s)";
 
