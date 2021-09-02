@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Arrays.asList;
 
@@ -283,9 +284,11 @@ public class JSON implements Engine {
         int retries = Integer.valueOf(metadata.getOrDefault(METADATA_RETRY_KEY, String.valueOf(defaultRetries)));
         RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout)
                                                      .setConnectionRequestTimeout(timeout)
-                                                     .setSocketTimeout(timeout).build();
+                                                     .setSocketTimeout(timeout)
+                                                     .build();
         return HttpClientBuilder.create()
                                 .setDefaultRequestConfig(config)
+                                .setConnectionTimeToLive(timeout, TimeUnit.MILLISECONDS)
                                 .setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false))
                                 .build();
     }

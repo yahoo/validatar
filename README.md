@@ -183,6 +183,12 @@ You may want queries, asserts or query metadata to use a specific date column, o
 
 Simply pass `--parameter KEY=VALUE` in the CLI and the `KEY` will be replaced with `VALUE` in all queries, query metadata and test assertions. For example, to query June 23rd 2015, you could use `--parameter DATE=2015-06-23`. If the query uses `${DATE}` in the query it will be replaced before execution with `2015-06-23`.
 
+### Query Parallelism
+
+You may want to run queries in parallel rather than sequentially especially if you have many time-consuming queries.
+
+To enable this feature, pass in `--query-parallel-enable true` when launching Validatar. By default, this will run all queries in parallel. If this number needs to be limited, pass in `--query-parallel-max VALUE` where `VALUE` is the max number of queries that should run concurrently.  
+
 ## Execution Engines
 
 ### Hive
@@ -328,6 +334,17 @@ Option                                 Description
 ------                                 -----------
 --custom-parser <Additional custom     Additional custom parser to load.
   fully qualified classes to plug in>
+
+
+Engine Options:
+Option                              Description                           
+------                              -----------                           
+--query-parallel-enable <Boolean:   Whether or not queries should run in  
+  Query parallelism option>           parallel. (default: false)          
+--query-parallel-max <Integer: Max  The max number of queries that will   
+  query parallelism>                  run concurrently. If non-positive or
+                                      unspecified, all queries will run at
+                                      once. (default: 0)                  
 
 
 Hive engine options:
@@ -488,10 +505,11 @@ Version | Notes
 0.5.4   | Added a flag ```--report-on-failure-only``` to only generate reports if there were failures in tests (including warnOnly) or queries
 0.5.5   | Shaded ```org.objectweb.asm``` to not clash with asm in Hadoop environments
 0.5.6   | Fixed a bug with pretty-printing results with nulls
-0.6.0   | Better reporting (show data with only the assertion columns with the assertion result column, columns now in sorted order, EMail Subject Prefix). Can now write multiple reports per invocation (specify more than one report formatter using --report-format)
+0.6.0   | Better reporting (show data with only the assertion columns with the assertion result column, columns now in sorted order, Email Subject Prefix). Can now write multiple reports per invocation (specify more than one report formatter using --report-format)
 0.6.1   | Added a flag to configure the Email reporter SMTP strategy. Use ```--email-smtp-strategy``` to pass in ```SMTP_PLAIN```, ```SMTP_TLS``` or ```SMTP_SSL```.
 0.6.2   | Bintray EOL. First rerelease of 0.6.1 on Maven Central instead
 0.6.3   | Screwdriver migration. First rerelease of 0.6.1 using Screwdriver instead of Travis.
+0.6.4   | Added support for running queries in parallel
 
 ## Members
 
