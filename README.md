@@ -1,7 +1,7 @@
 # Validatar
 
 [![Build Status](https://cd.screwdriver.cd/pipelines/7218/badge)](https://cd.screwdriver.cd/pipelines/7218)
-[![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master) 
+[![Coverage Status](https://coveralls.io/repos/yahoo/validatar/badge.svg?branch=master)](https://coveralls.io/r/yahoo/validatar?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yahoo.validatar/validatar/)
 
 ## Table of Contents
@@ -187,7 +187,7 @@ Simply pass `--parameter KEY=VALUE` in the CLI and the `KEY` will be replaced wi
 
 You may want to run queries in parallel rather than sequentially especially if you have many time-consuming queries.
 
-To enable this feature, pass in `--query-parallel-enable true` when launching Validatar. By default, this will run all queries in parallel. If this number needs to be limited, pass in `--query-parallel-max VALUE` where `VALUE` is the max number of queries that should run concurrently.  
+To enable this feature, pass in `--query-parallel-enable true` when launching Validatar. By default, this will run all queries in parallel. If this number needs to be limited, pass in `--query-parallel-max VALUE` where `VALUE` is the max number of queries that should run concurrently.
 
 ## Execution Engines
 
@@ -337,14 +337,14 @@ Option                                 Description
 
 
 Engine Options:
-Option                              Description                           
-------                              -----------                           
---query-parallel-enable <Boolean:   Whether or not queries should run in  
-  Query parallelism option>           parallel. (default: false)          
---query-parallel-max <Integer: Max  The max number of queries that will   
+Option                              Description
+------                              -----------
+--query-parallel-enable <Boolean:   Whether or not queries should run in
+  Query parallelism option>           parallel. (default: false)
+--query-parallel-max <Integer: Max  The max number of queries that will
   query parallelism>                  run concurrently. If non-positive or
                                       unspecified, all queries will run at
-                                      once. (default: 0)                  
+                                      once. (default: 0)
 
 
 Hive engine options:
@@ -509,12 +509,13 @@ Version | Notes
 0.6.1   | Added a flag to configure the Email reporter SMTP strategy. Use ```--email-smtp-strategy``` to pass in ```SMTP_PLAIN```, ```SMTP_TLS``` or ```SMTP_SSL```.
 0.6.2   | Bintray EOL. First rerelease of 0.6.1 on Maven Central instead
 0.6.3   | Screwdriver migration. First rerelease of 0.6.1 using Screwdriver instead of Travis.
-0.6.4   | Added support for running queries in parallel
+0.7.0   | Added support for running queries in parallel
 
 ## Members
 
 Akshai Sarma, akshaisarma@gmail.com
 Josh Walters, josh@joshwalters.com
+[0aix](https://github.com/0aix)
 
 ## Contributors
 
