@@ -74,7 +74,6 @@ public class JSON implements Engine {
     private int defaultRetries = DEFAULT_RETRIES;
     private String defaultFunction = DEFAULT_FUNCTION_NAME;
 
-    //private ScriptEngine evaluator;
     private ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 
     private static final String JSON_TO_MAP_FORMAT = "Java.asJSONCompatible(%s)";
@@ -101,7 +100,6 @@ public class JSON implements Engine {
 
     @Override
     public boolean setup(String[] arguments) {
-        //evaluator = new ScriptEngineManager().getEngineByName(JAVASCRIPT_ENGINE);
         OptionSet options = parser.parse(arguments);
         defaultTimeout = (Integer) options.valueOf(TIMEOUT_KEY);
         defaultRetries = (Integer) options.valueOf(RETRY_KEY);
