@@ -136,8 +136,7 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
     protected boolean startEngines(List<Query> queries) {
         List<Query> all = queries == null ? Collections.emptyList() : queries;
         // Queries -> engine name Set -> start engine -> verify all started
-        return all.stream().map(q -> q.engine).collect(Collectors.toSet())
-               .stream().allMatch(this::startEngine);
+        return all.stream().map(q -> q.engine).distinct().allMatch(this::startEngine);
     }
 
     private boolean startEngine(String engine) {

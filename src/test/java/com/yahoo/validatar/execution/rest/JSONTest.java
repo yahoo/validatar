@@ -19,6 +19,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +39,8 @@ import static org.mockito.Mockito.mock;
 
 public class JSONTest {
     private JSON json;
+    private ScriptEngine evaluator;
+    private ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 
     public static final int WIRE_MOCK_PORT = 13412;
 
@@ -51,6 +55,7 @@ public class JSONTest {
     public void setup() {
         json = new JSON();
         json.setup(new String[0]);
+        evaluator = scriptEngineManager.getEngineByName(JSON.JAVASCRIPT_ENGINE);
     }
 
     @Test
@@ -86,7 +91,7 @@ public class JSONTest {
     @Test
     public void testJSONMapConversionNull() {
         Query query = new Query();
-        Map<String, List<TypedObject>> actual = json.convertToMap(null, query);
+        Map<String, List<TypedObject>> actual = json.convertToMap(null, evaluator, query);
         Assert.assertFalse(query.failed());
         Assert.assertTrue(actual.isEmpty());
     }
@@ -94,7 +99,7 @@ public class JSONTest {
     @Test
     public void testJSONMapConversionEmpty() {
         Query query = new Query();
-        Map<String, List<TypedObject>> actual = json.convertToMap("", query);
+        Map<String, List<TypedObject>> actual = json.convertToMap("", evaluator, query);
         Assert.assertFalse(query.failed());
         Assert.assertTrue(actual.isEmpty());
     }
@@ -104,7 +109,7 @@ public class JSONTest {
         Query query = new Query();
         String jsonData = "{'users' : ['user1', 'user2'], 'count': [10], 'ratio': [0.14], 'numbers': [123123123123, 1.23143]," +
                           " 'booleans': [true, false], 'mixed': [[1, 2], {'a': 1}, null, 2], 'nulled': null }";
-        Map<String, List<TypedObject>> actual = json.convertToMap(jsonData, query);
+        Map<String, List<TypedObject>> actual = json.convertToMap(jsonData, evaluator, query);
 
         Assert.assertEquals(actual.size(), 7);
 
@@ -150,7 +155,7 @@ public class JSONTest {
     public void testJSONMapConversionBadJSON() {
         Query query = new Query();
         String jsonData = "{'a' : ";
-        Map<String, List<TypedObject>> actual = json.convertToMap(jsonData, query);
+        Map<String, List<TypedObject>> actual = json.convertToMap(jsonData, evaluator, query);
         Assert.assertNull(actual);
         Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("Invalid JSON")));
     }
@@ -163,19 +168,19 @@ public class JSONTest {
 
         query = new Query();
         jsonData = "'a'";
-        actual = json.convertToMap(jsonData, query);
+        actual = json.convertToMap(jsonData, evaluator, query);
         Assert.assertNull(actual);
         Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("JSON is not in a map of columns")));
 
         query = new Query();
         jsonData = "[1, 2, 3]";
-        actual = json.convertToMap(jsonData, query);
+        actual = json.convertToMap(jsonData, evaluator, query);
         Assert.assertNull(actual);
         Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("JSON is not in a map of columns")));
 
         query = new Query();
         jsonData = "{'a': 1}";
-        actual = json.convertToMap(jsonData, query);
+        actual = json.convertToMap(jsonData, evaluator, query);
         Assert.assertNull(actual);
         Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("JSON is not in a map of columns")));
     }
@@ -193,7 +198,7 @@ public class JSONTest {
         Query query = new Query();
         query.value = function;
         String httpResponse = "[\"user1\", \"user2\", \"user3\"]";
-        String actual = json.convertToColumnarJSON(httpResponse, "test", query);
+        String actual = json.convertToColumnarJSON(httpResponse, evaluator, "test", query);
         String expected = "{\"users\":[\"user1\",\"user2\",\"user3\"]}";
         Assert.assertEquals(actual, expected);
     }
@@ -204,7 +209,7 @@ public class JSONTest {
         Query query = new Query();
         query.value = function;
         String httpResponse = "[\"user1\", \"user2\", \"user3\"]";
-        String actual = json.convertToColumnarJSON(httpResponse, "test", query);
+        String actual = json.convertToColumnarJSON(httpResponse, evaluator, "test", query);
         Assert.assertNull(actual);
         Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("ScriptException")));
     }
@@ -215,7 +220,7 @@ public class JSONTest {
         Query query = new Query();
         query.value = function;
         String httpResponse = "[\"user1\", \"user2\", \"user3\"]";
-        String actual = json.convertToColumnarJSON(httpResponse, "test", query);
+        String actual = json.convertToColumnarJSON(httpResponse, evaluator, "test", query);
         Assert.assertNull(actual);
         Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("NoSuchMethodException")));
     }
