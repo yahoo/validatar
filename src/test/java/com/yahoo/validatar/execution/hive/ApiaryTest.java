@@ -8,11 +8,11 @@ import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
 import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -46,7 +46,7 @@ public class ApiaryTest {
     @Test
     public void testGetJDBCConnector() throws Exception {
         Apiary apiary = spy(new Apiary());
-        doNothing().when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
+        doNothing().when(apiary).setHiveSettings(any(Statement.class));
         Assert.assertTrue(apiary.setup(args));
         Query query = new Query();
         query.name = "Test";
@@ -61,20 +61,34 @@ public class ApiaryTest {
     @Test
     public void testFailSetup() throws SQLException, ClassNotFoundException {
         Apiary apiary = spy(new Apiary());
-        doThrow(new SQLException()).when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
-        Assert.assertFalse(apiary.setup(args));
-        doThrow(new ClassNotFoundException()).when(apiary).setupConnection(any(OptionSet.class));
+        doThrow(new ClassNotFoundException()).when(apiary).setupConnection();
         Assert.assertFalse(apiary.setup(args));
     }
 
     @Test
     public void testFailExecution() throws Exception {
         Apiary apiary = spy(new Apiary());
+        Connection conn = mock(Connection.class);
         Statement mocked = mock(Statement.class);
+        doReturn(mocked).when(conn).createStatement();
         doThrow(new SQLException()).when(mocked).executeQuery(anyString());
-        doNothing().when(apiary).setHiveSettings(any(OptionSet.class), any(Statement.class));
-        doReturn(mocked).when(apiary).setupConnection(any(OptionSet.class));
-        apiary.setup(args);
+        doNothing().when(apiary).setHiveSettings(any(Statement.class));
+        doReturn(conn).when(apiary).setupConnection();
+        Assert.assertTrue(apiary.setup(args));
+        Query query = new Query();
+        apiary.execute(query);
+        Assert.assertTrue(query.failed());
+    }
+
+    @Test
+    public void testFailExecutionDueToSetHiveSettings() throws Exception {
+        Apiary apiary = spy(new Apiary());
+        Connection conn = mock(Connection.class);
+        Statement mocked = mock(Statement.class);
+        doReturn(mocked).when(conn).createStatement();
+        doThrow(new SQLException()).when(apiary).setHiveSettings(any(Statement.class));
+        doReturn(conn).when(apiary).setupConnection();
+        Assert.assertTrue(apiary.setup(args));
         Query query = new Query();
         apiary.execute(query);
         Assert.assertTrue(query.failed());
@@ -94,7 +108,8 @@ public class ApiaryTest {
         String[] args = {"--hive-setting", "mapreduce.job.queuename=default",
                          "--hive-setting", "hive.execution.engine=tez",
                          "--hive-setting", "hive.execution.engine=mr"};
-        apiary.setHiveSettings(parser.parse(args), mocked);
+        apiary.options = parser.parse(args);
+        apiary.setHiveSettings(mocked);
         verify(mocked).executeUpdate("set mapreduce.job.queuename=default");
         verify(mocked).executeUpdate("set hive.execution.engine=tez");
         verify(mocked).executeUpdate("set hive.execution.engine=mr");

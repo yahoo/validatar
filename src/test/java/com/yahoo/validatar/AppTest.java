@@ -15,7 +15,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +51,7 @@ public class AppTest {
                 String driver = (String) options.valueOf("hive-driver");
                 Class.forName(driver);
                 String jdbcConnector = (String) options.valueOf("hive-jdbc");
-                Connection connection = DriverManager.getConnection(jdbcConnector, "", "");
-                statement = connection.createStatement();
+                connection = DriverManager.getConnection(jdbcConnector, "", "");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

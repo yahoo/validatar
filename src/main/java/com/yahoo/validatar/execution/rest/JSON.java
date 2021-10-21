@@ -74,7 +74,7 @@ public class JSON implements Engine {
     private int defaultRetries = DEFAULT_RETRIES;
     private String defaultFunction = DEFAULT_FUNCTION_NAME;
 
-    private ScriptEngine evaluator;
+    private ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 
     private static final String JSON_TO_MAP_FORMAT = "Java.asJSONCompatible(%s)";
 
@@ -100,7 +100,6 @@ public class JSON implements Engine {
 
     @Override
     public boolean setup(String[] arguments) {
-        evaluator = new ScriptEngineManager().getEngineByName(JAVASCRIPT_ENGINE);
         OptionSet options = parser.parse(arguments);
         defaultTimeout = (Integer) options.valueOf(TIMEOUT_KEY);
         defaultRetries = (Integer) options.valueOf(RETRY_KEY);
@@ -142,8 +141,9 @@ public class JSON implements Engine {
         Objects.requireNonNull(metadata);
         String data = makeRequest(createClient(metadata), createRequest(metadata), query);
         String function = metadata.getOrDefault(METADATA_FUNCTION_NAME_KEY, String.valueOf(defaultFunction));
-        String columnarData = convertToColumnarJSON(data, function, query);
-        Map<String, List<TypedObject>> typedData = convertToMap(columnarData, query);
+        ScriptEngine evaluator = scriptEngineManager.getEngineByName(JAVASCRIPT_ENGINE);
+        String columnarData = convertToColumnarJSON(data, evaluator, function, query);
+        Map<String, List<TypedObject>> typedData = convertToMap(columnarData, evaluator, query);
         query.createResults().addColumns(typedData);
     }
 
@@ -151,10 +151,11 @@ public class JSON implements Engine {
      * Converts the String columnar JSON data into a Map of column names to List of column values. Internal use only.
      *
      * @param columnarData The String columnar JSON data.
+     * @param evaluator The Javascript engine used to convert the String columnar JSON data.
      * @param query The Query object being run.
      * @return The Map version of the JSON data, null if exception (query is failed).
      */
-    Map<String, List<TypedObject>> convertToMap(String columnarData, Query query) {
+    Map<String, List<TypedObject>> convertToMap(String columnarData, ScriptEngine evaluator, Query query) {
         try {
             log.info("Converting processed JSON into a map...");
             // Type erasure will make this not enough if the JSON parses into a map but with the wrong keys, values.
@@ -179,11 +180,12 @@ public class JSON implements Engine {
      * Uses the user provided query to process and return a JSON columnar format of the data.
      *
      * @param data The data from the REST call.
+     * @param evaluator The Javascript engine used to invoke the function on the data.
      * @param function The function name to invoke.
      * @param query The Query object being run.
      * @return The String JSON response of the call, null if exception (query is failed).
      */
-    String convertToColumnarJSON(String data, String function, Query query) {
+    String convertToColumnarJSON(String data, ScriptEngine evaluator, String function, Query query) {
         try {
             log.info("Evaluating query using Javascript function: {}\n{}", function, query.value);
             evaluator.eval(query.value);

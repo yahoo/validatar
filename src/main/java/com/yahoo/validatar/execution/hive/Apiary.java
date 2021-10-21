@@ -36,7 +36,8 @@ public class Apiary implements Engine {
     public static final String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
     public static final String SETTING_PREFIX = "set ";
 
-    protected Statement statement;
+    protected Connection connection;
+    protected OptionSet options;
 
     private final OptionParser parser = new OptionParser() {
         {
@@ -67,10 +68,9 @@ public class Apiary implements Engine {
 
     @Override
     public boolean setup(String[] arguments) {
-        OptionSet options = parser.parse(arguments);
+        options = parser.parse(arguments);
         try {
-            statement = setupConnection(options);
-            setHiveSettings(options, statement);
+            connection = setupConnection();
         } catch (ClassNotFoundException | SQLException e) {
             log.error("Could not set up the Hive engine", e);
             return false;
@@ -88,7 +88,8 @@ public class Apiary implements Engine {
         String queryName = query.name;
         String queryValue = query.value;
         log.info("Running {}: {}", queryName, queryValue);
-        try {
+        try (Statement statement = connection.createStatement()) {
+            setHiveSettings(statement);
             ResultSet result = statement.executeQuery(queryValue);
             ResultSetMetaData metadata = result.getMetaData();
             int columns = metadata.getColumnCount();
@@ -181,12 +182,11 @@ public class Apiary implements Engine {
     /**
      * Sets up the connection using JDBC.
      *
-     * @param options A {@link joptsimple.OptionSet} object.
      * @return The created {@link java.sql.Statement} object.
      * @throws java.lang.ClassNotFoundException if any.
      * @throws java.sql.SQLException            if any.
      */
-    Statement setupConnection(OptionSet options) throws ClassNotFoundException, SQLException {
+    Connection setupConnection() throws ClassNotFoundException, SQLException {
         // Load the JDBC driver
         String driver = (String) options.valueOf(HIVE_DRIVER);
         log.info("Loading JDBC driver: {}", driver);
@@ -200,18 +200,16 @@ public class Apiary implements Engine {
         String password = (String) options.valueOf(HIVE_PASSWORD);
 
         // Start the connection
-        Connection connection = DriverManager.getConnection(jdbcConnector, username, password);
-        return connection.createStatement();
+        return DriverManager.getConnection(jdbcConnector, username, password);
     }
 
     /**
      * Applies any settings if provided.
      *
-     * @param options   A {@link joptsimple.OptionSet} object.
      * @param statement A {@link java.sql.Statement} to execute the setting updates to.
      * @throws java.sql.SQLException if any.
      */
-    void setHiveSettings(OptionSet options, Statement statement) throws SQLException {
+    void setHiveSettings(Statement statement) throws SQLException {
         for (String setting : (List<String>) options.valuesOf(HIVE_SETTING)) {
             log.info("Applying setting {}", setting);
             statement.executeUpdate(SETTING_PREFIX + setting);
