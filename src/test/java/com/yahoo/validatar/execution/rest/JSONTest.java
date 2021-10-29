@@ -11,17 +11,15 @@ import com.yahoo.validatar.common.Metadata;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.mockito.Mockito;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +33,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
 import static com.yahoo.validatar.TestHelpers.getQueryFrom;
-import static org.mockito.Mockito.mock;
 
 public class JSONTest {
     private JSON json;
@@ -226,30 +223,29 @@ public class JSONTest {
     }
 
     @Test
-    public void testFailingRequest() throws IOException {
-        HttpClient client = mock(HttpClient.class);
-        Mockito.doThrow(new IOException("Testing failure")).when(client).execute(Mockito.any(HttpUriRequest.class));
-
-        HttpUriRequest request = RequestBuilder.get("fake").build();
+    public void testFailedToExecuteQuery() {
+        CloseableHttpAsyncClient client = HttpAsyncClientBuilder.create().build();
+        SimpleHttpRequest request = SimpleHttpRequest.create("GET", "fake");
         Query query = new Query();
 
+        // fails because client has not been started
         json.makeRequest(client, request, query);
 
         Assert.assertTrue(query.failed());
-        Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("Testing failure")));
+        Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("Could not execute query")));
+        Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("CancellationException")));
     }
 
     @Test
-    public void testNoResponse() throws IOException {
-        HttpClient client = mock(HttpClient.class);
-        Mockito.doReturn(null).when(client).execute(Mockito.any(HttpUriRequest.class));
-
-        HttpUriRequest request = RequestBuilder.get("fake").build();
+    public void testFailedToExecuteRequest() {
+        SimpleHttpRequest request = SimpleHttpRequest.create("GET", "fake");
         Query query = new Query();
 
-        json.makeRequest(client, request, query);
+        // coverage
+        json.makeRequest(null, request, query);
 
         Assert.assertTrue(query.failed());
+        Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("Could not execute request")));
         Assert.assertTrue(query.getMessages().stream().anyMatch(s -> s.contains("NullPointerException")));
     }
 
