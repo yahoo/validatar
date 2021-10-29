@@ -12,22 +12,20 @@ import com.yahoo.validatar.execution.Engine;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
+import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.util.TimeValue;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -212,23 +210,32 @@ public class JSON implements Engine {
      * @param query The Query object being run.
      * @return The String response of the call, null if exception (query is failed).
      */
-    String makeRequest(HttpClient client, HttpUriRequest request, Query query) {
+    String makeRequest(CloseableHttpAsyncClient client, SimpleHttpRequest request, Query query) {
         try {
-            log.info("{}ing to {} with headers {}", request.getMethod(), request.getURI(), request.getAllHeaders());
-            HttpResponse response = client.execute(request);
-            StatusLine line = response.getStatusLine();
-            log.info("Received {}: {} with headers {}", line.getStatusCode(), line.getReasonPhrase(), response.getAllHeaders());
-            String data = EntityUtils.toString(response.getEntity());
-            log.info("Received response as string {}", data);
-            return data;
-        } catch (IOException ioe) {
-            log.error("Could not execute request", ioe);
+            log.info("{}ing to {} with headers {}", request.getMethod(), request.getRequestUri(), request.getHeaders());
+            SimpleHttpResponse response = client.execute(request, new FutureCallback<SimpleHttpResponse>() {
+                @Override
+                public void completed(SimpleHttpResponse response) {
+                    log.info("Received {}: {} with headers {}", response.getCode(), response.getReasonPhrase(), response.getHeaders());
+                }
+
+                @Override
+                public void failed(Exception e) {
+                    log.error("Could not execute query", e);
+                    query.setFailure("Could not execute query");
+                    query.addMessage(e.toString());
+                }
+
+                @Override
+                public void cancelled() {
+                }
+            }).get();
+            log.info("Received response as string {}", response.getBodyText());
+            return response.getBodyText();
+        } catch (Exception e) {
+            log.error("Could not execute request", e);
             query.setFailure("Could not execute request");
-            query.addMessage(ioe.toString());
-        } catch (NullPointerException npe) {
-            log.error("Received no response", npe);
-            query.setFailure("Received no response");
-            query.addMessage(npe.toString());
+            query.addMessage(e.toString());
         }
         return null;
     }
@@ -281,18 +288,19 @@ public class JSON implements Engine {
      * @param metadata The map containing the configuration for this client.
      * @return The created HttpClient object.
      */
-    private HttpClient createClient(Map<String, String> metadata) {
+    private CloseableHttpAsyncClient createClient(Map<String, String> metadata) {
         int timeout = Integer.valueOf(metadata.getOrDefault(METADATA_TIMEOUT_KEY, String.valueOf(defaultTimeout)));
         int retries = Integer.valueOf(metadata.getOrDefault(METADATA_RETRY_KEY, String.valueOf(defaultRetries)));
-        RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout)
-                                                     .setConnectionRequestTimeout(timeout)
-                                                     .setSocketTimeout(timeout)
+        RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout, TimeUnit.MILLISECONDS)
+                                                     .setConnectionRequestTimeout(timeout, TimeUnit.MILLISECONDS)
+                                                     .setResponseTimeout(timeout, TimeUnit.MILLISECONDS)
                                                      .build();
-        return HttpClientBuilder.create()
+        CloseableHttpAsyncClient client = HttpAsyncClientBuilder.create()
                                 .setDefaultRequestConfig(config)
-                                .setConnectionTimeToLive(timeout, TimeUnit.MILLISECONDS)
-                                .setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false))
+                                .setRetryStrategy(new DefaultHttpRequestRetryStrategy(retries, TimeValue.ofSeconds(1)))
                                 .build();
+        client.start();
+        return client;
     }
 
     /**
@@ -300,25 +308,25 @@ public class JSON implements Engine {
      * @param metadata The metadata configuration.
      * @return A configured request object.
      */
-    private HttpUriRequest createRequest(Map<String, String> metadata) {
+    private SimpleHttpRequest createRequest(Map<String, String> metadata) {
         String verb = metadata.getOrDefault(VERB_KEY, DEFAULT_VERB);
         String url = metadata.get(URL_KEY);
         if (url == null || url.isEmpty()) {
             throw new IllegalArgumentException("The " + URL_KEY + " must be provided and contain a valid url.");
         }
-        RequestBuilder builder;
+        SimpleHttpRequest request;
         if (GET.equals(verb)) {
-            builder = RequestBuilder.get(url);
+            request = SimpleHttpRequest.create(GET, url);
         } else if (POST.equals(verb)) {
-            builder = RequestBuilder.post(url);
             String body = metadata.getOrDefault(BODY_KEY, EMPTY_BODY);
-            builder.setEntity(new StringEntity(body, Charset.defaultCharset()));
+            request = SimpleHttpRequest.create(POST, url);
+            request.setBody(body, ContentType.create("text/plain", Charset.defaultCharset()));
         } else {
             throw new UnsupportedOperationException("This HTTP method is not currently supported: " + verb);
         }
         // Everything else is assumed to be a header
         metadata.entrySet().stream().filter(entry -> !KNOWN_KEYS.contains(entry.getKey()))
-                                    .forEach(entry -> builder.addHeader(entry.getKey(), entry.getValue()));
-        return builder.build();
+                                    .forEach(entry -> request.addHeader(entry.getKey(), entry.getValue()));
+        return request;
     }
 }
