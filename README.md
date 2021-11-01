@@ -510,6 +510,7 @@ Version | Notes
 0.6.2   | Bintray EOL. First rerelease of 0.6.1 on Maven Central instead
 0.6.3   | Screwdriver migration. First rerelease of 0.6.1 using Screwdriver instead of Travis.
 0.7.0   | Added support for running queries in parallel
+0.7.1   | Fixed a bug with parallel query execution in REST and Hive engines. Upgraded to Apache HttpClient 5.x which supports HTTP2 in REST engine.
 
 ## Members
 
