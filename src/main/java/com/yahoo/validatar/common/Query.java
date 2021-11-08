@@ -4,6 +4,8 @@
  */
 package com.yahoo.validatar.common;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,8 @@ public class Query extends Executable {
     public String engine;
     public String value;
     public List<Metadata> metadata;
+    @Getter
+    public int priority = Integer.MAX_VALUE;
 
     private Result result = null;
 
@@ -58,7 +62,7 @@ public class Query extends Executable {
         }
         Map<String, String> map = new HashMap<>();
         // default Collectors.toMap doesn't handle null values
-        metadata.stream().forEach(m -> map.put(m.key, m.value));
+        metadata.forEach(m -> map.put(m.key, m.value));
         return map;
     }
 

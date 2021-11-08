@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
@@ -180,6 +181,9 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
      * @return true iff the required engines were loaded and the queries were able to run.
      */
     public boolean run(List<Query> queries) {
+        if (queries.isEmpty()) {
+            return true;
+        }
         if (!startEngines(queries)) {
             return false;
         }
@@ -187,14 +191,19 @@ public class EngineManager extends Pluggable<Engine> implements Helpable {
         if (!queryParallelEnable) {
             queries.forEach(this::run);
         } else {
-            int poolSize = Math.max(queryParallelMax > 0 ? queryParallelMax : queries.size(), QUERY_PARALLEL_MIN);
+            // Split queries into groups by priority where lowers value correspond to higher priority and run first
+            Map<Integer, List<Query>> queryGroups = queries.stream().collect(Collectors.groupingBy(Query::getPriority, TreeMap::new, Collectors.toList()));
+            int maxGroupSize = queryGroups.values().stream().mapToInt(List::size).max().getAsInt();
+            int poolSize = Math.max(queryParallelMax > 0 ? queryParallelMax : maxGroupSize, QUERY_PARALLEL_MIN);
             log.info("Creating a ForkJoinPool with size {}", poolSize);
             ForkJoinPool forkJoinPool = new ForkJoinPool(poolSize);
-            try {
-                forkJoinPool.submit(() -> queries.parallelStream().forEach(this::run)).get();
-            } catch (Exception e) {
-                log.error("Caught exception", e);
-            }
+            queryGroups.values().forEach(queryGroup -> {
+                try {
+                    forkJoinPool.submit(() -> queryGroup.parallelStream().forEach(this::run)).get();
+                } catch (Exception e) {
+                    log.error("Caught exception", e);
+                }
+            });
             forkJoinPool.shutdown();
         }
         return true;
