@@ -58,7 +58,7 @@ public class YAMLTest {
 
     @Test
     public void testQueryPriority() throws FileNotFoundException {
-        TestSuite testSuite = yaml.parse(new FileInputStream(new File("src/test/resources/sample-tests/priority-tests.yaml")));
+        TestSuite testSuite = yaml.parse(new FileInputStream(new File("src/test/resources/priority-tests/tests.yaml")));
         Assert.assertEquals(testSuite.queries.size(), 5);
         Assert.assertEquals(testSuite.queries.get(0).priority, Integer.MAX_VALUE);
         Assert.assertEquals(testSuite.queries.get(1).priority, -1);
