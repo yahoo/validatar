@@ -55,4 +55,15 @@ public class YAMLTest {
         Assert.assertEquals(metaMap.size(), 1);
         Assert.assertEquals(metaMap.get("threads"), "4");
     }
+
+    @Test
+    public void testQueryPriority() throws FileNotFoundException {
+        TestSuite testSuite = yaml.parse(new FileInputStream(new File("src/test/resources/priority-tests/tests.yaml")));
+        Assert.assertEquals(testSuite.queries.size(), 5);
+        Assert.assertEquals(testSuite.queries.get(0).priority, Integer.MAX_VALUE);
+        Assert.assertEquals(testSuite.queries.get(1).priority, -1);
+        Assert.assertEquals(testSuite.queries.get(2).priority, 0);
+        Assert.assertEquals(testSuite.queries.get(3).priority, 1);
+        Assert.assertEquals(testSuite.queries.get(4).priority, 2);
+    }
 }

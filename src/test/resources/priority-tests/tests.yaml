@@ -1,0 +1,28 @@
+---
+name: Priority Example
+description: Simple queries with priority
+queries:
+   - name: No priority
+     engine: hive
+     value: ""
+   - name: Priority A
+     engine: hive
+     value: ""
+     priority: -1
+   - name: Priority B
+     engine: hive
+     value: ""
+     priority: 0
+   - name: Priority C
+     engine: hive
+     value: ""
+     priority: 1
+   - name: Priority D
+     engine: hive
+     value: ""
+     priority: 2
+tests:
+   - name: Testing something
+     description: Why I am testing this.
+     asserts:
+...

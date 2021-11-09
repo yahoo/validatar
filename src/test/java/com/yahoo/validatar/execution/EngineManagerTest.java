@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +124,30 @@ public class EngineManagerTest extends OutputCaptor {
         }
     }
 
+    private class MockOrderingEngine implements Engine {
+        public static final String ENGINE_NAME = "ORDER";
+        private int order = 0;
+
+        @Override
+        public boolean setup(String[] arguments) {
+            return true;
+        }
+
+        @Override
+        public void printHelp() {
+        }
+
+        @Override
+        public synchronized void execute(Query query) {
+            query.priority = order++;
+        }
+
+        @Override
+        public String getName() {
+            return ENGINE_NAME;
+        }
+    }
+
     List<Query> queries;
     List<Engine> engines;
     EngineManager manager;
@@ -219,6 +244,11 @@ public class EngineManagerTest extends OutputCaptor {
     }
 
     @Test
+    public void testNormalNoQueries() {
+        Assert.assertTrue(manager.run(Collections.emptyList()));
+    }
+
+    @Test
     public void testNormalNoResults() {
         query.engine = MockPassingEngine.ENGINE_NAME;
         manager.setEngines(engines);
@@ -287,6 +317,37 @@ public class EngineManagerTest extends OutputCaptor {
         Assert.assertEquals(expected.get("Foo.b").size(), 2);
         Assert.assertEquals((String) actual.get("Foo.b").get(0).data, (String) expected.get("Foo.b").get(0).data);
         Assert.assertEquals((String) actual.get("Foo.b").get(1).data, (String) expected.get("Foo.b").get(1).data);
+    }
+
+    @Test
+    public void testParallelRunWithPriority() {
+        engines.add(new MockOrderingEngine());
+
+        String[] args = {"--query-parallel-enable", "true"};
+        manager = new EngineManager(args);
+        manager.setEngines(engines);
+
+        query.engine = MockOrderingEngine.ENGINE_NAME;
+
+        for (int priority = 5; priority > 0; priority--) {
+            for (int i = 0; i < 3; i++) {
+                Query query = new Query();
+                query.engine = MockOrderingEngine.ENGINE_NAME;
+                query.priority = priority;
+                queries.add(query);
+            }
+        }
+
+        Assert.assertTrue(manager.run(queries));
+
+        Assert.assertEquals(query.priority, 15);
+
+        for (int i = 0; i < 5; i++) {
+            for (int j = 1; j <= 3; j++) {
+                Assert.assertTrue(queries.get(i * 3 + j).priority >= 12 - i * 3);
+                Assert.assertTrue(queries.get(i * 3 + j).priority < 15 - i * 3);
+            }
+        }
     }
 
     @Test

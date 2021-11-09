@@ -62,6 +62,8 @@ queries:
    - name: String containing the unique name for the query
      engine: String telling Validatar what execution engine to use such as "hive" or "pig" or "rest"
      value: String describing the engine specific method to get the data such as "SELECT COUNT(*) AS pv_count FROM page_data" for hive
+     priority: Optional integer telling Validatar what order and groups to run queries in when executing in parallel. Queries with a higher priority (lower value) 
+               and the same priority run first and together. If missing, the query is assigned the lowest priority (INT_MAX) and runs last. 
      metadata:
         - key: String key of the metadata entry containing query specific options for the engine
           value: String value of the metadata entry containing query specific options for the engine
@@ -511,6 +513,7 @@ Version | Notes
 0.6.3   | Screwdriver migration. First rerelease of 0.6.1 using Screwdriver instead of Travis.
 0.7.0   | Added support for running queries in parallel
 0.7.1   | Fixed a bug with parallel query execution in REST and Hive engines. Upgraded to Apache HttpClient 5.x which supports HTTP2 in REST engine.
+0.7.2   | Added query priority to allow executing parallel queries in groups
 
 ## Members
 
