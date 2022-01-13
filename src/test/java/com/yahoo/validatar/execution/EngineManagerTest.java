@@ -4,14 +4,12 @@
  */
 package com.yahoo.validatar.execution;
 
-import com.yahoo.validatar.OutputCaptor;
 import com.yahoo.validatar.common.Column;
 import com.yahoo.validatar.common.Query;
 import com.yahoo.validatar.common.Result;
 import com.yahoo.validatar.common.TypeSystem;
 import com.yahoo.validatar.common.TypedObject;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -22,8 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
 
-public class EngineManagerTest extends OutputCaptor {
+public class EngineManagerTest {
 
     private class MockFailingEngine implements Engine {
         public static final String ENGINE_NAME = "FAILER";
@@ -155,7 +154,6 @@ public class EngineManagerTest extends OutputCaptor {
 
     @BeforeMethod
     public void setup() {
-        setupMockedAppender();
         query = new Query();
         query.engine = MockPassingEngine.ENGINE_NAME;
         queries = new ArrayList<>();
@@ -168,17 +166,11 @@ public class EngineManagerTest extends OutputCaptor {
         manager = new EngineManager(args);
     }
 
-    @AfterMethod
-    public void teardown() {
-        teardownMockedAppender();
-    }
-
     @Test
     public void testEngineFailToStart() {
         query.engine = MockFailingEngine.ENGINE_NAME;
         manager.setEngines(engines);
         Assert.assertFalse(manager.startEngines(queries));
-        Assert.assertTrue(isStringInLog("Required engine " + MockFailingEngine.ENGINE_NAME + " could not be setup"));
     }
 
     @Test
@@ -186,7 +178,6 @@ public class EngineManagerTest extends OutputCaptor {
         query.engine = "FAKE_ENGINE";
         manager.setEngines(engines);
         Assert.assertFalse(manager.startEngines(queries));
-        Assert.assertTrue(isStringInLog("Engine FAKE_ENGINE not loaded but required by query"));
     }
 
     @Test
@@ -194,7 +185,6 @@ public class EngineManagerTest extends OutputCaptor {
         query.engine = null;
         manager.setEngines(engines);
         Assert.assertFalse(manager.startEngines(queries));
-        Assert.assertTrue(isStringInLog("Engine null not loaded but required by query"));
     }
 
     @Test(expectedExceptions = {NullPointerException.class})
