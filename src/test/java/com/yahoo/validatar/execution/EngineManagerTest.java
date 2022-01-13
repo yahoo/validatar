@@ -22,7 +22,6 @@ import java.util.Map;
 
 import static com.yahoo.validatar.OutputCaptor.runWithoutOutput;
 
-
 public class EngineManagerTest {
 
     private class MockFailingEngine implements Engine {
