@@ -163,6 +163,10 @@
                                     <pattern>org.apache.http</pattern>
                                     <shadedPattern>org.shaded.apache.http</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.antlr</pattern>
+                                    <shadedPattern>org.shaded.antlr</shadedPattern>
+                                </relocation>
                                 <!-- Parboiled dependency from jtwig clashes with asm on hadoop-->
                                 <relocation>
                                     <pattern>org.objectweb.asm</pattern>

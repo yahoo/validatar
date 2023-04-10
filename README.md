@@ -515,6 +515,7 @@ Version | Notes
 0.7.1   | Fixed a bug with parallel query execution in REST and Hive engines. Upgraded to Apache HttpClient 5.x which supports HTTP2 in REST engine.
 0.7.2   | Added query priority to allow executing parallel queries in groups
 0.7.3   | Log4j2
+0.7.4   | Shaded ```org.antlr``` to not clash with other versions in Hadoop environments
 
 ## Members
 
